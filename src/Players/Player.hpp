@@ -30,7 +30,7 @@ public:
 	/*!
 	 * \brief virtual destructor for Player
 	 */
-	virtual ~Player() = 0;
+	virtual ~Player(){};
 };
 
 #include "Game.hpp"

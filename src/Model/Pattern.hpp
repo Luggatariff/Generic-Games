@@ -45,7 +45,7 @@ public:
 	/*!
 	 * \brief virtual destructor.
 	 */
-	virtual ~Pattern() = 0;
+	virtual ~Pattern(){}
 };
 
 #endif

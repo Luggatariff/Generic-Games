@@ -22,42 +22,94 @@ public:
 	 * \brief checks is a Square has no Attribute
 	 * \return True is the Square had no Attribute, false otherwise
 	 */
-	bool isEmpty();
+	bool isEmpty(){
+		return s_attributes.empty();
+	}
+
 	/*!
 	 * \brief checks if an Attribute is in Square Attributes list
 	 * \param attribute : attribute
 	 * \return True if the Attribute is in the list, False otherwise
 	 */
-	bool isAttribute(Attribute attribute);
+	bool isAttribute(Attribute attribute){
+		for (unsigned int i_a = 0; i_a < s_attributes.size(); i_a++){
+			if (s_attributes[i_a] == attribute){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/*!
 	 * \brief adds an Attribute to the Square
 	 * \param attribute : Attribute to add
 	 */
-	void addAttribute(Attribute attribute);
+	void addAttribute(Attribute attribute){
+		if (!isAttribute(attribute))
+			s_attributes.push_back(attribute);
+	}
+
 	/*!
 	 * \brief removes an Attribute from the Square
 	 * \param attribute : Attribute to remove
 	 */
-	void delAttribute(Attribute attribute);
+	void delAttribute(Attribute attribute){
+		for (unsigned int i_a = 0; i_a < s_attributes.size(); i_a++){
+			if (s_attributes[i_a] == attribute){
+				s_attributes.erase(s_attributes.begin() + i_a);
+				break;
+			}
+		}
+	}
 
 	/*!
 	 * \brief checks if two Squares Attributes list are the same
 	 * \param target : compared Square
 	 * \return True if Attributes lists are the same, False otherwise
 	 */
-	bool isEqualTo(Square target);
+	bool isEqualTo(Square target){
+		if (s_attributes.size() == target.s_attributes.size()){
+			for (unsigned int i_a = 0; i_a < s_attributes.size(); i_a++){
+				if (!target.isAttribute(s_attributes[i_a]))
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
 	/*!
 	 * \brief checks if source Attributes are included in target Attributes list
 	 * \param target: compared Square
 	 * \return True id source Attributes are included in target Attributes
 	 */
-	bool includedIn(Square target);
+	bool includedIn(Square target){
+		if (s_attributes.size() <= target.s_attributes.size()){
+			for (unsigned int i_a = 0; i_a < s_attributes.size(); i_a++){
+				if (!target.isAttribute(s_attributes[i_a]))
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
 	/*!
 	 * \brief checks if target Attributes are included in source Attributes list
 	 * \param target: compared Square
 	 * \return True id target Attributes are included in source Attributes
 	 */
-	bool includes(Square target);
+	bool includes(Square target){
+		if (s_attributes.size() >= target.s_attributes.size()){
+			for (unsigned int i_a = 0; i_a < target.s_attributes.size(); i_a++){
+				if (!isAttribute(target.s_attributes[i_a]))
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
 };
 
 #endif

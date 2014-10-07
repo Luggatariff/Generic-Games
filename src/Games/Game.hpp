@@ -49,6 +49,11 @@ public:
 	 */
 	virtual void start() = 0;
 	/*!
+	 * \brief gets the number of Coordinates used to play
+	 * \return dimension of the used Coordinates
+	 */
+	virtual unsigned int dimension() = 0;
+	/*!
 	 * \brief indicates if a Square at the given Coordinates is playable
 	 * \return True if the Square at the given Coordinates is playable, False otherwise
 	 */
@@ -69,7 +74,7 @@ public:
 	/*!
 	 * \brief virtual Game destructor
 	 */
-	virtual ~Game() = 0;
+	virtual ~Game(){};
 };
 
 #endif
