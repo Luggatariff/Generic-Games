@@ -7,23 +7,23 @@
 #include "Board.hpp"
 
 template<typename SquareAttribute>
-Board<SquareAttribute>::Board(vector<unsigned int> size){
-	this->b_size = size;
+Board<SquareAttribute>::Board(Coordinates maximum_coordinates){
+	this->b_max_coordinates = maximum_coordinates;
 	unsigned int case_number = 1;
-	for (unsigned int i_s = 0; i_s < b_size.size(); i_s++){
-		case_number *= b_size[i_s];
+	for (unsigned int i_s = 0; i_s < b_max_coordinates.dimension(); i_s++){
+		case_number *= b_max_coordinates[i_s];
 	}
 
 	this->b_squares = new vector<Square<SquareAttribute> >(case_number);
 }
 
 template<typename SquareAttribute>
-Square<SquareAttribute> * Board<SquareAttribute>::getSquare(vector<unsigned int> coordinates){
+Square<SquareAttribute> * Board<SquareAttribute>::getSquare(Coordinates coordinates){
 	unsigned int multi = 1;
 	unsigned int flattened_coordinates = 0;
-	for (unsigned int i_c = 0; i_c < coordinates.size(); i_c++){
+	for (unsigned int i_c = 0; i_c < coordinates.dimension(); i_c++){
 		flattened_coordinates += coordinates[i_c] * multi;
-		multi *= b_size[i_c];
+		multi *= b_max_coordinates[i_c];
 	}
 
 	return b_squares[flattened_coordinates];
@@ -41,7 +41,7 @@ unsigned int Board<SquareAttribute>::checkPattern(Pattern<SquareAttribute> patte
 
 	bool all_values_to_end = false;
 	while (!all_values_to_end){
-		vector<pair<vector<unsigned int>, Square<SquareAttribute> > > pattern_squares = pattern.getSquares(pattern_vars_values);
+		vector<pair<Coordinates, Square<SquareAttribute> > > pattern_squares = pattern.getSquares(pattern_vars_values);
 		bool success = true;
 		for (unsigned int i_ps = 0; i_ps < pattern_squares.size(); i_ps++){
 			success = success && this->getSquare(pattern_squares[i_ps].first)->isEqualTo(pattern_squares[i_ps].second);

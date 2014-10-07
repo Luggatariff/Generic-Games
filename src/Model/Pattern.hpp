@@ -40,7 +40,7 @@ public:
 	 * \param variable_values : variable values (computed from VarPattern)
 	 * \return pairs of coordinates and corresponding Squares
 	 */
-	virtual vector<pair<vector<unsigned int>, Square<SquareAttribute> > > getSquares(vector<int> variable_values) = 0;
+	virtual vector<pair<Coordinates, Square<SquareAttribute> > > getSquares(vector<int> variable_values) = 0;
 
 	/*!
 	 * \brief virtual destructor.

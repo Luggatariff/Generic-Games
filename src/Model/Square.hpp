@@ -18,7 +18,6 @@ using namespace std;
 template<typename Attribute> class Square{
 	vector<Attribute> s_attributes; 	/*!<Square attributes*/
 public:
-
 	/*!
 	 * \brief checks is a Square has no Attribute
 	 * \return True is the Square had no Attribute, false otherwise
