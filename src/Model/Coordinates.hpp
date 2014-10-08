@@ -38,6 +38,19 @@ public:
 	unsigned int& operator[](unsigned int dimension);
 
 	/*!
+	 * \brief compares two Coordinates
+	 */
+	bool operator<(const Coordinates& coordinates) const;
+	/*!
+	 * \brief compares two Coordinates
+	 */
+	bool operator>(const Coordinates& coordinates) const;
+	/*!
+	 * \brief compares two Coordinates
+	 */
+	bool operator==(const Coordinates& coordinates) const;
+
+	/*!
 	 * \brief gets the coordinate for the first dimension
 	 * \return coordinate on the first dimension (0 if the dimension isn't considered)
 	 */

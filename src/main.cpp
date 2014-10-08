@@ -1,34 +1,46 @@
 #include <iostream>
 #include "TicTacToe.hpp"
 #include "Human.hpp"
+#include "IA.hpp"
+
+#define PLAYERS_NUMBER 2
 
 int main( int argamec, const char* argamev[] )
 {
+	vector<Player *> players(PLAYERS_NUMBER);
+	players[0] = new Human();
+	players[1] = new IA();
+
+	Game * game;
+	game = new TicTacToe(players[0], players[1]);
 	while(true){
-		Player * player_one = new Human();
-		Player * player_two = new Human();
-		Game * game;
-		game = new TicTacToe(player_one, player_two);
 		game->start();
+
+		while (!game->isEnded()){
+			game->display();
+			Coordinates move = game->nextPlayer()->play(game);
+			if (game->isPlayable(move))
+				game->play(move);
+		}
 		game->display();
 
 		Player * winner = game->whoWon();
-		if (winner != NULL)
-			if ((winner == player_one))
-				cout<<"Player One Wins!"<<endl;
-			else
-				cout<<"Player Two Wins!"<<endl;
+		if (winner != NULL){
+			for (unsigned int i_p = 0; i_p < players.size(); i_p++)
+				if ((winner == players[i_p]))
+					cout<<"Player "<<i_p + 1<<" Wins!"<<endl;
+		}
 		else{
 			cout<<"Draw!"<<endl;
 		}
 
-		delete game;
-		delete player_one;
-		delete player_two;
 		char commande;
 		cout<<"Continuer? (o/n):";
 		cin>>commande;
 		if (commande == 'n')
 			break;
 	}
+	delete game;
+	for (unsigned int i_p = 0; i_p < players.size(); i_p++)
+		delete players[i_p];
 }

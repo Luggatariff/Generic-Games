@@ -37,6 +37,17 @@ public:
 	}
 
 	/*!
+	 * \brief copies the Board to a new pointer
+	 * \return new Board identical to the source
+	 */
+	Board * copy(){
+		Board * result = new Board(this->b_max_coordinates);
+		for (unsigned int i_s = 0; i_s < b_squares.size(); i_s++)
+			result->b_squares[i_s] = this->b_squares[i_s];
+		return result;
+	}
+
+	/*!
 	 * \brief gets a Square from coordinates
 	 * \param coordinates : coordinates of the wished Square
 	 * \return wished Square

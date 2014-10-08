@@ -20,6 +20,16 @@ unsigned int& Coordinates::operator[](unsigned int dimension){
 	return m_coordinates[dimension];
 }
 
+bool Coordinates::operator<(const Coordinates& coordinates) const{
+	return ((*this).m_coordinates < coordinates.m_coordinates);
+}
+bool Coordinates::operator>(const Coordinates& coordinates) const{
+	return ((*this).m_coordinates > coordinates.m_coordinates);
+}
+bool Coordinates::operator==(const Coordinates& coordinates) const{
+	return ((*this).m_coordinates == coordinates.m_coordinates);
+}
+
 unsigned int Coordinates::x(){
 	return (*this)[0];
 }

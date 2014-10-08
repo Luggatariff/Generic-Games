@@ -7,10 +7,8 @@
 #include "Human.hpp"
 
 Coordinates Human::play(Game * game){
-	game->display();
-
 	unsigned int dimension = game->dimension();
-	Coordinates result(dimension);
+	Coordinates result(((size_t)dimension));
 	do{
 		cout<<"Choisissez une case("<<dimension<<" coordonnee(s)):";
 		for (unsigned int dim=0; dim<dimension; dim++)
