@@ -4,7 +4,7 @@
  * \author Anaël Petit
  */
 
-#define IA_LEVEL 3
+#define IA_LEVEL 7
 
 #include "IA.hpp"
 #include "IATree.hpp"

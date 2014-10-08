@@ -9,6 +9,12 @@
 Coordinates::Coordinates(unsigned int dimension){
 	this->m_coordinates = vector<unsigned int>(dimension, 0);
 }
+Coordinates Coordinates::copy(){
+	Coordinates result(this->dimension());
+	for (unsigned int i_c = 0; i_c < this->dimension(); i_c++)
+		result.m_coordinates[i_c] = this->m_coordinates[i_c];
+	return result;
+}
 
 unsigned int Coordinates::dimension(){
 	return this->m_coordinates.size();

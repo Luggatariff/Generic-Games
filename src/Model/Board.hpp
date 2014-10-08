@@ -43,7 +43,7 @@ public:
 	Board * copy(){
 		Board * result = new Board(this->b_max_coordinates);
 		for (unsigned int i_s = 0; i_s < b_squares.size(); i_s++)
-			result->b_squares[i_s] = this->b_squares[i_s];
+			result->b_squares[i_s] = this->b_squares[i_s].copy();
 		return result;
 	}
 

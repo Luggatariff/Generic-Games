@@ -23,6 +23,11 @@ public:
 	 * \param dimension : number of coordinates
 	 */
 	Coordinates(unsigned int dimension = 0);
+	/*!
+	 * \brief copies the Coordinates
+	 * \return Coordinates copy
+	 */
+	Coordinates copy();
 
 	/*!
 	 * \brief return the dimension of the Coordinates (number of coordinates)

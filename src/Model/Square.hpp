@@ -27,6 +27,18 @@ public:
 	}
 
 	/*!
+	 * \brief copies the Square
+	 * \return Square copy
+	 */
+	Square copy(){
+		Square result;
+		for (unsigned int i_a = 0; i_a < s_attributes.size(); i_a++){
+			result.addAttribute(s_attributes[i_a]);
+		}
+		return result;
+	}
+
+	/*!
 	 * \brief checks if an Attribute is in Square Attributes list
 	 * \param attribute : attribute
 	 * \return True if the Attribute is in the list, False otherwise
