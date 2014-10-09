@@ -11,8 +11,36 @@
 #include "Player.hpp"
 #include "Coordinates.hpp"
 #include "map"
+#include "vector"
 
 using namespace std;
+
+/*!
+ * \class Score
+ * \brief representing a Score in the IATree
+ */
+class Score{
+	int s_value;			/*!<Score value*/
+	unsigned int s_depth;	/*!<Score depth, high depths makes Score less important*/
+public:
+	/*!
+	 * \brief Score constructor, from a value
+	 * \param value : Score value
+	 */
+	Score(int value = 0);
+	/*!
+	 * \brief gets value
+	 */
+	int value();
+	/*!
+	 * \brief gets depth
+	 */
+	unsigned int depth();
+	/*!
+	 * \brief increases Score depth
+	 */
+	void incDepth();
+};
 
 /*!
  * \class IATree
@@ -24,9 +52,14 @@ class IATree{
 	Player * it_next_player;			/*!<Game last Player*/
 	Player * it_player;					/*!<Player considered in computations*/
 	bool it_computed;					/*!<Indicates if the score has been computed*/
-	int it_score;						/*!<Game score, when it's computed*/
-	Coordinates it_bestson;				/*!<Best son coordinates*/
+	Score * it_score;					/*!<Game score, when it's computed*/
+	vector<Coordinates> it_bestsons;	/*!<Best son coordinates*/
 	map<Coordinates, IATree *> it_sons;	/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
+
+	/*!
+	 * \brief stacks IATree nodes by level, used for display
+	 */
+	void stackByLevel(vector<vector<pair<Coordinates,IATree *> > > &result, unsigned int level = 0);
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Player
@@ -47,7 +80,7 @@ public:
 	 * \brief computes the score for each node in the Tree in order to know the value of the Root Node
 	 * \return computed score
 	 */
-	int compute();
+	Score * compute();
 
 	/*!
 	 * \brief gets the best son's Coordinates
@@ -59,6 +92,11 @@ public:
 	 * \return maps of sons
 	 */
 	map<Coordinates, IATree *> sons();
+
+	/*!
+	 * \brief displays the Tree
+	 */
+	void display();
 };
 
 #endif

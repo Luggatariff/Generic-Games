@@ -20,7 +20,7 @@ unsigned int Coordinates::dimension(){
 	return this->m_coordinates.size();
 }
 
-unsigned int& Coordinates::operator[](unsigned int dimension){
+unsigned int& Coordinates::operator[](unsigned int const &dimension){
 	while (dimension >= this->dimension())
 		m_coordinates.push_back(0);
 	return m_coordinates[dimension];

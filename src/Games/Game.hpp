@@ -82,11 +82,6 @@ public:
 	 */
 	virtual Player * nextPlayer() = 0;
 	/*!
-	 * \brief gets the last Player who played
-	 * \return pointer to the last Player
-	 */
-	virtual Player * lastPlayer() = 0;
-	/*!
 	 * \brief makes the Player actually play the Square at the given Coordinates
 	 * \param coordinates : coordinates of the Square to play
 	 */

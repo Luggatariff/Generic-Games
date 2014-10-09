@@ -23,6 +23,7 @@ public:
 	 * \param dimension : number of coordinates
 	 */
 	Coordinates(unsigned int dimension = 0);
+
 	/*!
 	 * \brief copies the Coordinates
 	 * \return Coordinates copy
@@ -40,7 +41,7 @@ public:
 	 * \param dimension : dimension of the desired coordinate
 	 * \return coordinate on the given dimension, 0 if the dimension isn't considered
 	 */
-	unsigned int& operator[](unsigned int dimension);
+	unsigned int& operator[](unsigned int const &dimension);
 
 	/*!
 	 * \brief compares two Coordinates

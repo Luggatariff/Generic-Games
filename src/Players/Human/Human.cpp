@@ -10,7 +10,7 @@ Coordinates Human::play(Game * game){
 	unsigned int dimension = game->dimension();
 	Coordinates result(((size_t)dimension));
 	do{
-		cout<<"Choisissez une case("<<dimension<<" coordonnee(s)):";
+		cout<<"Choose a Square ("<<dimension<<" coordinates(s)):";
 		for (unsigned int dim=0; dim<dimension; dim++)
 			cin>>result[dim];
 	}

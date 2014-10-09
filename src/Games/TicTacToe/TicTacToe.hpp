@@ -31,7 +31,6 @@ class TicTacToe: public Game{
 	Board<TicTacToe_Attributes> * t_board;					/*!<TicTacToe Game Board*/
 	vector<pair<Player *, TicTacToe_Attributes> > t_players;/*!<TicTacToe Players */
 	Player * t_next_player;									/*!<next Player*/
-	Player * t_last_player;									/*!<last Player*/
 public:
 	/*!
 	 * \brief TicTacToe constructor
@@ -58,7 +57,6 @@ public:
 	vector<Coordinates> playableCoordinates();
 
 	Player * nextPlayer();
-	Player * lastPlayer();
 	void play(Coordinates coordinates);
 
 	void display(std::ostream & out);

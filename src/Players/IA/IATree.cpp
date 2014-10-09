@@ -4,18 +4,23 @@
  * \author Anaël Petit
  */
 
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+
 #include "IATree.hpp"
 
 IATree::IATree(Game * game, Player * player){
 	this->it_computed = false;
 	this->it_game = game;
-	this->it_victory_score = game->victoryScore();
 	this->it_next_player = game->nextPlayer();
 	this->it_player = player;
-	this->it_score = 0;
+	this->it_score = new Score(0);
+	this->it_victory_score = game->victoryScore();
 }
 
 IATree::~IATree(){
+	delete it_score;
 	if (it_game != NULL)
 		delete it_game;
 	for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
@@ -48,51 +53,130 @@ void IATree::populate(unsigned int level){
 	}
 }
 
-int IATree::compute(){
+Score * IATree::compute(){
 	if (this->it_computed){
 		return this->it_score;
 	}
-	int result = 0;
+	Score * result;
 
 	if (it_sons.empty() && it_game != NULL){
-		result = it_game->score(it_player);
+		result = new Score(it_game->score(it_player));
 	}
-	else{
+	else if (!it_sons.empty()){
 		bool return_maximum = (it_next_player == it_player);
-		if (!return_maximum){
-			result = it_victory_score + 1;
-		}
-		else{
-			result = -1 * (it_victory_score + 1);
-		}
-		for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
-			int res_score = sons_iterator->second->compute();
+		map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin();
+		result = sons_iterator->second->compute();
+		result->incDepth();
+		this->it_bestsons.push_back(sons_iterator->first);
+		for(sons_iterator++; sons_iterator != it_sons.end(); sons_iterator++){
+			Score * res_score = sons_iterator->second->compute();
 			if (return_maximum){
-				if (res_score > result){
-					result = res_score;
-					this->it_bestson = sons_iterator->first;
-					if (result >= it_victory_score)
-						break;
+				if (res_score->value() >= result->value()){
+					if ((res_score->value() > result->value()) || (res_score->depth() > result->depth())){
+						result = res_score;
+						result->incDepth();
+
+						this->it_bestsons.clear();
+						this->it_bestsons.push_back(sons_iterator->first);
+						if (result->value() == it_victory_score && result->depth() == 0)
+							break;
+					}
+					else if ((res_score->value() == result->value())&& (res_score->depth() == result->depth())){
+						this->it_bestsons.push_back(sons_iterator->first);
+					}
 				}
 			}
 			else{
-				if (res_score < result){
+				if ((res_score->value() <= result->value()) && ((res_score->value() < result->value()) || (res_score->depth() < result->depth()))){
 					result = res_score;
-					this->it_bestson = sons_iterator->first;
-					if (result <= (-1) * it_victory_score)
+					result->incDepth();
+
+					if (result->value() == (-1) * it_victory_score && result->depth() == 0)
 						break;
 				}
 			}
 		}
 	}
 	this->it_computed = true;
+	this->it_score = result;
 	return result;
 }
 
 Coordinates IATree::bestSon(){
-	return this->it_bestson;
+	if (this->it_bestsons.size() == 1) return this->it_bestsons[0];
+	srand ( time(NULL) );
+	unsigned int r;
+	r =  rand() % (this->it_bestsons.size()-1);
+	return this->it_bestsons[r];
 }
 
 map<Coordinates, IATree *> IATree::sons(){
 	return this->it_sons;
+}
+
+Score::Score(int value){
+	s_value = value;
+	s_depth = 0;
+}
+
+void Score::incDepth(){
+	s_depth++;
+}
+
+int Score::value(){
+	return s_value;
+}
+
+unsigned int Score::depth(){
+	return s_depth;
+}
+
+void IATree::stackByLevel(vector<vector<pair<Coordinates,IATree *> > > &result, unsigned int level){
+	if (result.size() < level + 1)
+		result.push_back(vector<pair<Coordinates,IATree *> >());
+	for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
+		result[level].push_back(pair<Coordinates, IATree*>(sons_iterator->first, sons_iterator->second));
+		sons_iterator->second->stackByLevel(result, level+1);
+	}
+}
+
+void IATree::display(){
+	vector<vector<pair<Coordinates,IATree *> > > stacked_up_tree;
+	stackByLevel(stacked_up_tree);
+	unsigned int score_width = 5;
+	char separator_between_nodes = '|';
+	char separator_in_nodes = ',';
+	unsigned int node_width = 6;
+
+	unsigned int max_level_node_number = 0;
+	for (unsigned int i_s = 0; i_s< stacked_up_tree.size(); i_s++){
+		if (stacked_up_tree[i_s].size() > max_level_node_number)
+			max_level_node_number = stacked_up_tree[i_s].size();
+
+	}
+	unsigned int max_level_width = max_level_node_number * node_width;
+	for (unsigned int i_s = 0; i_s< stacked_up_tree.size(); i_s++){
+		unsigned int spaces_number = (max_level_width - node_width * stacked_up_tree[i_s].size()) / (stacked_up_tree[i_s].size() + 1);
+		for (unsigned int i_ss = 0; i_ss < stacked_up_tree[i_s].size(); i_ss++){
+			pair<Coordinates,IATree *> node = stacked_up_tree[i_s][i_ss];
+			for (unsigned int i_spaces = 0; i_spaces < spaces_number; i_spaces++)
+				cout<<" ";
+			cout<<node.first[0];
+			cout<<separator_in_nodes;
+			cout<<node.first[1];
+			cout<<separator_in_nodes;
+			cout<<node.second->it_score->depth();
+			cout<<separator_between_nodes;
+		}
+		cout<<endl;
+		for (unsigned int i_ss = 0; i_ss < stacked_up_tree[i_s].size(); i_ss++){
+			pair<Coordinates,IATree *> node = stacked_up_tree[i_s][i_ss];
+			for (unsigned int i_spaces = 0; i_spaces < spaces_number; i_spaces++)
+				cout<<" ";
+			cout<<setw(score_width);
+			cout<<node.second->it_score->value();
+			cout<<separator_between_nodes;
+		}
+		cout<<endl;
+	}
 }

@@ -8,8 +8,8 @@
 int main( int argamec, const char* argamev[] )
 {
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[0] = new Human();
-	players[1] = new IA();
+	players[0] = new IA(6);
+	players[1] = new IA(5);
 
 	Game * game;
 	game = new TicTacToe(players[0], players[1]);
@@ -35,7 +35,7 @@ int main( int argamec, const char* argamev[] )
 		}
 
 		char commande;
-		cout<<"Continuer? (o/n):";
+		cout<<"Continue? (o/n):";
 		cin>>commande;
 		if (commande == 'n')
 			break;
