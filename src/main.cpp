@@ -8,7 +8,7 @@
 int main( int argamec, const char* argamev[] )
 {
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[0] = new IA(6);
+	players[0] = new IA(3);
 	players[1] = new IA(5);
 
 	Game * game;

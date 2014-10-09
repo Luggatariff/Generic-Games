@@ -72,14 +72,12 @@ Score * IATree::compute(){
 			Score * res_score = sons_iterator->second->compute();
 			if (return_maximum){
 				if (res_score->value() >= result->value()){
-					if ((res_score->value() > result->value()) || (res_score->depth() > result->depth())){
+					if ((res_score->value() > result->value()) || (res_score->value() >= 0 && res_score->depth() < result->depth()) || (res_score->value() < 0 && res_score->depth() > result->depth())){
 						result = res_score;
 						result->incDepth();
 
 						this->it_bestsons.clear();
 						this->it_bestsons.push_back(sons_iterator->first);
-						if (result->value() == it_victory_score && result->depth() == 0)
-							break;
 					}
 					else if ((res_score->value() == result->value())&& (res_score->depth() == result->depth())){
 						this->it_bestsons.push_back(sons_iterator->first);
@@ -87,7 +85,7 @@ Score * IATree::compute(){
 				}
 			}
 			else{
-				if ((res_score->value() <= result->value()) && ((res_score->value() < result->value()) || (res_score->depth() < result->depth()))){
+				if ((res_score->value() <= result->value()) && ((res_score->value() < result->value()) || (res_score->value() >= 0 && res_score->depth() > result->depth()) || (res_score->value() < 0 && res_score->depth() < result->depth()))){
 					result = res_score;
 					result->incDepth();
 
