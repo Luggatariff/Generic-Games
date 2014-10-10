@@ -86,6 +86,11 @@ public:
 	 * \param coordinates : coordinates of the Square to play
 	 */
 	virtual void play(Coordinates coordinates) = 0;
+	/*!
+	 * \brief returns last moves, from the oldest to the newest
+	 * \return list of last played Coordinates
+	 */
+	virtual vector<Coordinates> lastMoves() = 0;
 
 	/*!
 	 * \brief displays the Game on the given stream

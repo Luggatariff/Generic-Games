@@ -6,6 +6,10 @@
 
 #include "Human.hpp"
 
+void Human::start(Game * game){
+	cout<<"Starting new Game..."<<endl;
+}
+
 Coordinates Human::play(Game * game){
 	unsigned int dimension = game->dimension();
 	Coordinates result(((size_t)dimension));

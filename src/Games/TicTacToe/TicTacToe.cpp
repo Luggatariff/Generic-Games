@@ -81,11 +81,48 @@ bool TicTacToe::isWinner(Player * player){
 	}
 	return result;
 }
+unsigned int TicTacToe::countIncompleteVictoryPatterns(Player * player){
+	unsigned int result = 0;
+
+	TicTacToe_Attributes p_player;
+	if (player == t_players[0].first)
+		p_player = t_players[0].second;
+	else
+		p_player = t_players[1].second;
+
+	TicTacToe_IncompleteLine * pattern_line = new TicTacToe_IncompleteLine(p_player);
+	result += t_board->checkPattern(pattern_line);
+	delete pattern_line;
+	TicTacToe_IncompleteColumn * pattern_column = new TicTacToe_IncompleteColumn(p_player);
+	result += t_board->checkPattern(pattern_column);
+	delete pattern_column;
+	TicTacToe_IncompleteFirstDiag * pattern_firstdiag = new TicTacToe_IncompleteFirstDiag(p_player);
+	result += t_board->checkPattern(pattern_firstdiag);
+	delete pattern_firstdiag;
+	TicTacToe_IncompleteSecondDiag * pattern_seconddiag = new TicTacToe_IncompleteSecondDiag(p_player);
+	result += t_board->checkPattern(pattern_seconddiag);
+	delete pattern_seconddiag;
+
+	return result;
+}
 
 int TicTacToe::score(Player * player){
 	Player * winner = whoWon();
 	if (winner == player) return victoryScore();
-	if (winner == NULL) return 0;
+	if (winner == NULL){
+		int result = 0;
+		unsigned int score_per_incomplete_pattern = (victoryScore()/3);
+		for (unsigned int i_p = 0; i_p < t_players.size(); i_p++){
+			unsigned int incomplete_patterns_count = countIncompleteVictoryPatterns(t_players[i_p].first);
+			if (incomplete_patterns_count >= 2){
+				if (player == t_players[i_p].first)
+					result +=  incomplete_patterns_count * score_per_incomplete_pattern;
+				else
+					result -=  incomplete_patterns_count * score_per_incomplete_pattern;
+			}
+		}
+		return result;
+	}
 	return -victoryScore();
 }
 int TicTacToe::victoryScore(){
@@ -93,6 +130,7 @@ int TicTacToe::victoryScore(){
 }
 
 void TicTacToe::start(){
+	t_last_moves.clear();
 	Coordinates coordinates(((size_t)TICTACTOE_DIMENSION));
 	for (coordinates[0] = 0; coordinates[0] < TICTACTOE_WIDTH; coordinates[0]++){
 		for (coordinates[1] = 0; coordinates[1] < TICTACTOE_WIDTH; coordinates[1]++){
@@ -136,6 +174,7 @@ Player * TicTacToe::nextPlayer(){
 }
 void TicTacToe::play(Coordinates coordinates){
 	if (isPlayable(coordinates)){
+		t_last_moves.push_back(coordinates);
 		TicTacToe_Attributes p_player;
 		if (t_next_player == t_players[0].first){
 			p_player = t_players[0].second;
@@ -148,6 +187,9 @@ void TicTacToe::play(Coordinates coordinates){
 		t_board->getSquare(coordinates)->delAttribute(EMPTY);
 		t_board->getSquare(coordinates)->addAttribute(p_player);
 	}
+}
+vector<Coordinates> TicTacToe::lastMoves(){
+	return this->t_last_moves;
 }
 
 void TicTacToe::display(std::ostream & out){
@@ -174,6 +216,8 @@ void TicTacToe::display(std::ostream & out){
 		out<<"|-";
 	out<<"|"<<std::endl;
 }
+
+/*****************************************************Patterns****************************************************************/
 
 vector<VarPattern> TicTacToe_Empty::getVariables(){
 	vector<VarPattern> result;
@@ -205,6 +249,8 @@ vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_Empty::getSq
 
 	return result;
 }
+
+/*****************************************************Victory Patterns****************************************************************/
 
 TicTacToe_Line::TicTacToe_Line(TicTacToe_Attributes player){
 	p_player = player;
@@ -305,3 +351,158 @@ vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_SecondDiag::
 
 	return result;
 }
+
+/*****************************************************Incomplete Victory Patterns****************************************************************/
+
+TicTacToe_IncompleteLine::TicTacToe_IncompleteLine(TicTacToe_Attributes player){
+	p_player = player;
+}
+vector<VarPattern> TicTacToe_IncompleteLine::getVariables(){
+	vector<VarPattern> result;
+
+	VarPattern line;
+	line.v_begin = 0;
+	line.v_end = TICTACTOE_WIDTH;
+	line.v_step = 1;
+	result.push_back(line);
+
+	VarPattern empty_square;
+	empty_square.v_begin = 0;
+	empty_square.v_end = 3;
+	empty_square.v_step = 1;
+	result.push_back(empty_square);
+
+	return result;
+}
+vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteLine::getSquares(vector<int> variable_values){
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > result;
+	Square<TicTacToe_Attributes> marked_square;
+	marked_square.addAttribute(p_player);
+	Square<TicTacToe_Attributes> empty_square;
+	empty_square.addAttribute(EMPTY);
+
+	int line = variable_values[0];
+	int empty_square_index = variable_values[1];
+	for (unsigned int column = 0; column<TICTACTOE_WIDTH; column++){
+		Coordinates coordinates(TICTACTOE_DIMENSION);
+		coordinates[0] = line; coordinates[1] = column;
+		if (column != (unsigned int)empty_square_index)
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, marked_square));
+		else
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, empty_square));
+	}
+
+	return result;
+}
+
+TicTacToe_IncompleteColumn::TicTacToe_IncompleteColumn(TicTacToe_Attributes player){
+	p_player = player;
+}
+vector<VarPattern> TicTacToe_IncompleteColumn::getVariables(){
+	vector<VarPattern> result;
+
+	VarPattern column;
+	column.v_begin = 0;
+	column.v_end = TICTACTOE_WIDTH;
+	column.v_step = 1;
+	result.push_back(column);
+
+	VarPattern empty_square;
+	empty_square.v_begin = 0;
+	empty_square.v_end = 3;
+	empty_square.v_step = 1;
+	result.push_back(empty_square);
+
+	return result;
+}
+vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteColumn::getSquares(vector<int> variable_values){
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > result;
+	Square<TicTacToe_Attributes> marked_square;
+	marked_square.addAttribute(p_player);
+	Square<TicTacToe_Attributes> empty_square;
+	empty_square.addAttribute(EMPTY);
+
+	int column = variable_values[0];
+	int empty_square_index = variable_values[1];
+	for (unsigned int line = 0; line<TICTACTOE_WIDTH; line++){
+		Coordinates coordinates(TICTACTOE_DIMENSION);
+		coordinates[0] = line; coordinates[1] = column;
+		result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, marked_square));
+		if (line != (unsigned int)empty_square_index)
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, marked_square));
+		else
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, empty_square));
+	}
+
+	return result;
+}
+
+TicTacToe_IncompleteFirstDiag::TicTacToe_IncompleteFirstDiag(TicTacToe_Attributes player){
+	p_player = player;
+}
+vector<VarPattern> TicTacToe_IncompleteFirstDiag::getVariables(){
+	vector<VarPattern> result;
+
+	VarPattern empty_square;
+	empty_square.v_begin = 0;
+	empty_square.v_end = 3;
+	empty_square.v_step = 1;
+	result.push_back(empty_square);
+
+	return result;
+}
+vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteFirstDiag::getSquares(vector<int> variable_values){
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > result;
+	Square<TicTacToe_Attributes> marked_square;
+	marked_square.addAttribute(p_player);
+	Square<TicTacToe_Attributes> empty_square;
+	empty_square.addAttribute(EMPTY);
+
+	int empty_square_index = variable_values[0];
+	for (unsigned int d = 0; d<TICTACTOE_WIDTH; d++){
+		Coordinates coordinates(TICTACTOE_DIMENSION);
+		coordinates[0] = d; coordinates[1] = d;
+		if (d != (unsigned int)empty_square_index)
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, marked_square));
+		else
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, empty_square));
+	}
+
+	return result;
+}
+
+TicTacToe_IncompleteSecondDiag::TicTacToe_IncompleteSecondDiag(TicTacToe_Attributes player){
+	p_player = player;
+}
+vector<VarPattern> TicTacToe_IncompleteSecondDiag::getVariables(){
+	vector<VarPattern> result;
+
+	VarPattern empty_square;
+	empty_square.v_begin = 0;
+	empty_square.v_end = 3;
+	empty_square.v_step = 1;
+	result.push_back(empty_square);
+
+	return result;
+}
+vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteSecondDiag::getSquares(vector<int> variable_values){
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > result;
+	Square<TicTacToe_Attributes> marked_square;
+	marked_square.addAttribute(p_player);
+	Square<TicTacToe_Attributes> empty_square;
+	empty_square.addAttribute(EMPTY);
+
+	int empty_square_index = variable_values[0];
+	for (unsigned int d = 0; d<TICTACTOE_WIDTH; d++){
+		Coordinates coordinates(TICTACTOE_DIMENSION);
+		coordinates[0] = (TICTACTOE_WIDTH - 1)-d; coordinates[1] = d;
+		if (d != (unsigned int)empty_square_index)
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, marked_square));
+		else
+			result.push_back(pair<Coordinates, Square<TicTacToe_Attributes> >(coordinates, empty_square));
+	}
+
+	return result;
+}
+
+

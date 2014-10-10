@@ -88,10 +88,11 @@ public:
 	 */
 	Coordinates bestSon();
 	/*!
-	 * \brief gets the map of sons
-	 * \return maps of sons
+	 * \brief moves the root to one of the root's son
+	 * \param coordinates : Coordinates of the chose son
+	 * \return IATree pointer to the new Root
 	 */
-	map<Coordinates, IATree *> sons();
+	IATree * changeRoot(Coordinates coordinates);
 
 	/*!
 	 * \brief displays the Tree

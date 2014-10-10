@@ -21,6 +21,12 @@ class Game;
 class Player{
 public:
 	/*!
+	 * \brief informs the Player that a new Game is about to start
+	 * \param game : pointer to the Game that is about to start
+	 */
+	virtual void start(Game * game) = 0;
+
+	/*!
 	 * \brief virtual method allowing a Player to choose a Coordinate to play
 	 * \param game : pointer to the Game to play
 	 * \return Coordinates of the choosen Square

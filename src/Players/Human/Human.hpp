@@ -15,6 +15,7 @@
  */
 class Human: public Player{
 public:
+	void start(Game * game);
 	Coordinates play(Game * game);
 };
 

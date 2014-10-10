@@ -15,12 +15,13 @@ IATree::IATree(Game * game, Player * player){
 	this->it_game = game;
 	this->it_next_player = game->nextPlayer();
 	this->it_player = player;
-	this->it_score = new Score(0);
+	this->it_score = NULL;
 	this->it_victory_score = game->victoryScore();
 }
 
 IATree::~IATree(){
-	delete it_score;
+	if (it_score != NULL && it_sons.empty())
+		delete it_score;
 	if (it_game != NULL)
 		delete it_game;
 	for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
@@ -96,6 +97,8 @@ Score * IATree::compute(){
 		}
 	}
 	this->it_computed = true;
+	if (this->it_score != NULL && this->it_sons.empty())
+		delete this->it_score;
 	this->it_score = result;
 	return result;
 }
@@ -108,8 +111,11 @@ Coordinates IATree::bestSon(){
 	return this->it_bestsons[r];
 }
 
-map<Coordinates, IATree *> IATree::sons(){
-	return this->it_sons;
+IATree * IATree::changeRoot(Coordinates coordinates){
+	IATree * result = this->it_sons[coordinates];
+	this->it_sons.erase(coordinates);
+
+	return result;
 }
 
 Score::Score(int value){

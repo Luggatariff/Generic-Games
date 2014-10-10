@@ -31,6 +31,12 @@ class TicTacToe: public Game{
 	Board<TicTacToe_Attributes> * t_board;					/*!<TicTacToe Game Board*/
 	vector<pair<Player *, TicTacToe_Attributes> > t_players;/*!<TicTacToe Players */
 	Player * t_next_player;									/*!<next Player*/
+	vector<Coordinates> t_last_moves;							/*!<last moves played*/
+
+	/*!
+	 * \brief count the Incomplete victory Patterns for the given Player. With two of them, victory is almost guaranted.
+	 */
+	unsigned int countIncompleteVictoryPatterns(Player * player);
 public:
 	/*!
 	 * \brief TicTacToe constructor
@@ -58,6 +64,7 @@ public:
 
 	Player * nextPlayer();
 	void play(Coordinates coordinates);
+	vector<Coordinates> lastMoves();
 
 	void display(std::ostream & out);
 };
@@ -132,6 +139,70 @@ public:
  */
 class TicTacToe_Empty : public Pattern<TicTacToe_Attributes>{
 public:
+	vector<VarPattern> getVariables();
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > getSquares(vector<int> variable_values);
+};
+
+/*!
+ * \class TicTacToe_IncompleteLine
+ * \brief TicTacToe incomplete line Pattern
+ */
+class TicTacToe_IncompleteLine : public Pattern<TicTacToe_Attributes>{
+	TicTacToe_Attributes p_player;
+public:
+	/*!
+	 * \brief Line Pattern constructor
+	 * \param player : considered Player
+	 */
+	TicTacToe_IncompleteLine(TicTacToe_Attributes player);
+	vector<VarPattern> getVariables();
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > getSquares(vector<int> variable_values);
+};
+
+/*!
+ * \class TicTacToe_IncompleteColumn
+ * \brief TicTacToe incomplete column Pattern
+ */
+class TicTacToe_IncompleteColumn : public Pattern<TicTacToe_Attributes>{
+	TicTacToe_Attributes p_player;
+public:
+	/*!
+	 * \brief Column Pattern constructor
+	 * \param player : considered Player
+	 */
+	TicTacToe_IncompleteColumn(TicTacToe_Attributes player);
+	vector<VarPattern> getVariables();
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > getSquares(vector<int> variable_values);
+};
+
+/*!
+ * \class TicTacToe_IncompleteFirstDiag
+ * \brief TicTacToe incomplete first diagonal Pattern
+ */
+class TicTacToe_IncompleteFirstDiag : public Pattern<TicTacToe_Attributes>{
+	TicTacToe_Attributes p_player;
+public:
+	/*!
+	 * \brief First Diag Pattern constructor
+	 * \param player : considered Player
+	 */
+	TicTacToe_IncompleteFirstDiag(TicTacToe_Attributes player);
+	vector<VarPattern> getVariables();
+	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > getSquares(vector<int> variable_values);
+};
+
+/*!
+ * \class TicTacToe_IncompleteSecondDiag
+ * \brief TicTacToe incomplete second diagonal Pattern
+ */
+class TicTacToe_IncompleteSecondDiag : public Pattern<TicTacToe_Attributes>{
+	TicTacToe_Attributes p_player;
+public:
+	/*!
+	 * \brief Second Diag Pattern constructor
+	 * \param player : considered Player
+	 */
+	TicTacToe_IncompleteSecondDiag(TicTacToe_Attributes player);
 	vector<VarPattern> getVariables();
 	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > getSquares(vector<int> variable_values);
 };
