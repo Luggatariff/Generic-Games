@@ -36,11 +36,8 @@ Coordinates IA::play(Game * game){
 		delete old_tree;
 		vector<Coordinates> game_last_moves = game->lastMoves();
 		vector<Coordinates> other_players_moves;
-		for (unsigned int i_m = game_last_moves.size() - 1; i_m >= 0; i_m--){
-			if (game_last_moves[i_m] == ia_last_move)
-				break;
-			else
-				other_players_moves.push_back(game_last_moves[i_m]);
+		for (unsigned int i_p = 0; i_p < game->players().size() - 1; i_p++){
+			other_players_moves.push_back(game_last_moves[game_last_moves.size() - 1 - i_p]);
 		}
 		for (unsigned int i_o = 0; i_o < other_players_moves.size(); i_o++){
 			old_tree = ia_tree;
@@ -55,7 +52,10 @@ Coordinates IA::play(Game * game){
 		ia_tree->display();
 	result = ia_tree->bestSon();
 
-	cout<<"IA chose:"<<result[0]<<" "<<result[1]<<" ("<<score->value()<<") "<<endl;
+	cout<<"IA chose:";
+	for (unsigned int dim = 0; dim < game->dimension(); dim++)
+		cout<<result[dim]<<" ";
+	cout<<"("<<score->value()<<") "<<endl;
 
 	ia_last_move = result;
 

@@ -18,9 +18,9 @@
  * \brief Attributes than can be found in TicTacToe Board Squares
  */
 enum TicTacToe_Attributes{
-	EMPTY,
-	CROSS,
-	ROUND
+	TICTACTOE_EMPTY,
+	TICTACTOE_CROSS,
+	TICTACTOE_ROUND
 };
 
 /*!

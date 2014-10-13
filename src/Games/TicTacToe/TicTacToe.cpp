@@ -12,8 +12,8 @@ TicTacToe::TicTacToe(Player * player_one, Player * player_two){
 		board_size[dim] = TICTACTOE_WIDTH;
 	this->t_board = new Board<TicTacToe_Attributes>(board_size);
 
-	this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(player_one, CROSS));
-	this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(player_two, ROUND));
+	this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(player_one, TICTACTOE_CROSS));
+	this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(player_two, TICTACTOE_ROUND));
 	this->t_next_player = player_one;
 }
 
@@ -141,9 +141,9 @@ void TicTacToe::start(){
 	Coordinates coordinates(((size_t)TICTACTOE_DIMENSION));
 	for (coordinates[0] = 0; coordinates[0] < TICTACTOE_WIDTH; coordinates[0]++){
 		for (coordinates[1] = 0; coordinates[1] < TICTACTOE_WIDTH; coordinates[1]++){
-			t_board->getSquare(coordinates)->delAttribute(CROSS);
-			t_board->getSquare(coordinates)->delAttribute(ROUND);
-			t_board->getSquare(coordinates)->addAttribute(EMPTY);
+			t_board->getSquare(coordinates)->delAttribute(TICTACTOE_CROSS);
+			t_board->getSquare(coordinates)->delAttribute(TICTACTOE_ROUND);
+			t_board->getSquare(coordinates)->addAttribute(TICTACTOE_EMPTY);
 		}
 	}
 }
@@ -155,11 +155,11 @@ bool TicTacToe::isPlayable(Coordinates coordinates){
 
 	bool is_in_board = true;
 	for (unsigned int dim = 0; dim < this->dimension(); dim++){
-		is_in_board = (coordinates[dim] >= 0 && coordinates[dim] <= TICTACTOE_WIDTH);
+		is_in_board = (coordinates[dim] >= 0 && coordinates[dim] < TICTACTOE_WIDTH);
 		if (!is_in_board)
 			return false;
 	}
-	return (t_board->getSquare(coordinates)->isAttribute(EMPTY));
+	return (t_board->getSquare(coordinates)->isAttribute(TICTACTOE_EMPTY));
 }
 vector<Coordinates> TicTacToe::playableCoordinates(){
 	vector<Coordinates> result;
@@ -169,7 +169,7 @@ vector<Coordinates> TicTacToe::playableCoordinates(){
 		for (unsigned int column = 0; column < TICTACTOE_WIDTH; column++){
 			Coordinates coordinates = Coordinates(TICTACTOE_DIMENSION);
 			coordinates[0] = line; coordinates[1] = column;
-			if (t_board->getSquare(coordinates)->isAttribute(EMPTY))
+			if (t_board->getSquare(coordinates)->isAttribute(TICTACTOE_EMPTY))
 				result.push_back(coordinates);
 		}
 	}
@@ -191,7 +191,7 @@ void TicTacToe::play(Coordinates coordinates){
 			p_player = t_players[1].second;
 			t_next_player = t_players[0].first;
 		}
-		t_board->getSquare(coordinates)->delAttribute(EMPTY);
+		t_board->getSquare(coordinates)->delAttribute(TICTACTOE_EMPTY);
 		t_board->getSquare(coordinates)->addAttribute(p_player);
 	}
 }
@@ -209,9 +209,9 @@ void TicTacToe::display(std::ostream & out){
 		out<<coordinates[0];
 		for(coordinates[1]=0; coordinates[1]<TICTACTOE_WIDTH; coordinates[1]++){
 			out<<"|";
-			if (t_board->getSquare(coordinates)->isAttribute(CROSS))
+			if (t_board->getSquare(coordinates)->isAttribute(TICTACTOE_CROSS))
 				out<<'X';
-			else if (t_board->getSquare(coordinates)->isAttribute(ROUND))
+			else if (t_board->getSquare(coordinates)->isAttribute(TICTACTOE_ROUND))
 				out<<'O';
 			else
 				out<<" ";
@@ -246,7 +246,7 @@ vector<VarPattern> TicTacToe_Empty::getVariables(){
 vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_Empty::getSquares(vector<int> variable_values){
 	vector<pair<Coordinates, Square<TicTacToe_Attributes> > > result;
 	Square<TicTacToe_Attributes> marked_square;
-	marked_square.addAttribute(EMPTY);
+	marked_square.addAttribute(TICTACTOE_EMPTY);
 
 	int line = variable_values[0];
 	int column = variable_values[1];
@@ -386,7 +386,7 @@ vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteLi
 	Square<TicTacToe_Attributes> marked_square;
 	marked_square.addAttribute(p_player);
 	Square<TicTacToe_Attributes> empty_square;
-	empty_square.addAttribute(EMPTY);
+	empty_square.addAttribute(TICTACTOE_EMPTY);
 
 	int line = variable_values[0];
 	int empty_square_index = variable_values[1];
@@ -427,7 +427,7 @@ vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteCo
 	Square<TicTacToe_Attributes> marked_square;
 	marked_square.addAttribute(p_player);
 	Square<TicTacToe_Attributes> empty_square;
-	empty_square.addAttribute(EMPTY);
+	empty_square.addAttribute(TICTACTOE_EMPTY);
 
 	int column = variable_values[0];
 	int empty_square_index = variable_values[1];
@@ -463,7 +463,7 @@ vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteFi
 	Square<TicTacToe_Attributes> marked_square;
 	marked_square.addAttribute(p_player);
 	Square<TicTacToe_Attributes> empty_square;
-	empty_square.addAttribute(EMPTY);
+	empty_square.addAttribute(TICTACTOE_EMPTY);
 
 	int empty_square_index = variable_values[0];
 	for (unsigned int d = 0; d<TICTACTOE_WIDTH; d++){
@@ -497,7 +497,7 @@ vector<pair<Coordinates, Square<TicTacToe_Attributes> > > TicTacToe_IncompleteSe
 	Square<TicTacToe_Attributes> marked_square;
 	marked_square.addAttribute(p_player);
 	Square<TicTacToe_Attributes> empty_square;
-	empty_square.addAttribute(EMPTY);
+	empty_square.addAttribute(TICTACTOE_EMPTY);
 
 	int empty_square_index = variable_values[0];
 	for (unsigned int d = 0; d<TICTACTOE_WIDTH; d++){

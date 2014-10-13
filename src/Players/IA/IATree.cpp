@@ -37,6 +37,7 @@ void IATree::private_populate(unsigned int level, bool fast_compute, unsigned in
 
 	if (it_game != NULL){
 		bool populate_sons = true;
+
 		if (fast_compute && (highest_level - level) >= it_game->players().size()){
 			if (this->it_score != NULL){
 				if (this->it_score->value() == 0){
@@ -52,6 +53,7 @@ void IATree::private_populate(unsigned int level, bool fast_compute, unsigned in
 			}
 			populate_sons = (this->it_score == NULL);
 		}
+
 		vector<Coordinates> playable_moves;
 		if (populate_sons){
 			playable_moves = it_game->playableCoordinates();
@@ -60,12 +62,23 @@ void IATree::private_populate(unsigned int level, bool fast_compute, unsigned in
 		if (populate_sons){
 			delete this->it_score;
 			this->it_score = NULL;
+			bool ending_son = false;
 			for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
 				Game * son_game = it_game->copy();
 				son_game->play(playable_moves[i_pm]);
 
+				if (it_next_player == it_player && son_game->isWinner(it_next_player)){
+					it_sons.clear();
+					it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player)));
+					ending_son = true;
+					break;
+				}
+
 				it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player)));
-				it_sons[playable_moves[i_pm]]->private_populate(level - 1, fast_compute, highest_level);
+			}
+			if (!ending_son){
+				for (map<Coordinates, IATree *>::iterator iter_sons = it_sons.begin(); iter_sons != it_sons.end(); iter_sons++)
+					iter_sons->second->private_populate(level - 1, fast_compute, highest_level);
 			}
 			delete it_game;
 			it_game = NULL;
@@ -176,10 +189,10 @@ void IATree::stackByLevel(vector<vector<pair<Coordinates,IATree *> > > &result, 
 void IATree::display(){
 	vector<vector<pair<Coordinates,IATree *> > > stacked_up_tree;
 	stackByLevel(stacked_up_tree);
-	unsigned int score_width = 5;
+	unsigned int score_width = 3;
 	char separator_between_nodes = '|';
 	char separator_in_nodes = ',';
-	unsigned int node_width = 6;
+	unsigned int node_width = 4;
 
 	unsigned int max_level_node_number = 0;
 	for (unsigned int i_s = 0; i_s< stacked_up_tree.size(); i_s++){
@@ -195,8 +208,8 @@ void IATree::display(){
 			for (unsigned int i_spaces = 0; i_spaces < spaces_number; i_spaces++)
 				cerr<<" ";
 			cerr<<node.first[0];
-			cerr<<separator_in_nodes;
-			cerr<<node.first[1];
+			/*cerr<<separator_in_nodes;
+			cerr<<node.first[1];*/
 			cerr<<separator_in_nodes;
 			if (node.second->it_score != NULL)
 				cerr<<node.second->it_score->depth();
