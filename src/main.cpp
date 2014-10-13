@@ -8,8 +8,8 @@
 int main( int argamec, const char* argamev[] )
 {
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[0] = new IA(6);
-	players[1] = new IA(4);
+	players[0] = new IA(1);
+	players[1] = new IA(1);
 
 	Game * game;
 	game = new TicTacToe(players[0], players[1]);
@@ -31,7 +31,6 @@ int main( int argamec, const char* argamev[] )
 			for (unsigned int i_p = 0; i_p < players.size(); i_p++)
 				if ((winner == players[i_p]))
 					cout<<"Player "<<i_p + 1<<" Wins!"<<endl;
-			break;
 		}
 		else{
 			cout<<"Draw!"<<endl;

@@ -11,7 +11,6 @@
 #include "IATree.hpp"
 
 IATree::IATree(Game * game, Player * player){
-	this->it_computed = false;
 	this->it_game = game;
 	this->it_next_player = game->nextPlayer();
 	this->it_player = player;
@@ -20,7 +19,7 @@ IATree::IATree(Game * game, Player * player){
 }
 
 IATree::~IATree(){
-	if (it_score != NULL && it_sons.empty())
+	if (it_score != NULL)
 		delete it_score;
 	if (it_game != NULL)
 		delete it_game;
@@ -29,33 +28,62 @@ IATree::~IATree(){
 	}
 }
 
-void IATree::populate(unsigned int level){
-	this->it_computed = false;
+void IATree::populate(unsigned int level, bool fast_compute){
+	private_populate(level, fast_compute, level);
+}
+
+void IATree::private_populate(unsigned int level, bool fast_compute, unsigned int highest_level){
 	if (level == 0) return;
 
 	if (it_game != NULL){
-		vector<Coordinates> playable_moves = it_game->playableCoordinates();
-		if (!playable_moves.empty()){
+		bool populate_sons = true;
+		if (fast_compute && (highest_level - level) >= it_game->players().size()){
+			if (this->it_score != NULL){
+				if (this->it_score->value() == 0){
+					delete this->it_score;
+					this->it_score = NULL;
+				}
+			}
+			else{
+				Score * score_peek = new Score(it_game->score(it_player));
+				if (score_peek->value() != 0){
+					this->it_score = score_peek;
+				}
+			}
+			populate_sons = (this->it_score == NULL);
+		}
+		vector<Coordinates> playable_moves;
+		if (populate_sons){
+			playable_moves = it_game->playableCoordinates();
+			populate_sons = !playable_moves.empty();
+		}
+		if (populate_sons){
+			delete this->it_score;
+			this->it_score = NULL;
 			for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
 				Game * son_game = it_game->copy();
 				son_game->play(playable_moves[i_pm]);
 
 				it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player)));
-				it_sons[playable_moves[i_pm]]->populate(level - 1);
+				it_sons[playable_moves[i_pm]]->private_populate(level - 1, fast_compute, highest_level);
 			}
 			delete it_game;
 			it_game = NULL;
 		}
 	}
 	else{
-		for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
-			sons_iterator->second->populate(level - 1);
+		if (!it_sons.empty()){
+			delete this->it_score;
+			this->it_score = NULL;
+			for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
+				sons_iterator->second->private_populate(level - 1, fast_compute, highest_level);
+			}
 		}
 	}
 }
 
 Score * IATree::compute(){
-	if (this->it_computed){
+	if (this->it_score != NULL){
 		return this->it_score;
 	}
 	Score * result;
@@ -67,7 +95,6 @@ Score * IATree::compute(){
 		bool return_maximum = (it_next_player == it_player);
 		map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin();
 		result = sons_iterator->second->compute();
-		result->incDepth();
 		this->it_bestsons.push_back(sons_iterator->first);
 		for(sons_iterator++; sons_iterator != it_sons.end(); sons_iterator++){
 			Score * res_score = sons_iterator->second->compute();
@@ -75,10 +102,11 @@ Score * IATree::compute(){
 				if (res_score->value() >= result->value()){
 					if ((res_score->value() > result->value()) || (res_score->value() > 0 && res_score->depth() < result->depth()) || (res_score->value() < 0 && res_score->depth() > result->depth())){
 						result = res_score;
-						result->incDepth();
 
 						this->it_bestsons.clear();
 						this->it_bestsons.push_back(sons_iterator->first);
+						if (result->value() == it_victory_score && result->depth() == 1)
+							break;
 					}
 					else if ((res_score->value() == result->value())&& ((res_score->depth() == result->depth()) || res_score->value() == 0)){
 						this->it_bestsons.push_back(sons_iterator->first);
@@ -88,18 +116,14 @@ Score * IATree::compute(){
 			else{
 				if ((res_score->value() <= result->value()) && ((res_score->value() < result->value()) || (res_score->value() >= 0 && res_score->depth() > result->depth()) || (res_score->value() < 0 && res_score->depth() < result->depth()))){
 					result = res_score;
-					result->incDepth();
-
-					if (result->value() == (-1) * it_victory_score && result->depth() == 0)
+					if (result->value() == (-1) * it_victory_score && result->depth() == 1)
 						break;
 				}
 			}
 		}
 	}
-	this->it_computed = true;
-	if (this->it_score != NULL && this->it_sons.empty())
-		delete this->it_score;
-	this->it_score = result;
+	this->it_score = new Score(result);
+	result->incDepth();
 	return result;
 }
 
@@ -121,6 +145,11 @@ IATree * IATree::changeRoot(Coordinates coordinates){
 Score::Score(int value){
 	s_value = value;
 	s_depth = 0;
+}
+
+Score::Score(Score * source){
+	s_value = source->value();
+	s_depth = source->depth();
 }
 
 void Score::incDepth(){
@@ -164,23 +193,29 @@ void IATree::display(){
 		for (unsigned int i_ss = 0; i_ss < stacked_up_tree[i_s].size(); i_ss++){
 			pair<Coordinates,IATree *> node = stacked_up_tree[i_s][i_ss];
 			for (unsigned int i_spaces = 0; i_spaces < spaces_number; i_spaces++)
-				cout<<" ";
-			cout<<node.first[0];
-			cout<<separator_in_nodes;
-			cout<<node.first[1];
-			cout<<separator_in_nodes;
-			cout<<node.second->it_score->depth();
-			cout<<separator_between_nodes;
+				cerr<<" ";
+			cerr<<node.first[0];
+			cerr<<separator_in_nodes;
+			cerr<<node.first[1];
+			cerr<<separator_in_nodes;
+			if (node.second->it_score != NULL)
+				cerr<<node.second->it_score->depth();
+			else
+				cerr<<9;
+			cerr<<separator_between_nodes;
 		}
-		cout<<endl;
+		cerr<<endl;
 		for (unsigned int i_ss = 0; i_ss < stacked_up_tree[i_s].size(); i_ss++){
 			pair<Coordinates,IATree *> node = stacked_up_tree[i_s][i_ss];
 			for (unsigned int i_spaces = 0; i_spaces < spaces_number; i_spaces++)
-				cout<<" ";
-			cout<<setw(score_width);
-			cout<<node.second->it_score->value();
-			cout<<separator_between_nodes;
+				cerr<<" ";
+			cerr<<setw(score_width);
+			if (node.second->it_score != NULL)
+				cerr<<node.second->it_score->value();
+			else
+				cerr<<255;
+			cerr<<separator_between_nodes;
 		}
-		cout<<endl;
+		cerr<<endl;
 	}
 }

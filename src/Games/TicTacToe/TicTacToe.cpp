@@ -110,18 +110,25 @@ int TicTacToe::score(Player * player){
 	Player * winner = whoWon();
 	if (winner == player) return victoryScore();
 	if (winner == NULL){
-		int result = 0;
-		unsigned int score_per_incomplete_pattern = (victoryScore()/3);
+		int incomplete_patterns_count = 0;
 		for (unsigned int i_p = 0; i_p < t_players.size(); i_p++){
-			unsigned int incomplete_patterns_count = countIncompleteVictoryPatterns(t_players[i_p].first);
-			if (incomplete_patterns_count >= 2){
-				if (player == t_players[i_p].first)
-					result +=  incomplete_patterns_count * score_per_incomplete_pattern;
-				else
-					result -=  incomplete_patterns_count * score_per_incomplete_pattern;
+			unsigned int temp_count = countIncompleteVictoryPatterns(t_players[i_p].first);
+			if (player == t_players[i_p].first){
+				if (temp_count > 0 && player == this->nextPlayer())
+					return victoryScore();
+				incomplete_patterns_count += temp_count;
+			}
+			else{
+				if (temp_count > 0 && player != this->nextPlayer())
+					return -victoryScore();
+				incomplete_patterns_count -= temp_count;
 			}
 		}
-		return result;
+		if (incomplete_patterns_count > 1)
+			return victoryScore()/2;
+		if (incomplete_patterns_count < -1)
+			return -victoryScore()/2;
+		return 0;
 	}
 	return -victoryScore();
 }
