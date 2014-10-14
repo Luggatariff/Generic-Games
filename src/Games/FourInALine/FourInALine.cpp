@@ -93,9 +93,6 @@ unsigned int FourInALine::countIncompleteVictoryPatterns(Player * player){
 	FourInALine_IncompleteLine * pattern_line = new FourInALine_IncompleteLine(p_player);
 	result += t_board->checkPattern(pattern_line);
 	delete pattern_line;
-	FourInALine_IncompleteColumn * pattern_column = new FourInALine_IncompleteColumn(p_player);
-	result += t_board->checkPattern(pattern_column);
-	delete pattern_column;
 	FourInALine_IncompleteFirstDiag * pattern_firstdiag = new FourInALine_IncompleteFirstDiag(p_player);
 	result += t_board->checkPattern(pattern_firstdiag);
 	delete pattern_firstdiag;
@@ -133,10 +130,18 @@ int FourInALine::victoryScore(){
 void FourInALine::start(){
 	t_last_moves.clear();
 	Coordinates coordinates(2);
-	for (coordinates[0] = 0; coordinates[0] < FOURINALINE_HEIGHT; coordinates[0]++){
+	coordinates[0] = 0;
+	for (coordinates[1] = 0; coordinates[1] < FOURINALINE_WIDTH; coordinates[1]++){
+		t_board->getSquare(coordinates)->delAttribute(FOURINALINE_CROSS);
+		t_board->getSquare(coordinates)->delAttribute(FOURINALINE_ROUND);
+		t_board->getSquare(coordinates)->delAttribute(FOURINALINE_EMPTY);
+		t_board->getSquare(coordinates)->addAttribute(FOURINALINE_PLAYABLE);
+	}
+	for (coordinates[0] = 1; coordinates[0] < FOURINALINE_HEIGHT; coordinates[0]++){
 		for (coordinates[1] = 0; coordinates[1] < FOURINALINE_WIDTH; coordinates[1]++){
 			t_board->getSquare(coordinates)->delAttribute(FOURINALINE_CROSS);
 			t_board->getSquare(coordinates)->delAttribute(FOURINALINE_ROUND);
+			t_board->getSquare(coordinates)->delAttribute(FOURINALINE_PLAYABLE);
 			t_board->getSquare(coordinates)->addAttribute(FOURINALINE_EMPTY);
 		}
 	}
@@ -154,7 +159,7 @@ bool FourInALine::isPlayable(Coordinates coordinates){
 	Coordinates highest_square(2);
 	highest_square[1] = coordinates[0];
 	highest_square[0] = FOURINALINE_HEIGHT - 1;
-	return (t_board->getSquare(highest_square)->isAttribute(FOURINALINE_EMPTY));
+	return (t_board->getSquare(highest_square)->isAttribute(FOURINALINE_PLAYABLE) || t_board->getSquare(highest_square)->isAttribute(FOURINALINE_EMPTY));
 }
 vector<Coordinates> FourInALine::playableCoordinates(){
 	vector<Coordinates> result;
@@ -168,7 +173,7 @@ vector<Coordinates> FourInALine::playableCoordinates(){
 		highest_square[1] = coordinates[0];
 		highest_square[0] = FOURINALINE_HEIGHT - 1;
 
-		if (t_board->getSquare(highest_square)->isAttribute(FOURINALINE_EMPTY))
+		if (t_board->getSquare(highest_square)->isAttribute(FOURINALINE_PLAYABLE) || t_board->getSquare(highest_square)->isAttribute(FOURINALINE_EMPTY))
 			result.push_back(coordinates);
 	}
 
@@ -193,11 +198,16 @@ void FourInALine::play(Coordinates coordinates){
 		Coordinates highest_free_square(2);
 		highest_free_square[1] = coordinates[0];
 		for (highest_free_square[0] = 0; highest_free_square[0] < FOURINALINE_HEIGHT; highest_free_square[0]++){
-			if(t_board->getSquare(highest_free_square)->isAttribute(FOURINALINE_EMPTY))
+			if(t_board->getSquare(highest_free_square)->isAttribute(FOURINALINE_PLAYABLE))
 				break;
 		}
-		t_board->getSquare(highest_free_square)->delAttribute(FOURINALINE_EMPTY);
+		t_board->getSquare(highest_free_square)->delAttribute(FOURINALINE_PLAYABLE);
 		t_board->getSquare(highest_free_square)->addAttribute(p_player);
+		highest_free_square[0]++;
+		if (highest_free_square[0] < FOURINALINE_HEIGHT){
+			t_board->getSquare(highest_free_square)->delAttribute(FOURINALINE_EMPTY);
+			t_board->getSquare(highest_free_square)->addAttribute(FOURINALINE_PLAYABLE);
+		}
 	}
 }
 vector<Coordinates> FourInALine::lastMoves(){
@@ -434,52 +444,6 @@ vector<pair<Coordinates, Square<FourInALine_Attributes> > > FourInALine_Incomple
 	for (unsigned int d = 0; d < FOURINALINE_LINE; d++){
 		Coordinates coordinates(2);
 		coordinates[0] = variable_values[0]; coordinates[1] = variable_values[1] + d;
-		if (d == (unsigned int)empty_square_index)
-			result.push_back(pair<Coordinates, Square<FourInALine_Attributes> >(coordinates, empty_square));
-		else
-			result.push_back(pair<Coordinates, Square<FourInALine_Attributes> >(coordinates, marked_square));
-	}
-
-	return result;
-}
-
-FourInALine_IncompleteColumn::FourInALine_IncompleteColumn(FourInALine_Attributes player){
-	p_player = player;
-}
-vector<VarPattern> FourInALine_IncompleteColumn::getVariables(){
-	vector<VarPattern> result;
-
-	VarPattern line;
-	line.v_begin = 0;
-	line.v_end = FOURINALINE_HEIGHT - (FOURINALINE_LINE - 1);
-	line.v_step = 1;
-	result.push_back(line);
-
-	VarPattern column;
-	column.v_begin = 0;
-	column.v_end = FOURINALINE_WIDTH;
-	column.v_step = 1;
-	result.push_back(column);
-
-	VarPattern empty_square;
-	empty_square.v_begin = 0;
-	empty_square.v_end = FOURINALINE_LINE;
-	empty_square.v_step = 1;
-	result.push_back(empty_square);
-
-	return result;
-}
-vector<pair<Coordinates, Square<FourInALine_Attributes> > > FourInALine_IncompleteColumn::getSquares(vector<int> variable_values){
-	vector<pair<Coordinates, Square<FourInALine_Attributes> > > result;
-	Square<FourInALine_Attributes> marked_square;
-	marked_square.addAttribute(p_player);
-	Square<FourInALine_Attributes> empty_square;
-	empty_square.addAttribute(FOURINALINE_EMPTY);
-
-	int empty_square_index = variable_values[2];
-	for (unsigned int d = 0; d < FOURINALINE_LINE; d++){
-		Coordinates coordinates(2);
-		coordinates[0] = variable_values[0] + d; coordinates[1] = variable_values[1];
 		if (d == (unsigned int)empty_square_index)
 			result.push_back(pair<Coordinates, Square<FourInALine_Attributes> >(coordinates, empty_square));
 		else

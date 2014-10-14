@@ -21,7 +21,8 @@
 enum FourInALine_Attributes{
 	FOURINALINE_EMPTY,
 	FOURINALINE_CROSS,
-	FOURINALINE_ROUND
+	FOURINALINE_ROUND,
+	FOURINALINE_PLAYABLE,
 };
 
 /*!
@@ -156,22 +157,6 @@ public:
 	 * \param player : considered Player
 	 */
 	FourInALine_IncompleteLine(FourInALine_Attributes player);
-	vector<VarPattern> getVariables();
-	vector<pair<Coordinates, Square<FourInALine_Attributes> > > getSquares(vector<int> variable_values);
-};
-
-/*!
- * \class FourInALine_IncompleteColumn
- * \brief FourInALine incomplete column Pattern
- */
-class FourInALine_IncompleteColumn : public Pattern<FourInALine_Attributes>{
-	FourInALine_Attributes p_player;
-public:
-	/*!
-	 * \brief Column Pattern constructor
-	 * \param player : considered Player
-	 */
-	FourInALine_IncompleteColumn(FourInALine_Attributes player);
 	vector<VarPattern> getVariables();
 	vector<pair<Coordinates, Square<FourInALine_Attributes> > > getSquares(vector<int> variable_values);
 };

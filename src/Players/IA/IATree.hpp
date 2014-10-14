@@ -59,8 +59,9 @@ class IATree{
 	Player * it_player;					/*!<Player considered in computations*/
 
 	Score * it_score;					/*!<Game score, when it's computed*/
-	vector<Coordinates> it_bestsons;	/*!<Best son coordinates*/
 	map<Coordinates, IATree *> it_sons;	/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
+
+	vector<vector<pair<Coordinates,IATree *> > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
 
 	/*!
 	 * \brief stacks IATree nodes by level, used for display
@@ -70,7 +71,12 @@ class IATree{
 	/*!
 	 * \brief populate method only used privately
 	 */
-	void private_populate(unsigned int level, bool fast_compute, unsigned int highest_level);
+	void private_populate(unsigned int level, unsigned int highest_level);
+
+	/*!
+	 * \brkef compute method only used privately
+	 */
+	Score * private_compute(bool first_call = false);
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Player
@@ -87,7 +93,7 @@ public:
 	 * \param level : depth of the computation
 	 * \param fast_compute : compute a result faster by not considering the sons of a Game for which a score different from zero can be computed
 	 */
-	void populate(unsigned int level, bool fast_compute = false);
+	void populate(unsigned int level);
 	/*!
 	 * \brief computes the score for each node in the Tree in order to know the value of the Root Node
 	 * \return computed score

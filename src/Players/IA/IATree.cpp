@@ -13,9 +13,9 @@
 IATree::IATree(Game * game, Player * player){
 	this->it_game = game;
 	this->it_next_player = game->nextPlayer();
+	this->it_victory_score = game->victoryScore();
 	this->it_player = player;
 	this->it_score = NULL;
-	this->it_victory_score = game->victoryScore();
 }
 
 IATree::~IATree(){
@@ -28,38 +28,17 @@ IATree::~IATree(){
 	}
 }
 
-void IATree::populate(unsigned int level, bool fast_compute){
-	private_populate(level, fast_compute, level);
+void IATree::populate(unsigned int level){
+	private_populate(level, level);
 }
 
-void IATree::private_populate(unsigned int level, bool fast_compute, unsigned int highest_level){
+void IATree::private_populate(unsigned int level, unsigned int highest_level){
 	if (level == 0) return;
 
 	if (it_game != NULL){
-		bool populate_sons = true;
+		vector<Coordinates> playable_moves = it_game->playableCoordinates();
 
-		if (fast_compute && (highest_level - level) >= it_game->players().size()){
-			if (this->it_score != NULL){
-				if (this->it_score->value() == 0){
-					delete this->it_score;
-					this->it_score = NULL;
-				}
-			}
-			else{
-				Score * score_peek = new Score(it_game->score(it_player));
-				if (score_peek->value() != 0){
-					this->it_score = score_peek;
-				}
-			}
-			populate_sons = (this->it_score == NULL);
-		}
-
-		vector<Coordinates> playable_moves;
-		if (populate_sons){
-			playable_moves = it_game->playableCoordinates();
-			populate_sons = !playable_moves.empty();
-		}
-		if (populate_sons){
+		if (!playable_moves.empty()){
 			delete this->it_score;
 			this->it_score = NULL;
 			bool ending_son = false;
@@ -78,7 +57,7 @@ void IATree::private_populate(unsigned int level, bool fast_compute, unsigned in
 			}
 			if (!ending_son){
 				for (map<Coordinates, IATree *>::iterator iter_sons = it_sons.begin(); iter_sons != it_sons.end(); iter_sons++)
-					iter_sons->second->private_populate(level - 1, fast_compute, highest_level);
+					iter_sons->second->private_populate(level - 1, highest_level);
 			}
 			delete it_game;
 			it_game = NULL;
@@ -89,13 +68,17 @@ void IATree::private_populate(unsigned int level, bool fast_compute, unsigned in
 			delete this->it_score;
 			this->it_score = NULL;
 			for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
-				sons_iterator->second->private_populate(level - 1, fast_compute, highest_level);
+				sons_iterator->second->private_populate(level - 1, highest_level);
 			}
 		}
 	}
 }
 
 Score * IATree::compute(){
+	return private_compute(true);
+}
+
+Score * IATree::private_compute(bool first_call){
 	if (this->it_score != NULL){
 		return this->it_score;
 	}
@@ -107,22 +90,26 @@ Score * IATree::compute(){
 	else if (!it_sons.empty()){
 		bool return_maximum = (it_next_player == it_player);
 		map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin();
-		result = sons_iterator->second->compute();
-		this->it_bestsons.push_back(sons_iterator->first);
+		result = sons_iterator->second->private_compute();
+
+		vector<Coordinates> it_bestsons;
+		it_bestsons.push_back(sons_iterator->first);
+
 		for(sons_iterator++; sons_iterator != it_sons.end(); sons_iterator++){
-			Score * res_score = sons_iterator->second->compute();
+			Score * res_score = sons_iterator->second->private_compute();
 			if (return_maximum){
 				if (res_score->value() >= result->value()){
 					if ((res_score->value() > result->value()) || (res_score->value() > 0 && res_score->depth() < result->depth()) || (res_score->value() < 0 && res_score->depth() > result->depth())){
 						result = res_score;
 
-						this->it_bestsons.clear();
-						this->it_bestsons.push_back(sons_iterator->first);
-						if (result->value() == it_victory_score && result->depth() == 1)
+						it_bestsons.clear();
+						it_bestsons.push_back(sons_iterator->first);
+
+						if (result->value() == it_victory_score)
 							break;
 					}
-					else if ((res_score->value() == result->value())&& ((res_score->depth() == result->depth()) || res_score->value() == 0)){
-						this->it_bestsons.push_back(sons_iterator->first);
+					else if ((res_score->value() == result->value()) && ((res_score->depth() == result->depth()) || res_score->value() == 0)){
+						it_bestsons.push_back(sons_iterator->first);
 					}
 				}
 			}
@@ -134,6 +121,21 @@ Score * IATree::compute(){
 				}
 			}
 		}
+
+		if (first_call){
+			Coordinates bestson_coordinates;
+			if (it_bestsons.size() == 1)
+				bestson_coordinates = it_bestsons[0];
+			else{
+				srand ( time(NULL) );
+				unsigned int random_uint;
+				random_uint =  rand() % (it_bestsons.size()-1);
+				bestson_coordinates = it_bestsons[random_uint];
+			}
+			IATree * bestson_iatree = it_sons[bestson_coordinates];
+			it_sons.clear();
+			it_sons.insert(pair<Coordinates, IATree*>(bestson_coordinates, bestson_iatree));
+		}
 	}
 	this->it_score = new Score(result);
 	result->incDepth();
@@ -141,17 +143,13 @@ Score * IATree::compute(){
 }
 
 Coordinates IATree::bestSon(){
-	if (this->it_bestsons.size() == 1) return this->it_bestsons[0];
-	srand ( time(NULL) );
-	unsigned int r;
-	r =  rand() % (this->it_bestsons.size()-1);
-	return this->it_bestsons[r];
+	return it_sons.begin()->first;
 }
 
 IATree * IATree::changeRoot(Coordinates coordinates){
 	IATree * result = this->it_sons[coordinates];
 	this->it_sons.erase(coordinates);
-
+	delete this;
 	return result;
 }
 

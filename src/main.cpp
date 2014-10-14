@@ -9,7 +9,7 @@
 int main( int argamec, const char* argamev[] )
 {
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[0] = new IA(3);
+	players[0] = new Human();
 	players[1] = new IA(1);
 
 	Game * game;
