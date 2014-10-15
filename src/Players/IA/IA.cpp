@@ -24,35 +24,37 @@ Coordinates IA::play(Game * game){
 
 	unsigned int true_level = ia_level * game->players().size();
 
+	cout<<"Generating choice Tree.."<<endl;
+
 	if (ia_tree == NULL){
 		delete ia_tree;
 		ia_tree = new IATree(game->copy(), this);
 		ia_tree->populate(true_level);
 	}
 	else{
-		ia_tree = ia_tree->changeRoot(ia_last_move);
-
 		vector<Coordinates> game_last_moves = game->lastMoves();
-		vector<Coordinates> other_players_moves;
-		for (unsigned int i_p = 0; i_p < game->players().size() - 1; i_p++){
-			other_players_moves.push_back(game_last_moves[game_last_moves.size() - 1 - i_p]);
+		vector<Coordinates> each_player_last_move;
+		for (unsigned int i_p = game_last_moves.size() - game->players().size(); i_p < game_last_moves.size(); i_p++){
+			each_player_last_move.push_back(game_last_moves[i_p]);
 		}
-		for (unsigned int i_o = 0; i_o < other_players_moves.size(); i_o++)
-			ia_tree = ia_tree->changeRoot(other_players_moves[i_o]);
+		ia_tree = ia_tree->changeRoot(each_player_last_move);
+
 		ia_tree->populate(true_level);
 	}
 
+	cout<<"Computing best choice.."<<endl;
+
 	Score * score = ia_tree->compute();
+
 	if (ia_display_tree)
 		ia_tree->display();
+
 	result = ia_tree->bestSon();
 
 	cout<<"IA chose:";
 	for (unsigned int dim = 0; dim < game->dimension(); dim++)
 		cout<<result[dim]<<" ";
 	cout<<"("<<score->value()<<") "<<endl;
-
-	ia_last_move = result;
 
 	return result;
 }

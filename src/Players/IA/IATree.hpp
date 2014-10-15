@@ -61,29 +61,31 @@ class IATree{
 	Score * it_score;					/*!<Game score, when it's computed*/
 	map<Coordinates, IATree *> it_sons;	/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
 
+	IATree * it_root;					/*!<Indicates IATree root*/
 	vector<vector<pair<Coordinates,IATree *> > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
 
 	/*!
-	 * \brief stacks IATree nodes by level, used for display
+	 * \brief adds a level to the choice Tree
 	 */
-	void stackByLevel(vector<vector<pair<Coordinates,IATree *> > > &result, unsigned int level = 0);
+	void populate_last_level();
 
 	/*!
-	 * \brief populate method only used privately
+	 * \brief only recursive function, changes the nodes root
 	 */
-	void private_populate(unsigned int level, unsigned int highest_level);
+	void change_root(IATree * new_root);
 
 	/*!
-	 * \brkef compute method only used privately
+	 * \brief set current IATree as root
 	 */
-	Score * private_compute(bool first_call = false);
+	void set_as_root();
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Player
 	 * \param game : given Game
 	 * \param player : given Player
+	 * \param root : indicates IATree root
 	 */
-	IATree(Game * game, Player * player);
+	IATree(Game * game, Player * player, IATree * root = NULL);
 	/*!
 	 * \brief IATree destructor
 	 */
@@ -107,10 +109,10 @@ public:
 	Coordinates bestSon();
 	/*!
 	 * \brief moves the root to one of the root's son
-	 * \param coordinates : Coordinates of the chose son
+	 * \param coordinates_list : Coordinates of the chosen son
 	 * \return IATree pointer to the new Root
 	 */
-	IATree * changeRoot(Coordinates coordinates);
+	IATree * changeRoot(vector<Coordinates> coordinates);
 
 	/*!
 	 * \brief displays the Tree

@@ -17,7 +17,6 @@
 class IA: public Player{
 	unsigned int ia_level;		/*!<IA level of thinking*/
 	IATree * ia_tree;			/*!<IA Choice Tree*/
-	Coordinates ia_last_move;	/*!<IA last move*/
 	bool ia_display_tree;		/*!<indicates if IA must display the choice Tree (debug)*/
 public:
 	/*!

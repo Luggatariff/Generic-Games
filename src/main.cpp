@@ -9,8 +9,8 @@
 int main( int argamec, const char* argamev[] )
 {
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[0] = new Human();
-	players[1] = new IA(1);
+	players[0] = new IA(1, true);
+	players[1] = new Human();
 
 	Game * game;
 	game = new FourInALine(players[0], players[1]);

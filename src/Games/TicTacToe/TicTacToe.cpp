@@ -23,6 +23,7 @@ TicTacToe::~TicTacToe(){
 
 Game * TicTacToe::copy(){
 	TicTacToe * result = new TicTacToe(this->t_players[0].first, this->t_players[1].first);
+	delete result->t_board;
 	result->t_board = this->t_board->copy();
 	result->t_next_player = this->t_next_player;
 	return (Game *)result;
