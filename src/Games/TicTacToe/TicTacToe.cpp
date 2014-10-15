@@ -115,13 +115,9 @@ int TicTacToe::score(Player * player){
 		for (unsigned int i_p = 0; i_p < t_players.size(); i_p++){
 			unsigned int temp_count = countIncompleteVictoryPatterns(t_players[i_p].first);
 			if (player == t_players[i_p].first){
-				if (temp_count > 0 && player == this->nextPlayer())
-					return victoryScore();
 				incomplete_patterns_count += temp_count;
 			}
 			else{
-				if (temp_count > 0 && player != this->nextPlayer())
-					return -victoryScore();
 				incomplete_patterns_count -= temp_count;
 			}
 		}

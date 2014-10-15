@@ -59,10 +59,11 @@ class IATree{
 	Player * it_player;					/*!<Player considered in computations*/
 
 	Score * it_score;					/*!<Game score, when it's computed*/
+	bool it_definitive_score;			/*!<Indicates if the computed Score is subject to modifications*/
 	map<Coordinates, IATree *> it_sons;	/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
 
 	IATree * it_root;					/*!<Indicates IATree root*/
-	vector<vector<pair<Coordinates,IATree *> > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
+	vector<vector<vector<pair<Coordinates,IATree *> > > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
 
 	/*!
 	 * \brief adds a level to the choice Tree

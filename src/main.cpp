@@ -9,11 +9,11 @@
 int main( int argamec, const char* argamev[] )
 {
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[0] = new IA(1, true);
-	players[1] = new Human();
+	players[0] = new IA(3);
+	players[1] = new IA(1);
 
 	Game * game;
-	game = new FourInALine(players[0], players[1]);
+	game = new TicTacToe(players[0], players[1]);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
