@@ -74,7 +74,7 @@ void IATree::populate_last_level(){
 							IATree * new_iatree = new IATree(son_game, it_player, this);
 							new_iatree->it_score = new Score(son_game->score(it_player));
 							new_iatree->it_definitive_score = true;
-							bool is_winner = son_game->isWinner(iatree_to_populate->it_player);
+							bool is_winner = son_game->isWinner(it_player);
 							delete new_iatree->it_game;
 							new_iatree->it_game = NULL;
 							if (is_winner){
@@ -90,7 +90,7 @@ void IATree::populate_last_level(){
 							}
 						}
 						else
-							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, iatree_to_populate->it_player, this)));
+							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this)));
 					}
 					for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++)
 						new_son_set.push_back(pair<Coordinates, IATree *>(iter_sons->first, iter_sons->second));
