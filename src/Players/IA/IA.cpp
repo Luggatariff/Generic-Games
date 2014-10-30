@@ -51,11 +51,15 @@ Coordinates IA::play(Game * game){
 	unsigned int player_number = game->players().size();
 	int victory_score = game->victoryScore();
 	while(choices.size() > 1 && temp_level <= ia_level){
-		cout<<"Thinking Deep.."<<endl;
+		cout<<"Thinking.."<<endl;
 		unsigned int true_level = temp_level * player_number - 1;
+		unsigned int choices_number = choices.size();
+		unsigned int current_choice = 0;
 
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
 
+		current_choice++;
+		cout<<"Studying choice "<<current_choice<<"/"<<choices_number<<endl;
 		if (choices_iterator->second->populate(true_level)){
 			choices_iterator->second->compute();
 		}
@@ -64,6 +68,9 @@ Coordinates IA::play(Game * game){
 
 		if (best_choice_score->value() != victory_score){
 			for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
+				current_choice++;
+				cout<<"Studying choice "<<current_choice<<"/"<<choices_number<<endl;
+
 				if (choices_iterator->second->populate(true_level))
 					choices_iterator->second->compute();
 				Score * res_score = choices_iterator->second->getScore();

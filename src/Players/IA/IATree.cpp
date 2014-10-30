@@ -76,7 +76,7 @@ void IATree::populate_last_level(){
 							bool is_winner = son_game->isWinner(it_player);
 							delete new_iatree->it_game;
 							new_iatree->it_game = NULL;
-							if (is_winner){
+							if (is_winner && iatree_to_populate->it_game->nextPlayer() == it_player){
 								for(map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_populate->it_sons.begin(); sons_iterator != iatree_to_populate->it_sons.end(); sons_iterator++){
 									delete sons_iterator->second;
 								}
@@ -176,30 +176,37 @@ map<Coordinates, IATree *> IATree::changeRoot(vector<Coordinates> coordinates){
 	IATree * new_roots_father = this;
 	for (vector<Coordinates>::iterator coordinates_iterator = coordinates.begin(); coordinates_iterator != coordinates.end(); coordinates_iterator++){
 		if (new_roots_father->it_sons.empty()) break;
-		new_roots_father = new_roots_father->it_sons[*coordinates_iterator];
+		try{
+			new_roots_father = new_roots_father->it_sons.at(*coordinates_iterator);
+		}
+		catch(...){
+			new_roots_father = NULL;
+		}
 	}
-	for (map<Coordinates, IATree *>::iterator sons_iterator = new_roots_father->it_sons.begin(); sons_iterator != new_roots_father->it_sons.end(); sons_iterator++){
-		sons_iterator->second->set_as_root();
-		new_roots.insert(pair<Coordinates, IATree *>(sons_iterator->first, sons_iterator->second));
-	}
+	if (new_roots_father != NULL){
+		for (map<Coordinates, IATree *>::iterator sons_iterator = new_roots_father->it_sons.begin(); sons_iterator != new_roots_father->it_sons.end(); sons_iterator++){
+			sons_iterator->second->set_as_root();
+			new_roots.insert(pair<Coordinates, IATree *>(sons_iterator->first, sons_iterator->second));
+		}
 
-	vector<vector<vector<pair<Coordinates,IATree *> > > > temp_level_stacks = it_level_stacks;
-	for (map<Coordinates, IATree *>::iterator new_root = new_roots.begin(); new_root != new_roots.end(); new_root++){
-		for(vector<vector<vector<pair<Coordinates,IATree *> > > >::iterator level_iterator = temp_level_stacks.begin(); level_iterator != temp_level_stacks.end(); ++level_iterator){
-			bool new_level_added = false;
-			for(vector<vector<pair<Coordinates,IATree *> > >::iterator sons_sets_iterator = level_iterator->begin(); sons_sets_iterator != level_iterator->end(); ++sons_sets_iterator){
-				bool son_set_added = false;
-				for (vector<pair<Coordinates,IATree *> >::iterator nodes_iterator = sons_sets_iterator->begin(); nodes_iterator != sons_sets_iterator->end(); ++nodes_iterator){
-					if (nodes_iterator->second->it_root == new_root->second){
-						if (!son_set_added){
-							if (!new_level_added){
-								(new_root->second)->it_level_stacks.push_back(vector<vector<pair<Coordinates, IATree *> > >());
-								new_level_added = true;
+		vector<vector<vector<pair<Coordinates,IATree *> > > > temp_level_stacks = it_level_stacks;
+		for (map<Coordinates, IATree *>::iterator new_root = new_roots.begin(); new_root != new_roots.end(); new_root++){
+			for(vector<vector<vector<pair<Coordinates,IATree *> > > >::iterator level_iterator = temp_level_stacks.begin(); level_iterator != temp_level_stacks.end(); ++level_iterator){
+				bool new_level_added = false;
+				for(vector<vector<pair<Coordinates,IATree *> > >::iterator sons_sets_iterator = level_iterator->begin(); sons_sets_iterator != level_iterator->end(); ++sons_sets_iterator){
+					bool son_set_added = false;
+					for (vector<pair<Coordinates,IATree *> >::iterator nodes_iterator = sons_sets_iterator->begin(); nodes_iterator != sons_sets_iterator->end(); ++nodes_iterator){
+						if (nodes_iterator->second->it_root == new_root->second){
+							if (!son_set_added){
+								if (!new_level_added){
+									(new_root->second)->it_level_stacks.push_back(vector<vector<pair<Coordinates, IATree *> > >());
+									new_level_added = true;
+								}
+								((new_root->second)->it_level_stacks.back()).push_back(vector<pair<Coordinates, IATree *> >());
+								son_set_added = true;
 							}
-							((new_root->second)->it_level_stacks.back()).push_back(vector<pair<Coordinates, IATree *> >());
-							son_set_added = true;
+							(((new_root->second)->it_level_stacks.back()).back()).push_back(pair<Coordinates, IATree *>(nodes_iterator->first, nodes_iterator->second));
 						}
-						(((new_root->second)->it_level_stacks.back()).back()).push_back(pair<Coordinates, IATree *>(nodes_iterator->first, nodes_iterator->second));
 					}
 				}
 			}
