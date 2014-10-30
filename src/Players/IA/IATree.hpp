@@ -63,12 +63,18 @@ class IATree{
 	map<Coordinates, IATree *> it_sons;	/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
 
 	IATree * it_root;					/*!<Indicates IATree root*/
+	unsigned int it_node_number;		/*!<Number of Nodes in the Tree*/
 	vector<vector<vector<pair<Coordinates,IATree *> > > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
 
 	/*!
 	 * \brief adds a level to the choice Tree
 	 */
 	void populate_last_level();
+
+	/*!
+	 * \brief allows to estimate size of the new last level to be added
+	 */
+	unsigned int estimate_last_level_size();
 
 	/*!
 	 * \brief only recursive function, changes the nodes root
@@ -93,11 +99,11 @@ public:
 	~IATree();
 	/*!
 	 * \brief populates (or re-populates) the choice Tree, initializing (or re-initializing) the computation
-	 * \param level : depth of the computation
-	 * \param fast_compute : compute a result faster by not considering the sons of a Game for which a score different from zero can be computed
+	 * \param min_level : min depth of the computation
+	 * \param max_node_number : when min level is reached, populate function tries to reach a max node number
 	 * \return True if the Tree was effectively populated
 	 */
-	bool populate(unsigned int level);
+	bool populate(unsigned int min_level, unsigned int max_node_number = 0);
 	/*!
 	 * \brief computes the score for each node in the Tree in order to know the value of the Root Node
 	 */
@@ -113,10 +119,15 @@ public:
 	 * \returns IATree Score value
 	 */
 	Score * getScore();
+	/*!
+	 * \brief returns node number
+	 * \return node number
+	 */
+	unsigned int getNodeNumber();
 
 	/*!
 	 * \brief moves the root to one of the root's son
-	 * \param coordinates_list : Coordinates of the chosen son
+	 * \param coordinates : Coordinates of the chosen son
 	 * \return IATree list of next possible choices
 	 */
 	map<Coordinates, IATree *> changeRoot(vector<Coordinates> coordinates);

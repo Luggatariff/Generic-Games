@@ -13,9 +13,11 @@ IA::IA(unsigned int level, bool display_tree){
 	ia_level = (level > 0) ? level : 1;
 	ia_tree = NULL;
 	ia_display_tree = display_tree;
+	ia_max_choice_tree_size = 0;
 }
 
 void IA::start(Game * game){
+	ia_max_choice_tree_size = 0;
 	if (ia_tree != NULL){
 		delete ia_tree;
 		ia_tree = NULL;
@@ -45,34 +47,30 @@ Coordinates IA::play(Game * game){
 		}
 	}
 
-	cout<<"Computing best choice.."<<endl;
-
 	unsigned int temp_level = 1;
 	unsigned int player_number = game->players().size();
 	int victory_score = game->victoryScore();
+	cout<<"Thinking.."<<endl;
 	while(choices.size() > 1 && temp_level <= ia_level){
-		cout<<"Thinking.."<<endl;
 		unsigned int true_level = temp_level * player_number - 1;
-		unsigned int choices_number = choices.size();
-		unsigned int current_choice = 0;
 
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
 
-		current_choice++;
-		cout<<"Studying choice "<<current_choice<<"/"<<choices_number<<endl;
-		if (choices_iterator->second->populate(true_level)){
+		if (choices_iterator->second->populate(true_level, (temp_level == ia_level) ? ia_max_choice_tree_size : 0)){
 			choices_iterator->second->compute();
 		}
+		if (choices_iterator->second->getNodeNumber() > ia_max_choice_tree_size)
+			ia_max_choice_tree_size = choices_iterator->second->getNodeNumber();
 
 		Score * best_choice_score = choices_iterator->second->getScore();
 
 		if (best_choice_score->value() != victory_score){
 			for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
-				current_choice++;
-				cout<<"Studying choice "<<current_choice<<"/"<<choices_number<<endl;
 
-				if (choices_iterator->second->populate(true_level))
+				if (choices_iterator->second->populate(true_level, (temp_level == ia_level) ? ia_max_choice_tree_size : 0))
 					choices_iterator->second->compute();
+				if (choices_iterator->second->getNodeNumber() > ia_max_choice_tree_size)
+					ia_max_choice_tree_size = choices_iterator->second->getNodeNumber();
 				Score * res_score = choices_iterator->second->getScore();
 				if ((res_score->value() >= best_choice_score->value()) && ((res_score->value() > best_choice_score->value()) || (res_score->value() > 0 && res_score->depth() < best_choice_score->depth()) || (res_score->value() < 0 && res_score->depth() > best_choice_score->depth()))){
 					best_choice_score = res_score;

@@ -15,6 +15,7 @@ IATree::IATree(Game * game, Player * player, IATree * root){
 	this->it_player = player;
 	this->it_score = NULL;
 	this->it_definitive_score = false;
+	this->it_node_number = 0;
 
 	if (root == NULL)
 		this->it_root = this;
@@ -27,6 +28,7 @@ IATree::IATree(Game * game, Player * player, IATree * root){
 		vector<vector<pair<Coordinates, IATree *> > > level_zero;
 		level_zero.push_back(first_son_set);
 		it_level_stacks.push_back(level_zero);
+		it_node_number = 1;
 	}
 }
 
@@ -44,10 +46,16 @@ IATree::~IATree(){
 	}
 }
 
-bool IATree::populate(unsigned int level){
-	int populate_iterations = level - it_level_stacks.size() + 1;
+bool IATree::populate(unsigned int min_level, unsigned int max_node_number){
+	int populate_iterations = min_level - it_level_stacks.size() + 1;
 	for (int iterations = 0; iterations < populate_iterations; iterations++)
 		populate_last_level();
+	while (it_node_number + estimate_last_level_size() < max_node_number){
+		unsigned int old_node_number = it_node_number;
+		populate_last_level();
+		if (old_node_number == it_node_number) break;
+		else populate_iterations++;
+	}
 	return (populate_iterations>0);
 }
 
@@ -91,8 +99,10 @@ void IATree::populate_last_level(){
 						else
 							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this)));
 					}
-					for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++)
+					for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++){
 						new_son_set.push_back(pair<Coordinates, IATree *>(iter_sons->first, iter_sons->second));
+						it_node_number++;
+					}
 					delete iatree_to_populate->it_game;
 					iatree_to_populate->it_game = NULL;
 
@@ -103,6 +113,25 @@ void IATree::populate_last_level(){
 	}
 
 	it_level_stacks.push_back(new_level);
+}
+
+unsigned int IATree::estimate_last_level_size(){
+	unsigned int result = 0;
+	vector<vector<pair<Coordinates, IATree *> > > last_level = it_level_stacks.back();
+
+	for (vector<vector<pair<Coordinates, IATree *> > >::iterator last_level_iterator = last_level.begin(); last_level_iterator != last_level.end(); ++last_level_iterator){
+		for(vector<pair<Coordinates, IATree *> >::iterator son_set_iterator = last_level_iterator->begin(); son_set_iterator != last_level_iterator->end(); ++son_set_iterator){
+			IATree * iatree_to_populate = son_set_iterator->second;
+			if (iatree_to_populate->it_game != NULL){
+				vector<Coordinates> playable_moves = iatree_to_populate->it_game->playableCoordinates();
+				for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
+					result++;
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
 void IATree::compute(){
@@ -159,6 +188,9 @@ void IATree::compute(){
 Score * IATree::getScore(){
 	return this->it_score;
 }
+unsigned int IATree::getNodeNumber(){
+	return this->it_node_number;
+}
 
 void IATree::set_as_root(){
 	change_root(this);
@@ -206,6 +238,7 @@ map<Coordinates, IATree *> IATree::changeRoot(vector<Coordinates> coordinates){
 								son_set_added = true;
 							}
 							(((new_root->second)->it_level_stacks.back()).back()).push_back(pair<Coordinates, IATree *>(nodes_iterator->first, nodes_iterator->second));
+							(new_root->second)->it_node_number++;
 						}
 					}
 				}
@@ -219,7 +252,12 @@ map<Coordinates, IATree *> IATree::changeRoot(vector<Coordinates> coordinates){
 }
 
 void IATree::display(){
-	unsigned int score_width = 5;
+	if (this->it_score != NULL){
+		cerr<<"score value : "<<this->it_score->value()<<endl;
+		cerr<<"score depth : "<<this->it_score->depth()<<endl;
+	}
+	cerr<<"tree depth : "<<this->it_level_stacks.size()<<endl;
+	/*unsigned int score_width = 5;
 	char separator_between_nodes = '/';
 	char separator_between_son_sets = '|';
 	char separator_in_nodes = ',';
@@ -263,7 +301,7 @@ void IATree::display(){
 			cerr<<separator_between_son_sets;
 		}
 		cerr<<endl;
-	}
+	}*/
 }
 
 Score::Score(int value){

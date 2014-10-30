@@ -17,6 +17,7 @@
 class IA: public Player{
 	unsigned int ia_level;					/*!<IA level of thinking*/
 	IATree * ia_tree;						/*!<IA Choice Tree*/
+	unsigned int ia_max_choice_tree_size;	/*!<IA max choice tree size in nodes number*/
 	bool ia_display_tree;					/*!<indicates if IA must display the choice Tree (debug)*/
 public:
 	/*!
