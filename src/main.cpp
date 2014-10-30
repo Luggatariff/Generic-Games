@@ -10,11 +10,11 @@
 int main( int argamec, const char* argamev[] )
 {
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[0] = new IA(3);
+	players[0] = new IA(2);
 	players[1] = new Human();
 
 	Game * game;
-	game = new Sticks(players[0], players[1], 16);
+	game = new Sticks(players[0], players[1], 15);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
@@ -38,11 +38,11 @@ int main( int argamec, const char* argamev[] )
 			cout<<"Draw!"<<endl;
 		}
 
-		char commande;
+		/*char commande;
 		cout<<"Continue? (o/n):";
 		cin>>commande;
 		if (commande == 'n')
-			break;
+			break;*/
 	}
 	delete game;
 	for (unsigned int i_p = 0; i_p < players.size(); i_p++)

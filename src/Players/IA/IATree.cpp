@@ -4,8 +4,6 @@
  * \author Anaël Petit
  */
 
-#include <cstdlib>
-#include <ctime>
 #include <iomanip>
 
 #include "IATree.hpp"
@@ -46,10 +44,11 @@ IATree::~IATree(){
 	}
 }
 
-void IATree::populate(unsigned int level){
-	unsigned int populate_iterations = level - it_level_stacks.size() + 1;
-	for (unsigned int iterations = 0; iterations < populate_iterations; iterations++)
+bool IATree::populate(unsigned int level){
+	int populate_iterations = level - it_level_stacks.size() + 1;
+	for (int iterations = 0; iterations < populate_iterations; iterations++)
 		populate_last_level();
+	return (populate_iterations>0);
 }
 
 void IATree::populate_last_level(){
@@ -106,11 +105,17 @@ void IATree::populate_last_level(){
 	it_level_stacks.push_back(new_level);
 }
 
-Score * IATree::compute(){
+void IATree::compute(){
 	for(vector<vector<vector<pair<Coordinates,IATree *> > > >::reverse_iterator level_iterator = it_level_stacks.rbegin(); level_iterator != it_level_stacks.rend(); ++level_iterator){
 		for (vector<vector<pair<Coordinates,IATree *> > >::iterator sons_sets_iterator = level_iterator->begin(); sons_sets_iterator != level_iterator->end(); ++sons_sets_iterator){
 			for (vector<pair<Coordinates,IATree *> >::iterator nodes_iterator = sons_sets_iterator->begin(); nodes_iterator != sons_sets_iterator->end(); ++nodes_iterator){
 				IATree * iatree_to_compute = nodes_iterator->second;
+
+				if (!iatree_to_compute->it_definitive_score){
+					delete iatree_to_compute->it_score;
+					iatree_to_compute->it_score = NULL;
+				}
+
 				if (iatree_to_compute->it_score != NULL) continue;
 
 				if (iatree_to_compute->it_sons.empty() && iatree_to_compute->it_game != NULL){
@@ -149,27 +154,10 @@ Score * IATree::compute(){
 			}
 		}
 	}
-
-	return this->it_score;
 }
 
-Coordinates IATree::bestSon(){
-	vector<Coordinates> it_bestsons;
-	for(map<Coordinates, IATree *>::iterator sons_iterator = it_sons.begin(); sons_iterator != it_sons.end(); sons_iterator++){
-		if (sons_iterator->second->it_score->value() == this->it_score->value() && sons_iterator->second->it_score->depth() == (this->it_score->depth() - 1)){
-			it_bestsons.push_back(sons_iterator->first);
-		}
-	}
-	Coordinates bestson_coordinates;
-	if (it_bestsons.size() == 1)
-		bestson_coordinates = it_bestsons[0];
-	else{
-		srand ( time(NULL) );
-		unsigned int random_uint;
-		random_uint =  rand() % (it_bestsons.size()-1);
-		bestson_coordinates = it_bestsons[random_uint];
-	}
-	return bestson_coordinates;
+Score * IATree::getScore(){
+	return this->it_score;
 }
 
 void IATree::set_as_root(){
@@ -183,33 +171,35 @@ void IATree::change_root(IATree * new_root){
 	}
 }
 
-IATree * IATree::changeRoot(vector<Coordinates> coordinates){
-	IATree * new_root = this;
+map<Coordinates, IATree *> IATree::changeRoot(vector<Coordinates> coordinates){
+	map<Coordinates, IATree *> new_roots;
+	IATree * new_roots_father = this;
 	for (vector<Coordinates>::iterator coordinates_iterator = coordinates.begin(); coordinates_iterator != coordinates.end(); coordinates_iterator++){
-		new_root = new_root->it_sons[*coordinates_iterator];
+		if (new_roots_father->it_sons.empty()) break;
+		new_roots_father = new_roots_father->it_sons[*coordinates_iterator];
+	}
+	for (map<Coordinates, IATree *>::iterator sons_iterator = new_roots_father->it_sons.begin(); sons_iterator != new_roots_father->it_sons.end(); sons_iterator++){
+		sons_iterator->second->set_as_root();
+		new_roots.insert(pair<Coordinates, IATree *>(sons_iterator->first, sons_iterator->second));
 	}
 
-	new_root->set_as_root();
-
 	vector<vector<vector<pair<Coordinates,IATree *> > > > temp_level_stacks = it_level_stacks;
-	for(vector<vector<vector<pair<Coordinates,IATree *> > > >::iterator level_iterator = temp_level_stacks.begin(); level_iterator != temp_level_stacks.end(); ++level_iterator){
-		bool new_level_added = false;
-		for(vector<vector<pair<Coordinates,IATree *> > >::iterator sons_sets_iterator = level_iterator->begin(); sons_sets_iterator != level_iterator->end(); ++sons_sets_iterator){
-			bool son_set_added = false;
-			for (vector<pair<Coordinates,IATree *> >::iterator nodes_iterator = sons_sets_iterator->begin(); nodes_iterator != sons_sets_iterator->end(); ++nodes_iterator){
-				if (nodes_iterator->second->it_root == new_root){
-					if (!son_set_added){
-						if (!new_level_added){
-							new_root->it_level_stacks.push_back(vector<vector<pair<Coordinates, IATree *> > >());
-							new_level_added = true;
+	for (map<Coordinates, IATree *>::iterator new_root = new_roots.begin(); new_root != new_roots.end(); new_root++){
+		for(vector<vector<vector<pair<Coordinates,IATree *> > > >::iterator level_iterator = temp_level_stacks.begin(); level_iterator != temp_level_stacks.end(); ++level_iterator){
+			bool new_level_added = false;
+			for(vector<vector<pair<Coordinates,IATree *> > >::iterator sons_sets_iterator = level_iterator->begin(); sons_sets_iterator != level_iterator->end(); ++sons_sets_iterator){
+				bool son_set_added = false;
+				for (vector<pair<Coordinates,IATree *> >::iterator nodes_iterator = sons_sets_iterator->begin(); nodes_iterator != sons_sets_iterator->end(); ++nodes_iterator){
+					if (nodes_iterator->second->it_root == new_root->second){
+						if (!son_set_added){
+							if (!new_level_added){
+								(new_root->second)->it_level_stacks.push_back(vector<vector<pair<Coordinates, IATree *> > >());
+								new_level_added = true;
+							}
+							((new_root->second)->it_level_stacks.back()).push_back(vector<pair<Coordinates, IATree *> >());
+							son_set_added = true;
 						}
-						(new_root->it_level_stacks.back()).push_back(vector<pair<Coordinates, IATree *> >());
-						son_set_added = true;
-					}
-					((new_root->it_level_stacks.back()).back()).push_back(pair<Coordinates, IATree *>(nodes_iterator->first, nodes_iterator->second));
-					if (!nodes_iterator->second->it_definitive_score){
-						delete nodes_iterator->second->it_score;
-						nodes_iterator->second->it_score = NULL;
+						(((new_root->second)->it_level_stacks.back()).back()).push_back(pair<Coordinates, IATree *>(nodes_iterator->first, nodes_iterator->second));
 					}
 				}
 			}
@@ -218,7 +208,7 @@ IATree * IATree::changeRoot(vector<Coordinates> coordinates){
 
 	delete this;
 
-	return new_root;
+	return new_roots;
 }
 
 void IATree::display(){

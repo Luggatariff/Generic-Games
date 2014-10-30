@@ -95,25 +95,31 @@ public:
 	 * \brief populates (or re-populates) the choice Tree, initializing (or re-initializing) the computation
 	 * \param level : depth of the computation
 	 * \param fast_compute : compute a result faster by not considering the sons of a Game for which a score different from zero can be computed
+	 * \return True if the Tree was effectively populated
 	 */
-	void populate(unsigned int level);
+	bool populate(unsigned int level);
 	/*!
 	 * \brief computes the score for each node in the Tree in order to know the value of the Root Node
-	 * \return computed score
 	 */
-	Score * compute();
+	void compute();
 
 	/*!
-	 * \brief gets the best son's Coordinates
-	 * \return best son's Coordinates
+	 * \brief clears not definitive Scores
 	 */
-	Coordinates bestSon();
+	void clearScores();
+
+	/*!
+	 * \brief gets the IATree Score value
+	 * \returns IATree Score value
+	 */
+	Score * getScore();
+
 	/*!
 	 * \brief moves the root to one of the root's son
 	 * \param coordinates_list : Coordinates of the chosen son
-	 * \return IATree pointer to the new Root
+	 * \return IATree list of next possible choices
 	 */
-	IATree * changeRoot(vector<Coordinates> coordinates);
+	map<Coordinates, IATree *> changeRoot(vector<Coordinates> coordinates);
 
 	/*!
 	 * \brief displays the Tree
