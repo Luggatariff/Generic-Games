@@ -50,88 +50,78 @@ bool IATree::populate(unsigned int min_level, unsigned int max_node_number){
 	int populate_iterations = min_level - it_level_stacks.size() + 1;
 	for (int iterations = 0; iterations < populate_iterations; iterations++)
 		populate_last_level();
-	while (it_node_number + estimate_last_level_size() < max_node_number){
+	while (it_node_number < max_node_number){
 		unsigned int old_node_number = it_node_number;
-		populate_last_level();
+		populate_last_level(max_node_number);
 		if (old_node_number == it_node_number) break;
 		else populate_iterations++;
 	}
 	return (populate_iterations>0);
 }
 
-void IATree::populate_last_level(){
-	vector<vector<pair<Coordinates, IATree *> > > last_level = it_level_stacks.back();
-
+void IATree::populate_last_level(unsigned int max_node_number){
 	vector<vector<pair<Coordinates, IATree *> > > new_level;
-	for (vector<vector<pair<Coordinates, IATree *> > >::iterator last_level_iterator = last_level.begin(); last_level_iterator != last_level.end(); ++last_level_iterator){
-		for(vector<pair<Coordinates, IATree *> >::iterator son_set_iterator = last_level_iterator->begin(); son_set_iterator != last_level_iterator->end(); ++son_set_iterator){
+
+	vector<vector<pair<Coordinates, IATree *> > >::iterator last_level_iterator;
+	for (last_level_iterator = it_level_stacks.back().begin(); last_level_iterator != it_level_stacks.back().end(); ++last_level_iterator){
+		vector<pair<Coordinates, IATree *> >::iterator son_set_iterator = last_level_iterator->begin();
+		while(son_set_iterator != last_level_iterator->end()){
 			IATree * iatree_to_populate = son_set_iterator->second;
 
-			if (iatree_to_populate->it_game != NULL){
-				vector<Coordinates> playable_moves = iatree_to_populate->it_game->playableCoordinates();
+			if (max_node_number != 0 && it_node_number > max_node_number){
+				vector<pair<Coordinates, IATree *> > new_son_set;
+				new_son_set.push_back(pair<Coordinates, IATree *>(son_set_iterator->first, iatree_to_populate));
+				last_level_iterator->erase(son_set_iterator);
+				new_level.push_back(new_son_set);
+			}
+			else{
+				if (iatree_to_populate->it_game != NULL){
+					vector<Coordinates> playable_moves = iatree_to_populate->it_game->playableCoordinates();
 
-				if (!playable_moves.empty()){
-					vector<pair<Coordinates, IATree *> > new_son_set;
+					if (!playable_moves.empty()){
+						vector<pair<Coordinates, IATree *> > new_son_set;
+							for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
+								Game * son_game = iatree_to_populate->it_game->copy();
+								son_game->play(playable_moves[i_pm]);
 
-					for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
-						Game * son_game = iatree_to_populate->it_game->copy();
-						son_game->play(playable_moves[i_pm]);
-
-						if (son_game->isEnded()){
-							IATree * new_iatree = new IATree(son_game, it_player, this);
-							new_iatree->it_score = new Score(son_game->score(it_player));
-							new_iatree->it_definitive_score = true;
-							bool is_winner = son_game->isWinner(it_player);
-							delete new_iatree->it_game;
-							new_iatree->it_game = NULL;
-							if (is_winner && iatree_to_populate->it_game->nextPlayer() == it_player){
-								for(map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_populate->it_sons.begin(); sons_iterator != iatree_to_populate->it_sons.end(); sons_iterator++){
-									delete sons_iterator->second;
+								if (son_game->isEnded()){
+									IATree * new_iatree = new IATree(son_game, it_player, this);
+									new_iatree->it_score = new Score(son_game->score(it_player));
+									new_iatree->it_definitive_score = true;
+									bool is_winner = son_game->isWinner(it_player);
+									delete new_iatree->it_game;
+									new_iatree->it_game = NULL;
+									if (is_winner && iatree_to_populate->it_game->nextPlayer() == it_player){
+										for(map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_populate->it_sons.begin(); sons_iterator != iatree_to_populate->it_sons.end(); sons_iterator++){
+											delete sons_iterator->second;
+										}
+										iatree_to_populate->it_sons.clear();
+										iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
+										break;
+									}
+									else{
+										iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
+									}
 								}
-								iatree_to_populate->it_sons.clear();
-								iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
-								break;
+								else
+									iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this)));
 							}
-							else{
-								iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
+							for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++){
+								new_son_set.push_back(pair<Coordinates, IATree *>(iter_sons->first, iter_sons->second));
+								it_node_number++;
 							}
-						}
-						else
-							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this)));
-					}
-					for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++){
-						new_son_set.push_back(pair<Coordinates, IATree *>(iter_sons->first, iter_sons->second));
-						it_node_number++;
-					}
-					delete iatree_to_populate->it_game;
-					iatree_to_populate->it_game = NULL;
+							delete iatree_to_populate->it_game;
+							iatree_to_populate->it_game = NULL;
 
-					new_level.push_back(new_son_set);
+						new_level.push_back(new_son_set);
+					}
 				}
+				son_set_iterator++;
 			}
 		}
 	}
 
 	it_level_stacks.push_back(new_level);
-}
-
-unsigned int IATree::estimate_last_level_size(){
-	unsigned int result = 0;
-	vector<vector<pair<Coordinates, IATree *> > > last_level = it_level_stacks.back();
-
-	for (vector<vector<pair<Coordinates, IATree *> > >::iterator last_level_iterator = last_level.begin(); last_level_iterator != last_level.end(); ++last_level_iterator){
-		for(vector<pair<Coordinates, IATree *> >::iterator son_set_iterator = last_level_iterator->begin(); son_set_iterator != last_level_iterator->end(); ++son_set_iterator){
-			IATree * iatree_to_populate = son_set_iterator->second;
-			if (iatree_to_populate->it_game != NULL){
-				vector<Coordinates> playable_moves = iatree_to_populate->it_game->playableCoordinates();
-				for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
-					result++;
-				}
-			}
-		}
-	}
-
-	return result;
 }
 
 void IATree::compute(){
@@ -253,10 +243,10 @@ map<Coordinates, IATree *> IATree::changeRoot(vector<Coordinates> coordinates){
 
 void IATree::display(){
 	if (this->it_score != NULL){
-		cerr<<"score value : "<<this->it_score->value()<<endl;
-		cerr<<"score depth : "<<this->it_score->depth()<<endl;
+		cerr<<"score value : "<<this->it_score->value()<<"\r";
+		cerr<<"score depth : "<<this->it_score->depth()<<"\r";
 	}
-	cerr<<"tree depth : "<<this->it_level_stacks.size()<<endl;
+	cerr<<"tree depth : "<<this->it_level_stacks.size()<<"\r";
 	/*unsigned int score_width = 5;
 	char separator_between_nodes = '/';
 	char separator_between_son_sets = '|';
@@ -288,7 +278,7 @@ void IATree::display(){
 			}
 			cerr<<separator_between_son_sets;
 		}
-		cerr<<endl;
+		cerr<<"\r";
 		for(vector<vector<pair<Coordinates,IATree *> > >::iterator sons_sets_iterator = level_iterator->begin(); sons_sets_iterator != level_iterator->end(); ++sons_sets_iterator){
 			for (vector<pair<Coordinates,IATree *> >::iterator nodes_iterator = sons_sets_iterator->begin(); nodes_iterator != sons_sets_iterator->end(); ++nodes_iterator){
 				cerr<<setw(score_width);
@@ -300,8 +290,9 @@ void IATree::display(){
 			}
 			cerr<<separator_between_son_sets;
 		}
-		cerr<<endl;
+		cerr<<"\r";
 	}*/
+	cerr<<endl;
 }
 
 Score::Score(int value){

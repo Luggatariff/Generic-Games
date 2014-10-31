@@ -69,12 +69,7 @@ class IATree{
 	/*!
 	 * \brief adds a level to the choice Tree
 	 */
-	void populate_last_level();
-
-	/*!
-	 * \brief allows to estimate size of the new last level to be added
-	 */
-	unsigned int estimate_last_level_size();
+	void populate_last_level(unsigned int max_node_number = 0);
 
 	/*!
 	 * \brief only recursive function, changes the nodes root

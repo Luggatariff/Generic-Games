@@ -155,12 +155,12 @@ void Sticks::display(std::ostream & out){
 			cout<<' ';
 		cout<<' ';
 	}
-	cout<<endl;
+	cout<<'\r';
 	for (stick[0] = 0; stick[0] < t_max_sticks_number; stick[0]++){
 		cout<<setw(2);
 		cout<<stick[0];
 		cout<<' ';
 	}
-	out<<std::endl;
+	out<<'\r';
 	out<<"Remaining Sticks : "<<t_sticks_remaining<<std::endl;
 }
