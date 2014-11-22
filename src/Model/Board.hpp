@@ -79,13 +79,7 @@ public:
 
 		bool all_values_to_end = false;
 		while (!all_values_to_end){
-			vector<pair<Coordinates, Square<SquareAttribute> > > pattern_squares = pattern->getSquares(pattern_vars_values);
-			bool success = true;
-			for (unsigned int i_ps = 0; i_ps < pattern_squares.size(); i_ps++){
-				success = success && this->getSquare(pattern_squares[i_ps].first)->isEqualTo(pattern_squares[i_ps].second);
-				if (!success) break;
-			}
-			if (success) found_patterns++;
+			if (checkPatternSquares(pattern->getSquares(pattern_vars_values))) found_patterns++;
 
 			all_values_to_end = true;
 			for (unsigned int i_pv = 0; i_pv < pattern_vars_values.size(); i_pv++){
@@ -101,6 +95,27 @@ public:
 		}
 
 		return found_patterns;
+	}
+
+	/*!
+	 * \brief checks if some Board Squares correspond to a Square list
+	 * \param pattern_squares : Coordinates of Squares and Squares to compare
+	 * \return True if the Pattern matches the Board Squares, False otherwise
+	 */
+	bool checkPatternSquares(vector<pair<Coordinates, Square<SquareAttribute> > > pattern_squares){
+		bool success = true;
+		for (unsigned int i_ps = 0; i_ps < pattern_squares.size(); i_ps++){
+			success = success && this->getSquare(pattern_squares[i_ps].first)->isEqualTo(pattern_squares[i_ps].second);
+			if (!success) break;
+		}
+		return success;
+	}
+
+	/*!
+	 * \brief gets the maximum Coordinate for each dimension
+	 */
+	Coordinates getMaxCoordinates(){
+		return b_max_coordinates;
 	}
 };
 

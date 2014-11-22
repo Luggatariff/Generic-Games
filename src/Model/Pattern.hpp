@@ -8,7 +8,6 @@
 #define PATTERN_HPP
 
 #include "Square.hpp"
-#include "Pattern.hpp"
 #include "vector"
 
 using namespace std;
