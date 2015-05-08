@@ -4,6 +4,8 @@
  * \author Anaël Petit
  */
 
+#include <iostream>
+
 #include "Coordinates.hpp"
 
 Coordinates::Coordinates(unsigned int dimension){
@@ -46,4 +48,15 @@ unsigned int Coordinates::y(){
 
 unsigned int Coordinates::z(){
 	return (*this)[2];
+}
+
+void Coordinates::display(){
+	cerr << "(";
+	for (vector<unsigned int>::iterator coord_iterator = m_coordinates.begin(); coord_iterator != m_coordinates.end(); ++coord_iterator){
+		if ( coord_iterator != m_coordinates.begin() ){
+			cerr << " ";
+		}
+		cerr << *coord_iterator;
+	}
+	cerr << ")";
 }

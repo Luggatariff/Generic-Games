@@ -71,6 +71,11 @@ public:
 	 * \return coordinate on the third dimension (0 if the dimension isn't considered)
 	 */
 	unsigned int z();
+
+	/*!
+	 * \brief displays the coordinates on the error output
+	 */
+	void display();
 };
 
 #endif
