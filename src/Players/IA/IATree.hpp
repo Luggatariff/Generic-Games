@@ -82,6 +82,12 @@ class IATree{
 	 * \brief set current IATree as root
 	 */
 	void set_as_root();
+
+	/*!
+	 * \brief get the last played moves by getting up the tree
+	 * \return list of Coordinates
+	 */
+	vector<Coordinates> get_last_moves();
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Player

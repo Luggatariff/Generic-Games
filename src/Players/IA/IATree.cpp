@@ -52,6 +52,15 @@ IATree::~IATree(){
 	}
 }
 
+vector<Coordinates> IATree::get_last_moves(){
+	vector<Coordinates> result;
+	if (it_root != this){
+		result = it_father->get_last_moves();
+		result.push_back(it_son_id);
+	}
+	return result;
+}
+
 bool IATree::populate(unsigned int min_level, unsigned int max_node_number){
 	int populate_iterations = min_level - it_level_stacks.size() + 1;
 	for (int iterations = 0; iterations < populate_iterations; iterations++)
