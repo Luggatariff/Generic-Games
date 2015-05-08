@@ -63,6 +63,8 @@ class IATree{
 	map<Coordinates, IATree *> it_sons;	/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
 
 	IATree * it_root;					/*!<Indicates IATree root*/
+	IATree * it_father;					/*!<Indicates IATree father node*/
+	Coordinates it_son_id;				/*!<Indactes one IATree son id for its father*/
 	unsigned int it_node_number;		/*!<Number of Nodes in the Tree*/
 	vector<vector<vector<pair<Coordinates,IATree *> > > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
 
@@ -87,7 +89,7 @@ public:
 	 * \param player : given Player
 	 * \param root : indicates IATree root
 	 */
-	IATree(Game * game, Player * player, IATree * root = NULL);
+	IATree(Game * game, Player * player, IATree * root = NULL, IATree * father = NULL, Coordinates son_id = Coordinates(0));
 	/*!
 	 * \brief IATree destructor
 	 */

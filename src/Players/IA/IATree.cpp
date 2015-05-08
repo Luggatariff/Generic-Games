@@ -8,7 +8,7 @@
 
 #include "IATree.hpp"
 
-IATree::IATree(Game * game, Player * player, IATree * root){
+IATree::IATree(Game * game, Player * player, IATree * root, IATree * father, Coordinates son_id){
 	this->it_game = game;
 	this->it_next_player = game->nextPlayer();
 	this->it_victory_score = game->victoryScore();
@@ -29,6 +29,12 @@ IATree::IATree(Game * game, Player * player, IATree * root){
 		level_zero.push_back(first_son_set);
 		it_level_stacks.push_back(level_zero);
 		it_node_number = 1;
+
+		this->it_father = NULL;
+	}
+	else{
+		this->it_father = father;
+		this->it_son_id = son_id;
 	}
 }
 
@@ -85,7 +91,7 @@ void IATree::populate_last_level(unsigned int max_node_number){
 								son_game->play(playable_moves[i_pm]);
 
 								if (son_game->isEnded()){
-									IATree * new_iatree = new IATree(son_game, it_player, this);
+									IATree * new_iatree = new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm]);
 									new_iatree->it_score = new Score(son_game->score(it_player));
 									new_iatree->it_definitive_score = true;
 									bool is_winner = son_game->isWinner(it_player);
@@ -104,7 +110,7 @@ void IATree::populate_last_level(unsigned int max_node_number){
 									}
 								}
 								else
-									iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this)));
+									iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
 							}
 							for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++){
 								new_son_set.push_back(pair<Coordinates, IATree *>(iter_sons->first, iter_sons->second));
@@ -183,6 +189,7 @@ unsigned int IATree::getNodeNumber(){
 }
 
 void IATree::set_as_root(){
+	this->it_father = NULL;
 	change_root(this);
 }
 
