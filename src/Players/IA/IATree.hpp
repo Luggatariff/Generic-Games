@@ -54,7 +54,6 @@ public:
  */
 class IATree{
 	Game * it_game;						/*!<Game associated to the node*/
-	int it_victory_score;				/*!<Game victory score*/
 	Player * it_next_player;			/*!<Game last Player*/
 	Player * it_player;					/*!<Player considered in computations*/
 
@@ -88,6 +87,12 @@ class IATree{
 	 * \return list of Coordinates
 	 */
 	vector<Coordinates> get_last_moves();
+
+	/*!
+	 * \brief this function returns a copy of the Game corresponding to its node
+	 * \return a Game pointer (don't forget to delete it)
+	 */
+	Game * get_game_copy();
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Player
