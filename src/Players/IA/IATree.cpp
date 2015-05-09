@@ -86,7 +86,7 @@ bool IATree::populate(unsigned int min_level, unsigned int max_node_number){
 
 void IATree::populate_last_level(unsigned int max_node_number){
 	//cerr<<"Populating last level...\n";
-	unsigned int last_displayed=it_node_number;
+	//unsigned int last_displayed=it_node_number;
 
 	vector<vector<pair<Coordinates, IATree *> > > new_level;
 	vector<vector<pair<Coordinates, IATree *> > >::iterator last_level_iterator;
