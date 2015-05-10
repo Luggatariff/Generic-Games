@@ -51,26 +51,18 @@ Coordinates IA::play(Game * game){
 	cout<<"Thinking.."<<endl;
 	while(choices.size() > 1 && temp_level <= ia_level){
 		unsigned int true_level = temp_level * player_number - 1;
-		map<Coordinates, IATree *>::iterator choices_iterator;
 
-		//cout << "Level :" << temp_level << endl;
+		#pragma omp parallel for
+		for(unsigned int choices_iterator_index = 0; choices_iterator_index < choices.size() ; choices_iterator_index++){
+			map<Coordinates, IATree *>::iterator omp_choices_iterator=choices.begin();
+			advance(omp_choices_iterator, choices_iterator_index);
 
-		#pragma omp parallel
-		#pragma omp single
-		for(choices_iterator = choices.begin(); choices_iterator != choices.end(); choices_iterator++){
-			#pragma omp task firstprivate(choices_iterator)
-			{
-				//cout << distance(choices.begin(), choices_iterator) << " Populating" << endl;
-				if (choices_iterator->second->populate(true_level)){
-					//cout << distance(choices.begin(), choices_iterator) << " Computing" << endl;
-					choices_iterator->second->compute();
-				}
-				//cout << distance(choices.begin(), choices_iterator) << " Done" << endl;
+			if (omp_choices_iterator->second->populate(true_level)){
+				omp_choices_iterator->second->compute();
 			}
 		}
-		#pragma omp taskwait
 
-		choices_iterator = choices.begin();
+		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
 		Score * best_choice_score = choices_iterator->second->getScore();
 		for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
 			Score * res_score = choices_iterator->second->getScore();

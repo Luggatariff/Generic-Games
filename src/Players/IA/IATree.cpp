@@ -80,76 +80,61 @@ void IATree::populate_last_level(unsigned int max_node_number){
 	vector<vector<pair<Coordinates, IATree *> > > new_level;
 	vector<vector<pair<Coordinates, IATree *> > >::iterator last_level_iterator;
 
-	map<vector<vector<pair<Coordinates, IATree *> > >::iterator, map<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > > > new_son_sets_list;
+	vector<pair<Coordinates, IATree *> > merged_last_level;
+	for (last_level_iterator = it_level_stacks.back().begin(); last_level_iterator != it_level_stacks.back().end(); ++last_level_iterator){
+		merged_last_level.insert(merged_last_level.end(), last_level_iterator->begin(), last_level_iterator->end());
+	}
 	map<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > > new_son_sets;
-	for (last_level_iterator = it_level_stacks.back().begin(); last_level_iterator != it_level_stacks.back().end(); ++last_level_iterator){
-		new_son_sets_list.insert(pair<vector<vector<pair<Coordinates, IATree *> > >::iterator, map<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > > >(last_level_iterator, new_son_sets));
-	}
+	vector<pair<Coordinates, IATree *> > new_son_set;
+	for (vector<pair<Coordinates, IATree *> >::iterator merged_last_level_iterator = merged_last_level.begin(); merged_last_level_iterator != merged_last_level.end(); ++merged_last_level_iterator)
+		 new_son_sets.insert(pair<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > >(merged_last_level_iterator, new_son_set));
 
-	#pragma omp parallel
-	#pragma omp single
-	for (last_level_iterator = it_level_stacks.back().begin(); last_level_iterator != it_level_stacks.back().end(); ++last_level_iterator){
-		#pragma omp task firstprivate(last_level_iterator)
-		{
-			vector<pair<Coordinates, IATree *> >::iterator son_set_iterator;
-			vector<pair<Coordinates, IATree *> > new_son_set;
-			for(son_set_iterator = last_level_iterator->begin(); son_set_iterator != last_level_iterator->end(); son_set_iterator++){
-				new_son_sets_list[last_level_iterator].insert(pair<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > >(son_set_iterator, new_son_set));
-			}
-			#pragma omp parallel
-			#pragma omp single
-			for(son_set_iterator = last_level_iterator->begin(); son_set_iterator != last_level_iterator->end(); son_set_iterator++){
-				#pragma omp task firstprivate(son_set_iterator)
-				{
-					IATree * iatree_to_populate = son_set_iterator->second;
-					if (! iatree_to_populate->it_definitive_score){
-						Game * iatree_to_populate_game = iatree_to_populate->get_game_copy();
-						vector<Coordinates> playable_moves = iatree_to_populate_game->playableCoordinates();
+	#pragma omp parallel for
+	for (unsigned int omp_merged_last_level_iterator_index=0; omp_merged_last_level_iterator_index < merged_last_level.size(); omp_merged_last_level_iterator_index++){
+		vector<pair<Coordinates, IATree *> >::iterator omp_merged_last_level_iterator= merged_last_level.begin();
+		advance(omp_merged_last_level_iterator, omp_merged_last_level_iterator_index);
 
-						if (!playable_moves.empty()){
-								for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
-									Game * son_game = iatree_to_populate_game->copy();
-									son_game->play(playable_moves[i_pm]);
+		IATree * iatree_to_populate = omp_merged_last_level_iterator->second;
+		if (! iatree_to_populate->it_definitive_score){
+			Game * iatree_to_populate_game = iatree_to_populate->get_game_copy();
+			vector<Coordinates> playable_moves = iatree_to_populate_game->playableCoordinates();
 
-									if (son_game->isEnded()){
-										IATree * new_iatree = new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm]);
-										new_iatree->it_score = new Score(son_game->score(it_player));
-										new_iatree->it_definitive_score = true;
-										bool is_winner = son_game->isWinner(it_player);
-										if (is_winner && iatree_to_populate_game->nextPlayer() == it_player){
-											for(map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_populate->it_sons.begin(); sons_iterator != iatree_to_populate->it_sons.end(); sons_iterator++){
-												delete sons_iterator->second;
-											}
-											iatree_to_populate->it_sons.clear();
-											iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
-											break;
-										}
-										else{
-											iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
-										}
-									}
-									else
-										iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
-									delete son_game;
+			if (!playable_moves.empty()){
+					for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
+						Game * son_game = iatree_to_populate_game->copy();
+						son_game->play(playable_moves[i_pm]);
+
+						if (son_game->isEnded()){
+							IATree * new_iatree = new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm]);
+							new_iatree->it_score = new Score(son_game->score(it_player));
+							new_iatree->it_definitive_score = true;
+							bool is_winner = son_game->isWinner(it_player);
+							if (is_winner && iatree_to_populate_game->nextPlayer() == it_player){
+								for(map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_populate->it_sons.begin(); sons_iterator != iatree_to_populate->it_sons.end(); sons_iterator++){
+									delete sons_iterator->second;
 								}
-								for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++){
-									new_son_sets_list[last_level_iterator][son_set_iterator].push_back(pair<Coordinates, IATree *>(iter_sons->first, iter_sons->second));
-								}
+								iatree_to_populate->it_sons.clear();
+								iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
+								break;
+							}
+							else{
+								iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
+							}
 						}
-						delete iatree_to_populate_game;
+						else
+							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
+						delete son_game;
 					}
-				}
+					for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++){
+						new_son_sets[omp_merged_last_level_iterator].push_back(pair<Coordinates, IATree *>(iter_sons->first, iter_sons->second));
+					}
 			}
+			delete iatree_to_populate_game;
 		}
 	}
-	#pragma omp taskwait
 
-	map<vector<vector<pair<Coordinates, IATree *> > >::iterator, map<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > > >::iterator new_son_sets_list_iterator;
-	for (new_son_sets_list_iterator = new_son_sets_list.begin(); new_son_sets_list_iterator != new_son_sets_list.end(); new_son_sets_list_iterator++){
-		map<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > >::iterator new_son_sets_iterator;
-		for (new_son_sets_iterator = new_son_sets_list_iterator->second.begin(); new_son_sets_iterator != new_son_sets_list_iterator->second.end(); new_son_sets_iterator++){
-			if (!new_son_sets_iterator->second.empty()) new_level.push_back(new_son_sets_iterator->second);
-		}
+	for (map<vector<pair<Coordinates, IATree *> >::iterator, vector<pair<Coordinates, IATree *> > >::iterator new_son_sets_iterator = new_son_sets.begin(); new_son_sets_iterator != new_son_sets.end(); ++new_son_sets_iterator){
+		if (!new_son_sets_iterator->second.empty()) new_level.push_back(new_son_sets_iterator->second);
 	}
 
 	it_level_stacks.push_back(new_level);
@@ -157,69 +142,64 @@ void IATree::populate_last_level(unsigned int max_node_number){
 
 void IATree::compute(){
 	for(vector<vector<vector<pair<Coordinates,IATree *> > > >::reverse_iterator level_iterator = it_level_stacks.rbegin(); level_iterator != it_level_stacks.rend(); ++level_iterator){
-		#pragma omp parallel
-		#pragma omp single
+		vector<pair<Coordinates,IATree *> > merged_level;
 		for (vector<vector<pair<Coordinates,IATree *> > >::iterator sons_sets_iterator = level_iterator->begin(); sons_sets_iterator != level_iterator->end(); ++sons_sets_iterator){
-			#pragma omp task firstprivate(sons_sets_iterator)
-			{
-				#pragma omp parallel
-				#pragma omp single
-				for (vector<pair<Coordinates,IATree *> >::iterator nodes_iterator = sons_sets_iterator->begin(); nodes_iterator != sons_sets_iterator->end(); ++nodes_iterator){
-					#pragma omp task firstprivate(nodes_iterator)
-					{
-						IATree * iatree_to_compute = nodes_iterator->second;
+			merged_level.insert(merged_level.end(), sons_sets_iterator->begin(), sons_sets_iterator->end());
+		}
 
-						if (!iatree_to_compute->it_definitive_score){
-							delete iatree_to_compute->it_score;
-							iatree_to_compute->it_score = NULL;
-						}
+		#pragma omp parallel for
+		for (unsigned int omp_merged_level_iterator_index=0; omp_merged_level_iterator_index < merged_level.size(); omp_merged_level_iterator_index++){
+			vector<pair<Coordinates, IATree *> >::iterator omp_merged_level_iterator= merged_level.begin();
+			advance(omp_merged_level_iterator, omp_merged_level_iterator_index);
+			IATree * iatree_to_compute = omp_merged_level_iterator->second;
 
-						if (iatree_to_compute->it_score == NULL){
+			if (!iatree_to_compute->it_definitive_score){
+				delete iatree_to_compute->it_score;
+				iatree_to_compute->it_score = NULL;
+			}
 
-							if (iatree_to_compute->it_sons.empty() && ! iatree_to_compute->it_definitive_score){
-								Game * iatree_to_compute_game = iatree_to_compute->get_game_copy();
-								iatree_to_compute->it_score = new Score(iatree_to_compute_game->score(it_player));
-								delete iatree_to_compute_game;
-							}
-							else if (!iatree_to_compute->it_sons.empty()){
-								map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_compute->it_sons.begin();
-								bool return_maximum = (iatree_to_compute->it_next_player == it_player);
-								Score * best_son_score = sons_iterator->second->it_score;
+			if (iatree_to_compute->it_score == NULL){
 
-								if (best_son_score != NULL){
+				if (iatree_to_compute->it_sons.empty() && ! iatree_to_compute->it_definitive_score){
+					Game * iatree_to_compute_game = iatree_to_compute->get_game_copy();
+					iatree_to_compute->it_score = new Score(iatree_to_compute_game->score(it_player));
+					delete iatree_to_compute_game;
+				}
+				else if (!iatree_to_compute->it_sons.empty()){
+					map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_compute->it_sons.begin();
+					bool return_maximum = (iatree_to_compute->it_next_player == it_player);
+					Score * best_son_score = sons_iterator->second->it_score;
 
-									for(sons_iterator++; sons_iterator != iatree_to_compute->it_sons.end(); sons_iterator++){
-										Score * res_score = sons_iterator->second->it_score;
+					if (best_son_score != NULL){
 
-										if (res_score != NULL){
-											int victory_score = this->it_root->it_game->victoryScore();
+						for(sons_iterator++; sons_iterator != iatree_to_compute->it_sons.end(); sons_iterator++){
+							Score * res_score = sons_iterator->second->it_score;
 
-											if (return_maximum){
-												if ((res_score->value() >= best_son_score->value()) && ((res_score->value() > best_son_score->value()) || (res_score->value() > 0 && res_score->depth() < best_son_score->depth()) || (res_score->value() < 0 && res_score->depth() > best_son_score->depth()))){
-													best_son_score = res_score;
-													if (best_son_score->value() == victory_score)
-														break;
-												}
-											}
-											else{
-												if ((res_score->value() <= best_son_score->value()) && ((res_score->value() < best_son_score->value()) || (res_score->value() >= 0 && res_score->depth() > best_son_score->depth()) || (res_score->value() < 0 && res_score->depth() < best_son_score->depth()))){
-													best_son_score = res_score;
-													if (best_son_score->value() == ((-1) * victory_score) && best_son_score->depth() == 0)
-														break;
-												}
-											}
-										}
+							if (res_score != NULL){
+								int victory_score = this->it_root->it_game->victoryScore();
+
+								if (return_maximum){
+									if ((res_score->value() >= best_son_score->value()) && ((res_score->value() > best_son_score->value()) || (res_score->value() > 0 && res_score->depth() < best_son_score->depth()) || (res_score->value() < 0 && res_score->depth() > best_son_score->depth()))){
+										best_son_score = res_score;
+										if (best_son_score->value() == victory_score)
+											break;
 									}
-									iatree_to_compute->it_score = new Score(best_son_score);
-									iatree_to_compute->it_score->incDepth();
+								}
+								else{
+									if ((res_score->value() <= best_son_score->value()) && ((res_score->value() < best_son_score->value()) || (res_score->value() >= 0 && res_score->depth() > best_son_score->depth()) || (res_score->value() < 0 && res_score->depth() < best_son_score->depth()))){
+										best_son_score = res_score;
+										if (best_son_score->value() == ((-1) * victory_score) && best_son_score->depth() == 0)
+											break;
+									}
 								}
 							}
 						}
+						iatree_to_compute->it_score = new Score(best_son_score);
+						iatree_to_compute->it_score->incDepth();
 					}
 				}
 			}
 		}
-		#pragma omp taskwait
 	}
 }
 
