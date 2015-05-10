@@ -64,7 +64,6 @@ class IATree{
 	IATree * it_root;					/*!<Indicates IATree root*/
 	IATree * it_father;					/*!<Indicates IATree father node*/
 	Coordinates it_son_id;				/*!<Indactes one IATree son id for its father*/
-	unsigned int it_node_number;		/*!<Number of Nodes in the Tree*/
 	vector<vector<vector<pair<Coordinates,IATree *> > > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
 
 	/*!
@@ -108,10 +107,9 @@ public:
 	/*!
 	 * \brief populates (or re-populates) the choice Tree, initializing (or re-initializing) the computation
 	 * \param min_level : min depth of the computation
-	 * \param max_node_number : when min level is reached, populate function tries to reach a max node number
 	 * \return True if the Tree was effectively populated
 	 */
-	bool populate(unsigned int min_level, unsigned int max_node_number = 0);
+	bool populate(unsigned int min_level);
 	/*!
 	 * \brief computes the score for each node in the Tree in order to know the value of the Root Node
 	 */
@@ -127,11 +125,6 @@ public:
 	 * \returns IATree Score value
 	 */
 	Score * getScore();
-	/*!
-	 * \brief returns node number
-	 * \return node number
-	 */
-	unsigned int getNodeNumber();
 
 	/*!
 	 * \brief moves the root to one of the root's son

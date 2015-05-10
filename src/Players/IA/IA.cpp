@@ -13,11 +13,9 @@ IA::IA(unsigned int level, bool display_tree){
 	ia_level = (level > 0) ? level : 1;
 	ia_tree = NULL;
 	ia_display_tree = display_tree;
-	ia_max_choice_tree_size = 0;
 }
 
 void IA::start(Game * game){
-	ia_max_choice_tree_size = 0;
 	if (ia_tree != NULL){
 		delete ia_tree;
 		ia_tree = NULL;
@@ -53,30 +51,33 @@ Coordinates IA::play(Game * game){
 	cout<<"Thinking.."<<endl;
 	while(choices.size() > 1 && temp_level <= ia_level){
 		unsigned int true_level = temp_level * player_number - 1;
+		map<Coordinates, IATree *>::iterator choices_iterator;
 
-		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
+		//cout << "Level :" << temp_level << endl;
 
-		if (choices_iterator->second->populate(true_level, (temp_level == ia_level) ? ia_max_choice_tree_size : 0)){
-			choices_iterator->second->compute();
-		}
-		if (choices_iterator->second->getNodeNumber() > ia_max_choice_tree_size)
-			ia_max_choice_tree_size = choices_iterator->second->getNodeNumber();
-
-		Score * best_choice_score = choices_iterator->second->getScore();
-
-		if (best_choice_score->value() != victory_score){
-			for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
-
-				if (choices_iterator->second->populate(true_level, (temp_level == ia_level) ? ia_max_choice_tree_size : 0))
+		#pragma omp parallel
+		#pragma omp single
+		for(choices_iterator = choices.begin(); choices_iterator != choices.end(); choices_iterator++){
+			#pragma omp task firstprivate(choices_iterator)
+			{
+				//cout << distance(choices.begin(), choices_iterator) << " Populating" << endl;
+				if (choices_iterator->second->populate(true_level)){
+					//cout << distance(choices.begin(), choices_iterator) << " Computing" << endl;
 					choices_iterator->second->compute();
-				if (choices_iterator->second->getNodeNumber() > ia_max_choice_tree_size)
-					ia_max_choice_tree_size = choices_iterator->second->getNodeNumber();
-				Score * res_score = choices_iterator->second->getScore();
-				if ((res_score->value() >= best_choice_score->value()) && ((res_score->value() > best_choice_score->value()) || (res_score->value() > 0 && res_score->depth() < best_choice_score->depth()) || (res_score->value() < 0 && res_score->depth() > best_choice_score->depth()))){
-					best_choice_score = res_score;
-					if (best_choice_score->value() == victory_score)
-						break;
 				}
+				//cout << distance(choices.begin(), choices_iterator) << " Done" << endl;
+			}
+		}
+		#pragma omp taskwait
+
+		choices_iterator = choices.begin();
+		Score * best_choice_score = choices_iterator->second->getScore();
+		for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
+			Score * res_score = choices_iterator->second->getScore();
+			if ((res_score->value() >= best_choice_score->value()) && ((res_score->value() > best_choice_score->value()) || (res_score->value() > 0 && res_score->depth() < best_choice_score->depth()) || (res_score->value() < 0 && res_score->depth() > best_choice_score->depth()))){
+				best_choice_score = res_score;
+				if (best_choice_score->value() == victory_score)
+					break;
 			}
 		}
 
