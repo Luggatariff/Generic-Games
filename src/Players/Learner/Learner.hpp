@@ -15,13 +15,14 @@
  */
 class Learner: public Player{
 	string lea_name;		/*!<Player name*/
+	string lea_db;			/*!<Database filename*/
 	Player * lea_teacher; 	/*!<Player to learn from*/
 public:
 	/*!
 	 * \brief Learner constructor
 	 * \param name : Player name
 	 */
-	Learner(string name, Player * teacher);
+	Learner(string name, Player * teacher, string db_filename);
 
 	void start(Game * game);
 	Coordinates play(Game * game);
