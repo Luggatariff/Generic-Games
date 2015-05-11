@@ -15,6 +15,7 @@
  * \brief this class represents a Artificial Intelligence player
  */
 class IA: public Player{
+	string ia_name;							/*!<Player name*/
 	unsigned int ia_level;					/*!<IA level of thinking*/
 	IATree * ia_tree;						/*!<IA Choice Tree*/
 	bool ia_display_tree;					/*!<indicates if IA must display the choice Tree (debug)*/
@@ -24,10 +25,11 @@ public:
 	 * \param level : IA thinking level
 	 * \param display_tree : indicates if IA must display the choice Tree (debug)
 	 */
-	IA(unsigned int level, bool display_tree = false);
+	IA(string name, unsigned int level, bool display_tree = false);
 
 	void start(Game * game);
 	Coordinates play(Game * game);
+	string getName();
 };
 
 #endif

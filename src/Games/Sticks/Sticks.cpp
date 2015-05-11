@@ -5,6 +5,7 @@
  */
 
 #include <iomanip>
+#include <sstream>
 #include <Sticks/Sticks.hpp>
 
 Sticks::Sticks(Player * player_one, Player * player_two, unsigned int sticks_number){
@@ -163,4 +164,10 @@ void Sticks::display(std::ostream & out){
 	}
 	out<<'\r';
 	out<<"Remaining Sticks : "<<t_sticks_remaining<<std::endl;
+}
+
+string Sticks::getName(){
+	ostringstream name_stream;
+	name_stream << "Sticks" << t_max_sticks_number;
+	return name_stream.str();
 }

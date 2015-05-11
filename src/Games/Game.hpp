@@ -8,6 +8,7 @@
 #define GAME_HPP
 
 #include <iostream>
+#include <string>
 #include "Player.hpp"
 
 /*!
@@ -97,6 +98,12 @@ public:
 	 * \param out : stream where the Game has to be displayed
 	 */
 	virtual void display(std::ostream & out = std::cout) = 0;
+
+	/*!
+	 * \brief virtual function returning the name of the Game (can be dependant of its contructor parameters)
+	 * \return Game name
+	 */
+	virtual string getName() = 0;
 
 	/*!
 	 * \brief deep copy for a Game

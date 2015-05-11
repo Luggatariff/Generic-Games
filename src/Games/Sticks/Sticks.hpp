@@ -64,6 +64,7 @@ public:
 	vector<Coordinates> lastMoves();
 
 	void display(std::ostream & out);
+	string getName();
 };
 
 #endif

@@ -7,6 +7,7 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
+#include <string>
 #include "Coordinates.hpp"
 
 /*!
@@ -32,6 +33,12 @@ public:
 	 * \return Coordinates of the choosen Square
 	 */
 	virtual Coordinates play(Game * game) = 0;
+
+	/*!
+	 * \brief virtual function returning the name set for the Player
+	 * \return Player name
+	 */
+	virtual string getName() = 0;
 
 	/*!
 	 * \brief virtual destructor for Player

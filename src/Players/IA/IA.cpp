@@ -9,7 +9,8 @@
 #include <cstdlib>
 #include <ctime>
 
-IA::IA(unsigned int level, bool display_tree){
+IA::IA(string name, unsigned int level, bool display_tree){
+	ia_name = name;
 	ia_level = (level > 0) ? level : 1;
 	ia_tree = NULL;
 	ia_display_tree = display_tree;
@@ -119,4 +120,8 @@ Coordinates IA::play(Game * game){
 		ia_tree->display();
 
 	return result;
+}
+
+string IA::getName(){
+	return ia_name;
 }

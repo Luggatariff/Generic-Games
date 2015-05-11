@@ -7,14 +7,13 @@
 
 #define PLAYERS_NUMBER 2
 
-int main( int argamec, const char* argamev[] )
-{
+int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[1] = new Human();
-	players[0] = new IA(3);
+	players[1] = new IA(string("Octave"), 1);
+	players[0] = new IA(string("Fabien"), 2);
 
 	Game * game;
-	game = new FourInALine(players[0], players[1]);
+	game = new Sticks(players[0], players[1], 10);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
@@ -22,9 +21,11 @@ int main( int argamec, const char* argamev[] )
 
 		while (!game->isEnded()){
 			game->display();
+			cout << game->nextPlayer()->getName() << " Turn to play " << game->getName() << "..." << endl;
 			Coordinates move = game->nextPlayer()->play(game);
-			if (game->isPlayable(move))
+			if (game->isPlayable(move)){
 				game->play(move);
+			}
 		}
 		game->display();
 
@@ -33,7 +34,7 @@ int main( int argamec, const char* argamev[] )
 			unsigned int i_p;
 			for (i_p = 0; i_p < players.size(); i_p++){
 				if ((winner == players[i_p])){
-					cout<<"Player "<<i_p + 1<<" Wins!"<<endl;
+					cout<<players[i_p]->getName()<<" Wins!"<<endl;
 					break;
 				}
 			}

@@ -242,6 +242,10 @@ void FourInALine::display(std::ostream & out){
 	out<<"|"<<std::endl;
 }
 
+string FourInALine::getName(){
+	return string("FourInALine");
+}
+
 /*****************************************************Patterns****************************************************************/
 
 vector<VarPattern> FourInALine_Empty::getVariables(){

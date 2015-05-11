@@ -221,6 +221,10 @@ void TicTacToe::display(std::ostream & out){
 	out<<"|"<<std::endl;
 }
 
+string TicTacToe::getName(){
+	return string("TicTacToe");
+}
+
 /*****************************************************Patterns****************************************************************/
 
 vector<VarPattern> TicTacToe_Empty::getVariables(){

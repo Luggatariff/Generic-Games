@@ -6,6 +6,10 @@
 
 #include "Human.hpp"
 
+Human::Human(string name){
+	hu_name=name;
+}
+
 void Human::start(Game * game){
 	cout<<"Starting new Game..."<<endl;
 }
@@ -21,4 +25,8 @@ Coordinates Human::play(Game * game){
 	while(!game->isPlayable(result));
 
 	return result;
+}
+
+string Human::getName(){
+	return hu_name;
 }
