@@ -4,16 +4,18 @@
 #include "Sticks.hpp"
 #include "Human.hpp"
 #include "IA.hpp"
+#include "Learner.hpp"
 
 #define PLAYERS_NUMBER 2
 
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
-	players[1] = new IA(string("Octave"), 1);
-	players[0] = new IA(string("Fabien"), 2);
+	Player * lea_teacher = new IA(string("Octave"), 2);
+	players[1] = new Learner(string("Eugenie"), lea_teacher);
+	players[0] = new Human(string("Fabien"));
 
 	Game * game;
-	game = new Sticks(players[0], players[1], 10);
+	game = new FourInALine(players[0], players[1]);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
@@ -52,4 +54,5 @@ int main( int argamec, const char* argamev[] ){
 	delete game;
 	for (unsigned int i_p = 0; i_p < players.size(); i_p++)
 		delete players[i_p];
+	delete lea_teacher;
 }
