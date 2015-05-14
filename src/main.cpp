@@ -11,7 +11,7 @@
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
 	Player * lea_teacher = new IA(string("Octave"), 0, 2);
-	players[0] = new Learner(string("Eugenie"), 0, lea_teacher, string("out/test_learner.db"));
+	players[0] = new Learner(string("Eugenie"), 0, lea_teacher, string("out/test_learner.db"), true);
 	players[1] = new IA(string("Fabien"), 1, 1);
 
 	Game * game;

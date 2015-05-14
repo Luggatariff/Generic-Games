@@ -57,12 +57,13 @@ int Learner::learnerCallback(int argc, char **argv, char **azColName){
 	return 0;
 }
 
-Learner::Learner(string name, unsigned int team_id, Player * teacher, string db_filename){
+Learner::Learner(string name, unsigned int team_id, Player * teacher, string db_filename, bool always_learn){
 	lea_name=name;
 	lea_team=team_id;
 	lea_teacher=teacher;
 	lea_db_filename=db_filename;
 	lea_db=NULL;
+	lea_always_learn=always_learn;
 }
 
 void Learner::start(Game * game){
@@ -161,7 +162,7 @@ Coordinates Learner::play(Game * game){
 			best_move=moves_info_it->second;
 		}
 	}
-	if (best_score == 0){
+	if (best_score <= 0 || lea_always_learn){
 		result = lea_teacher->play(game);
 	}
 	else{

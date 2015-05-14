@@ -37,6 +37,8 @@ class Learner: public Player{
 	sqlite3 *lea_db;					/*!<sqlite3 database object*/
 	Player * lea_teacher; 				/*!<Player to learn from*/
 
+	bool lea_always_learn;				/*!<Indicates if Lerner must always asks its teacher to play*/
+
 	map<string, MoveInfo *> lea_moves_info;	/*!<Playable moves info*/
 	vector<MoveInfo *> lea_played_moves;		/*!<Played moves info*/
 public:
@@ -44,7 +46,7 @@ public:
 	 * \brief Learner constructor
 	 * \param name : Player name
 	 */
-	Learner(string name, unsigned int team_id, Player * teacher, string db_filename);
+	Learner(string name, unsigned int team_id, Player * teacher, string db_filename, bool always_learn = false);
 
 	void start(Game * game);
 	void end(Game * game);
