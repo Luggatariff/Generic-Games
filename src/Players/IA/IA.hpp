@@ -16,6 +16,7 @@
  */
 class IA: public Player{
 	string ia_name;							/*!<Player name*/
+	unsigned int ia_team;					/*!<Team id*/
 	unsigned int ia_level;					/*!<IA level of thinking*/
 	IATree * ia_tree;						/*!<IA Choice Tree*/
 	bool ia_display_tree;					/*!<indicates if IA must display the choice Tree (debug)*/
@@ -25,11 +26,13 @@ public:
 	 * \param level : IA thinking level
 	 * \param display_tree : indicates if IA must display the choice Tree (debug)
 	 */
-	IA(string name, unsigned int level, bool display_tree = false);
+	IA(string name, unsigned int team_id, unsigned int level, bool display_tree = false);
 
 	void start(Game * game);
+	void end(Game * game);
 	Coordinates play(Game * game);
 	string getName();
+	unsigned int getTeam();
 };
 
 #endif

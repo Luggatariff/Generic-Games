@@ -34,23 +34,23 @@ public:
 	 */
 	virtual bool isWon() = 0;
 	/*!
-	 * \brief gets a pointer to the Player who won (if any)
-	 * \return a pointer to the Player who won (NULL if no one won)
+	 * \brief gets the tem_id of the Player who won (if any)
+	 * \return the team id of the Team who won (-1 if no one won)
 	 */
-	virtual Player * whoWon() = 0;
+	virtual int whoWon() = 0;
 	/*!
-	 * \brief indicates if a given Player won the game
-	 * \param player : considered player
-	 * \return True is the Player won, false otherwise
+	 * \brief indicates if a given Team won the game
+	 * \param team_id : considered team
+	 * \return True is the Team won, false otherwise
 	 */
-	virtual bool isWinner(Player * player) = 0;
+	virtual bool isWinner(unsigned int team_id) = 0;
 
 	/*!
-	 * \brief indicates a arbitrary score as an information about the state of the Game for the given Player
-	 * \param player : Player for which the score is computed
+	 * \brief indicates a arbitrary score as an information about the state of the Game for the given Team
+	 * \param team_id : Team id for which the score is computed
 	 * \return a value representing the Player's score
 	 */
-	virtual int score(Player * player) = 0;
+	virtual int score(unsigned int team_id) = 0;
 	/*!
 	 * \brief gets the maximal score, corresponding to the victory
 	 * \return maximal score value

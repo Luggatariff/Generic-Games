@@ -51,10 +51,10 @@ public:
 
 	bool isEnded();
 	bool isWon();
-	Player * whoWon();
-	bool isWinner(Player * player);
+	int whoWon();
+	bool isWinner(unsigned int team_id);
 
-	int score(Player * player);
+	int score(unsigned int team_id);
 	int victoryScore();
 
 	void start();

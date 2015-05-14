@@ -45,18 +45,18 @@ bool TicTacToe::isEnded(){
 	return result;
 }
 bool TicTacToe::isWon(){
-	return (whoWon() != NULL);
+	return (whoWon() != -1);
 }
-Player * TicTacToe::whoWon(){
-	if (isWinner(t_players[0].first)) return t_players[0].first;
-	if (isWinner(t_players[1].first)) return t_players[1].first;
-	return NULL;
+int TicTacToe::whoWon(){
+	if (isWinner(t_players[0].first->getTeam())) return t_players[0].first->getTeam();
+	if (isWinner(t_players[1].first->getTeam())) return t_players[1].first->getTeam();
+	return -1;
 }
-bool TicTacToe::isWinner(Player * player){
+bool TicTacToe::isWinner(unsigned int team_id){
 	bool result = false;
 
 	TicTacToe_Attributes p_player;
-	if (player == t_players[0].first)
+	if (team_id == t_players[0].first->getTeam())
 		p_player = t_players[0].second;
 	else
 		p_player = t_players[1].second;
@@ -107,14 +107,14 @@ unsigned int TicTacToe::countIncompleteVictoryPatterns(Player * player){
 	return result;
 }
 
-int TicTacToe::score(Player * player){
-	Player * winner = whoWon();
-	if (winner == player) return victoryScore();
-	if (winner == NULL){
+int TicTacToe::score(unsigned int team_id){
+	int winner = whoWon();
+	if (winner == (int)team_id) return victoryScore();
+	if (winner == -1){
 		int incomplete_patterns_count = 0;
 		for (unsigned int i_p = 0; i_p < t_players.size(); i_p++){
 			unsigned int temp_count = countIncompleteVictoryPatterns(t_players[i_p].first);
-			if (player == t_players[i_p].first){
+			if (team_id == t_players[i_p].first->getTeam()){
 				incomplete_patterns_count += temp_count;
 			}
 			else{

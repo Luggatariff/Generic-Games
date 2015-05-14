@@ -6,12 +6,19 @@
 
 #include "Human.hpp"
 
-Human::Human(string name){
+Human::Human(string name, unsigned int team_id){
 	hu_name=name;
+	hu_team=team_id;
 }
 
 void Human::start(Game * game){
 	cout<<"Starting new Game..."<<endl;
+}
+
+void Human::end(Game * game){
+	if (game->whoWon() == (int)this->getTeam()){
+		cout<<"You won the Game"<<endl;
+	}
 }
 
 Coordinates Human::play(Game * game){
@@ -29,4 +36,8 @@ Coordinates Human::play(Game * game){
 
 string Human::getName(){
 	return hu_name;
+}
+
+unsigned int Human::getTeam(){
+	return hu_team;
 }

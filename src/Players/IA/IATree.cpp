@@ -106,9 +106,9 @@ void IATree::populate_last_level(unsigned int max_node_number){
 
 						if (son_game->isEnded()){
 							IATree * new_iatree = new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm]);
-							new_iatree->it_score = new Score(son_game->score(it_player));
+							new_iatree->it_score = new Score(son_game->score(it_player->getTeam()));
 							new_iatree->it_definitive_score = true;
-							bool is_winner = son_game->isWinner(it_player);
+							bool is_winner = son_game->isWinner(it_player->getTeam());
 							if (is_winner && iatree_to_populate_game->nextPlayer() == it_player){
 								for(map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_populate->it_sons.begin(); sons_iterator != iatree_to_populate->it_sons.end(); sons_iterator++){
 									delete sons_iterator->second;
@@ -162,7 +162,7 @@ void IATree::compute(){
 
 				if (iatree_to_compute->it_sons.empty() && ! iatree_to_compute->it_definitive_score){
 					Game * iatree_to_compute_game = iatree_to_compute->get_game_copy();
-					iatree_to_compute->it_score = new Score(iatree_to_compute_game->score(it_player));
+					iatree_to_compute->it_score = new Score(iatree_to_compute_game->score(it_player->getTeam()));
 					delete iatree_to_compute_game;
 				}
 				else if (!iatree_to_compute->it_sons.empty()){

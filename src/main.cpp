@@ -10,12 +10,12 @@
 
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
-	Player * lea_teacher = new IA(string("Octave"), 2);
-	players[1] = new Learner(string("Eugenie"), lea_teacher, string("out/test_learner.db"));
-	players[0] = new Human(string("Fabien"));
+	Player * lea_teacher = new IA(string("Octave"), 0, 2);
+	players[0] = new Learner(string("Eugenie"), 0, lea_teacher, string("out/test_learner.db"));
+	players[1] = new IA(string("Fabien"), 1, 1);
 
 	Game * game;
-	game = new FourInALine(players[0], players[1]);
+	game = new TicTacToe(players[0], players[1]);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
@@ -31,11 +31,11 @@ int main( int argamec, const char* argamev[] ){
 		}
 		game->display();
 
-		Player * winner = game->whoWon();
-		if (winner != NULL){
+		int winner = game->whoWon();
+		if (winner != -1){
 			unsigned int i_p;
 			for (i_p = 0; i_p < players.size(); i_p++){
-				if ((winner == players[i_p])){
+				if (((unsigned int)winner == players[i_p]->getTeam())){
 					cout<<players[i_p]->getName()<<" Wins!"<<endl;
 					break;
 				}
@@ -45,11 +45,13 @@ int main( int argamec, const char* argamev[] ){
 			cout<<"Draw!"<<endl;
 		}
 
-		char commande;
-		cout<<"Continue? (o/n):";
-		cin>>commande;
-		if (commande == 'n')
-			break;
+		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
+			players[i_p]->end(game);
+
+		//char commande;
+		//cout<<"Continue? (o/n):";
+		//cin>>commande;
+		//if (commande == 'n') break;
 	}
 	delete game;
 	for (unsigned int i_p = 0; i_p < players.size(); i_p++)

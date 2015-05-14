@@ -43,24 +43,24 @@ bool Sticks::isEnded(){
 bool Sticks::isWon(){
 	return isEnded();
 }
-Player * Sticks::whoWon(){
-	if (isWinner(t_players[0])) return t_players[0];
-	if (isWinner(t_players[1])) return t_players[1];
-	return NULL;
+int Sticks::whoWon(){
+	if (isWinner(t_players[0]->getTeam())) return t_players[0]->getTeam();
+	if (isWinner(t_players[1]->getTeam())) return t_players[1]->getTeam();
+	return -1;
 }
-bool Sticks::isWinner(Player * player){
+bool Sticks::isWinner(unsigned int team_id){
 	if (isEnded()){
-		if ((t_sticks_remaining == 0 && t_next_player == player) || (t_sticks_remaining == 1 && t_next_player != player)) return true;
+		if ((t_sticks_remaining == 0 && t_next_player->getTeam() == team_id) || (t_sticks_remaining == 1 && t_next_player->getTeam() != team_id)) return true;
 		else return false;
 	}
 	return false;
 }
 
-int Sticks::score(Player * player){
-	Player * winner = whoWon();
-	if (winner == player)
+int Sticks::score(unsigned int team_id){
+	int winner = whoWon();
+	if (winner == (int)team_id)
 		return victoryScore();
-	if (winner == NULL)
+	if (winner == -1)
 		return 0;
 	return -victoryScore();
 }

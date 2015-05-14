@@ -9,14 +9,23 @@
 #include <cstdlib>
 #include <ctime>
 
-IA::IA(string name, unsigned int level, bool display_tree){
+IA::IA(string name, unsigned int team_id, unsigned int level, bool display_tree){
 	ia_name = name;
+	ia_team = team_id;
+
 	ia_level = (level > 0) ? level : 1;
 	ia_tree = NULL;
 	ia_display_tree = display_tree;
 }
 
 void IA::start(Game * game){
+	if (ia_tree != NULL){
+		delete ia_tree;
+		ia_tree = NULL;
+	}
+}
+
+void IA::end(Game * game){
 	if (ia_tree != NULL){
 		delete ia_tree;
 		ia_tree = NULL;
@@ -124,4 +133,8 @@ Coordinates IA::play(Game * game){
 
 string IA::getName(){
 	return ia_name;
+}
+
+unsigned int IA::getTeam(){
+	return ia_team;
 }

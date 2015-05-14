@@ -45,18 +45,18 @@ bool FourInALine::isEnded(){
 	return result;
 }
 bool FourInALine::isWon(){
-	return (whoWon() != NULL);
+	return (whoWon() != -1);
 }
-Player * FourInALine::whoWon(){
-	if (isWinner(t_players[0].first)) return t_players[0].first;
-	if (isWinner(t_players[1].first)) return t_players[1].first;
-	return NULL;
+int FourInALine::whoWon(){
+	if (isWinner(t_players[0].first->getTeam())) return t_players[0].first->getTeam();
+	if (isWinner(t_players[1].first->getTeam())) return t_players[1].first->getTeam();
+	return -1;
 }
-bool FourInALine::isWinner(Player * player){
+bool FourInALine::isWinner(unsigned int team_id){
 	bool result = false;
 
 	FourInALine_Attributes p_player;
-	if (player == t_players[0].first)
+	if (team_id == t_players[0].first->getTeam())
 		p_player = t_players[0].second;
 	else
 		p_player = t_players[1].second;
@@ -104,16 +104,16 @@ unsigned int FourInALine::countIncompleteVictoryPatterns(Player * player){
 	return result;
 }
 
-int FourInALine::score(Player * player){
-	Player * winner = whoWon();
-	if (winner == player){
+int FourInALine::score(unsigned int team_id){
+	int winner = whoWon();
+	if (winner == (int)team_id){
 		return victoryScore();
 	}
-	if (winner == NULL){
+	if (winner == -1){
 		int incomplete_patterns_count = 0;
 		for (unsigned int i_p = 0; i_p < t_players.size(); i_p++){
 			unsigned int temp_count = countIncompleteVictoryPatterns(t_players[i_p].first);
-			if (player == t_players[i_p].first){
+			if (team_id == t_players[i_p].first->getTeam()){
 				incomplete_patterns_count += temp_count;
 			}
 			else{

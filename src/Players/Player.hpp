@@ -35,10 +35,22 @@ public:
 	virtual Coordinates play(Game * game) = 0;
 
 	/*!
+	 * \brief informs the Player that a Game has ended
+	 * \param game : pointer to the Game taht just ended
+	 */
+	virtual void end(Game * game) = 0;
+
+	/*!
 	 * \brief virtual function returning the name set for the Player
 	 * \return Player name
 	 */
 	virtual string getName() = 0;
+
+	/*!
+	 * \brief gets the Team id of the Player
+	 * \return Player Team id
+	 */
+	virtual unsigned int getTeam() = 0;
 
 	/*!
 	 * \brief virtual destructor for Player
