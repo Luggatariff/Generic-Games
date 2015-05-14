@@ -10,12 +10,13 @@
 
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
-	Player * lea_teacher = new IA(string("Octave"), 0, 2);
-	players[0] = new Learner(string("Eugenie"), 0, lea_teacher, string("out/test_learner.db"), true);
-	players[1] = new IA(string("Fabien"), 1, 1);
+	Player * first_teacher = new IA(string("Octave"), 0, 1);
+	Player * second_teacher = new IA(string("Fabien"), 1, 1);
+	players[0] = new Learner(string("Eugenie"), 0, first_teacher, string("out/eugenie.db"));
+	players[1] = new Learner(string("Amelie"), 1, second_teacher, string("out/amelie.db"));
 
 	Game * game;
-	game = new TicTacToe(players[0], players[1]);
+	game = new FourInALine(players[0], players[1]);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
@@ -56,5 +57,6 @@ int main( int argamec, const char* argamev[] ){
 	delete game;
 	for (unsigned int i_p = 0; i_p < players.size(); i_p++)
 		delete players[i_p];
-	delete lea_teacher;
+	delete first_teacher;
+	delete second_teacher;
 }
