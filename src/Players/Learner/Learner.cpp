@@ -87,7 +87,7 @@ void Learner::start(Game * game){
 }
 
 int Learner::compute_score(MoveInfo * move_info){
-	return (move_info->mi_victories * 2 - move_info->mi_draws - move_info->mi_defeats * 2) % 10;
+	return (move_info->mi_victories * 2 - move_info->mi_draws - move_info->mi_defeats * 2);
 }
 
 Coordinates Learner::play(Game * game, vector<Coordinates> limit_choices){
