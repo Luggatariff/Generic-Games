@@ -108,7 +108,7 @@ Coordinates IA::play(Game * game){
 	if (choices.size() > 1){
 		unsigned int i_choice = 0;
 		srand (time(NULL));
-		i_choice = rand() % (choices.size() - 1);
+		i_choice = rand() % (choices.size());
 		advance(choice, i_choice);
 	}
 

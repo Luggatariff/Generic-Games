@@ -146,23 +146,23 @@ Coordinates Learner::play(Game * game){
 	Coordinates result;
 
 	map<string, MoveInfo *>::iterator moves_info_it = lea_moves_info.begin();
-	int best_score=0;
+	unsigned int best_score=0;
 	if (moves_info_it->second->mi_games > 0){
-		best_score=((moves_info_it->second->mi_victories-moves_info_it->second->mi_defeats) * game->victoryScore())/moves_info_it->second->mi_games;
+		best_score=(moves_info_it->second->mi_victories * 1000)/moves_info_it->second->mi_games;
 	}
 	MoveInfo * best_move=moves_info_it->second;
 
 	for (moves_info_it++; moves_info_it != lea_moves_info.end(); moves_info_it++){
-		int score=0;
+		unsigned int score=0;
 		if (moves_info_it->second->mi_games > 0){
-			score=((moves_info_it->second->mi_victories-moves_info_it->second->mi_defeats) * game->victoryScore())/moves_info_it->second->mi_games;
+			score=(moves_info_it->second->mi_victories * 1000)/moves_info_it->second->mi_games;
 		}
 		if (score > best_score){
 			best_score=score;
 			best_move=moves_info_it->second;
 		}
 	}
-	if (best_score <= 0 || lea_always_learn){
+	if (best_score <= 250 || lea_always_learn){
 		result = lea_teacher->play(game);
 	}
 	else{
