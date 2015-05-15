@@ -39,10 +39,7 @@ vector<Player *> FourInALine::players(){
 bool FourInALine::isEnded(){
 	if (isWon()) return true;
 
-	FourInALine_Empty * pattern_empty = new FourInALine_Empty();
-	bool result = (t_board->checkPattern(pattern_empty)==0);
-	delete pattern_empty;
-	return result;
+	return this->playableCoordinates().empty();
 }
 bool FourInALine::isWon(){
 	return (whoWon() != -1);
@@ -164,7 +161,6 @@ bool FourInALine::isPlayable(Coordinates coordinates){
 }
 vector<Coordinates> FourInALine::playableCoordinates(){
 	vector<Coordinates> result;
-	if (isEnded()) return result;
 
 	for (unsigned int column = 0; column < FOURINALINE_WIDTH; column++){
 		Coordinates coordinates = Coordinates(1);
