@@ -86,7 +86,11 @@ void Learner::start(Game * game){
 
 }
 
-Coordinates Learner::play(Game * game){
+int Learner::compute_score(MoveInfo * move_info){
+	return (move_info->mi_victories * 2 - move_info->mi_draws - move_info->mi_defeats * 2) % 10;
+}
+
+Coordinates Learner::play(Game * game, vector<Coordinates> limit_choices){
 	string game_name=game->getName();
 	string teacher_name=lea_teacher->getName();
 
@@ -101,7 +105,11 @@ Coordinates Learner::play(Game * game){
 
 	ostringstream insert_sql_stream;
 
-	vector<Coordinates> playable_moves = game->playableCoordinates();
+	vector<Coordinates> playable_moves;
+	if (limit_choices.size() <= 1)
+		playable_moves = game->playableCoordinates();
+	else
+		playable_moves = limit_choices;
 	for (vector<Coordinates>::iterator playable_moves_it = playable_moves.begin(); playable_moves_it != playable_moves.end(); playable_moves_it++){
 		MoveInfo  * move_info = new MoveInfo();
 		move_info->mi_pre_moves=pre_moves;
@@ -146,27 +154,30 @@ Coordinates Learner::play(Game * game){
 	Coordinates result;
 
 	map<string, MoveInfo *>::iterator moves_info_it = lea_moves_info.begin();
-	unsigned int best_score=0;
-	if (moves_info_it->second->mi_games > 0){
-		best_score=(moves_info_it->second->mi_victories * 1000)/moves_info_it->second->mi_games;
-	}
-	MoveInfo * best_move=moves_info_it->second;
+	int best_score=compute_score(moves_info_it->second);
+	vector<MoveInfo *> best_moves;
+	best_moves.push_back(moves_info_it->second);
 
 	for (moves_info_it++; moves_info_it != lea_moves_info.end(); moves_info_it++){
-		unsigned int score=0;
-		if (moves_info_it->second->mi_games > 0){
-			score=(moves_info_it->second->mi_victories * 1000)/moves_info_it->second->mi_games;
-		}
+		int score=compute_score(moves_info_it->second);
 		if (score > best_score){
 			best_score=score;
-			best_move=moves_info_it->second;
+			best_moves.clear();
+			best_moves.push_back(moves_info_it->second);
+		}
+		else if (score == best_score){
+			best_moves.push_back(moves_info_it->second);
 		}
 	}
-	if (best_score <= 250 || lea_always_learn){
-		result = lea_teacher->play(game);
+	if (lea_always_learn || best_moves.size() > 1){
+		vector<Coordinates> best_moves_coordinates;
+		for (vector<MoveInfo *>::iterator best_moves_it = best_moves.begin(); best_moves_it != best_moves.end(); best_moves_it++){
+			best_moves_coordinates.push_back((*best_moves_it)->mi_coordinates);
+		}
+		result = lea_teacher->play(game, best_moves_coordinates);
 	}
 	else{
-		result = best_move->mi_coordinates;
+		result = best_moves[0]->mi_coordinates;
 		cout<<"Learner chose:";
 		for (unsigned int dim = 0; dim < game->dimension(); dim++)
 			cout<<result[dim]<<" ";
@@ -199,7 +210,7 @@ void Learner::end(Game * game){
 
 	string column_to_increment = "n_draws";
 	if (game->isWon()){
-		if (game->whoWon() == this->getTeam()){
+		if (game->whoWon() == (int)this->getTeam()){
 			column_to_increment = "n_victories";
 		}
 		else{

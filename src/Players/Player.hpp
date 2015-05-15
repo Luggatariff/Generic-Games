@@ -32,7 +32,7 @@ public:
 	 * \param game : pointer to the Game to play
 	 * \return Coordinates of the choosen Square
 	 */
-	virtual Coordinates play(Game * game) = 0;
+	virtual Coordinates play(Game * game, vector<Coordinates> limit_choices = vector<Coordinates>()) = 0;
 
 	/*!
 	 * \brief informs the Player that a Game has ended

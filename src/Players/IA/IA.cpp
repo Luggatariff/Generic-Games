@@ -8,6 +8,7 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
 
 IA::IA(string name, unsigned int team_id, unsigned int level, bool display_tree){
 	ia_name = name;
@@ -32,7 +33,7 @@ void IA::end(Game * game){
 	}
 }
 
-Coordinates IA::play(Game * game){
+Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 	Coordinates result;
 
 	map<Coordinates, IATree *> choices;
@@ -52,6 +53,18 @@ Coordinates IA::play(Game * game){
 			Game * new_game = game->copy();
 			new_game->play(*move);
 			choices.insert(pair<Coordinates, IATree *>((*move), new IATree(new_game, this)));
+		}
+	}
+
+	if (limit_choices.size() > 1){
+		map<Coordinates, IATree *>::iterator choices_it = choices.begin();
+		while (choices_it != choices.end()){
+			if (find(limit_choices.begin(), limit_choices.end(), choices_it->first) == limit_choices.end()){
+				delete choices_it->second;
+				choices.erase(choices_it++);
+			}
+			else
+				++choices_it;
 		}
 	}
 

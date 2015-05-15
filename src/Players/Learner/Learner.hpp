@@ -41,6 +41,13 @@ class Learner: public Player{
 
 	map<string, MoveInfo *> lea_moves_info;	/*!<Playable moves info*/
 	vector<MoveInfo *> lea_played_moves;		/*!<Played moves info*/
+
+	/*
+	 * \brief computes the score of a move from its information
+	 * \param move_info move information
+	 * \return score
+	 */
+	int compute_score(MoveInfo * move_info);
 public:
 	/*!
 	 * \brief Learner constructor
@@ -50,7 +57,7 @@ public:
 
 	void start(Game * game);
 	void end(Game * game);
-	Coordinates play(Game * game);
+	Coordinates play(Game * game, vector<Coordinates> limit_choices = vector<Coordinates>());
 	string getName();
 	unsigned int getTeam();
 

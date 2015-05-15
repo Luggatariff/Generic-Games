@@ -30,7 +30,7 @@ public:
 
 	void start(Game * game);
 	void end(Game * game);
-	Coordinates play(Game * game);
+	Coordinates play(Game * game, vector<Coordinates> limit_choices = vector<Coordinates>());
 	string getName();
 	unsigned int getTeam();
 };
