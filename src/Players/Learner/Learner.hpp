@@ -40,7 +40,11 @@ class Learner: public Player{
 	bool lea_always_learn;				/*!<Indicates if Lerner must always asks its teacher to play*/
 
 	map<string, MoveInfo *> lea_moves_info;	/*!<Playable moves info*/
-	vector<MoveInfo *> lea_played_moves;		/*!<Played moves info*/
+	vector<MoveInfo *> lea_played_moves;	/*!<Played moves info*/
+
+	int lea_victory_coefficient;	/*<Coefficient determining the importance of a victory*/
+	int lea_defeat_coefficient;		/*<Coefficient determining the importance of a defeat*/
+	int lea_draw_coefficient;		/*<Coefficient determining the importance of a draw game*/
 
 	/*
 	 * \brief computes the score of a move from its information
@@ -48,12 +52,26 @@ class Learner: public Player{
 	 * \return score
 	 */
 	int compute_score(MoveInfo * move_info);
+
+	/*!
+	 * \brief sends an sql requests to the database
+	 * \param request : string containing the sql request
+	 */
+	void sql_request(string request);
+	/*!
+	 * \brief opens the database session
+	 */
+	void sql_open();
+	/*!
+	 * \brief closes the database session
+	 */
+	void sql_close();
 public:
 	/*!
 	 * \brief Learner constructor
 	 * \param name : Player name
 	 */
-	Learner(string name, unsigned int team_id, Player * teacher, string db_filename, bool always_learn = false);
+	Learner(string name, unsigned int team_id, Player * teacher, string db_filename, int victory_coefficient = 1, int defeat_coefficient = -1, int draw_coefficient = 0, bool always_learn = false);
 
 	void start(Game * game);
 	void end(Game * game);

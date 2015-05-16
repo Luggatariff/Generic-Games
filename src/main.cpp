@@ -12,8 +12,8 @@ int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
 	Player * first_teacher = new IA(string("Octave"), 0, 1);
 	Player * second_teacher = new IA(string("Fabien"), 1, 1);
-	players[0] = new Learner(string("Eugenie"), 0, first_teacher, string("out/eugenie.db"));
-	players[1] = new Learner(string("Amelie"), 1, second_teacher, string("out/amelie.db"));
+	players[0] = new Learner(string("Eugenie"), 0, first_teacher, string("out/learner.db"), 1, -5, -10);
+	players[1] = new Learner(string("Amelie"), 1, second_teacher, string("out/learner.db"), 1, -5, -10);
 
 	Game * game;
 	game = new FourInALine(players[0], players[1]);

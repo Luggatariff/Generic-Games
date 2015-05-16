@@ -9,6 +9,16 @@
 #include <sstream>
 #include <iostream>
 
+#define LEARNER_TABLE_NAME 		"moves"
+#define LEARNER_COL_MOVE 		"move"
+#define LEARNER_COL_PRE_MOVES 	"pre_moves"
+#define LEARNER_COL_GAME		"game_name"
+#define LEARNER_COL_PLAYER		"player_name"
+#define LEARNER_COL_N_GAMES		"n_games"
+#define LEARNER_COL_N_VICTORIES	"n_victories"
+#define LEARNER_COL_N_DEFEATS	"n_defeats"
+#define LEARNER_COL_N_DRAWS		"n_draws"
+
 static int callback(void *learner, int argc, char **argv, char **azColName){
 	Learner * lea=reinterpret_cast<Learner*>(learner);
 	return lea->learnerCallback(argc, argv, azColName);
@@ -21,28 +31,28 @@ int Learner::learnerCallback(int argc, char **argv, char **azColName){
 	unsigned int defeats;
 	unsigned int draws;
 	for(int i=0; i<argc; i++){
-		if (!string("move").compare(azColName[i])){
+		if (!string(LEARNER_COL_MOVE).compare(azColName[i])){
 			move = string(argv[i]);
 		}
-		else if (!string("n_games").compare(azColName[i])){
+		else if (!string(LEARNER_COL_N_GAMES).compare(azColName[i])){
 			string to_convert = argv[i];
 			stringstream convert(to_convert);
 			if ( !(convert >> games))
 				games=0;
 		}
-		else if (!string("n_victories").compare(azColName[i])){
+		else if (!string(LEARNER_COL_N_VICTORIES).compare(azColName[i])){
 			string to_convert = argv[i];
 			stringstream convert(to_convert);
 			if ( !(convert >> victories))
 				victories=0;
 		}
-		else if (!string("n_defeats").compare(azColName[i])){
+		else if (!string(LEARNER_COL_N_DEFEATS).compare(azColName[i])){
 			string to_convert = argv[i];
 			stringstream convert(to_convert);
 			if ( !(convert >> defeats))
 				defeats=0;
 		}
-		else if (!string("n_draws").compare(azColName[i])){
+		else if (!string(LEARNER_COL_N_DRAWS).compare(azColName[i])){
 			string to_convert = argv[i];
 			stringstream convert(to_convert);
 			if ( !(convert >> draws))
@@ -57,37 +67,76 @@ int Learner::learnerCallback(int argc, char **argv, char **azColName){
 	return 0;
 }
 
-Learner::Learner(string name, unsigned int team_id, Player * teacher, string db_filename, bool always_learn){
+Learner::Learner(string name, unsigned int team_id, Player * teacher, string db_filename, int victory_coefficient, int defeat_coefficient, int draw_coefficient, bool always_learn){
 	lea_name=name;
 	lea_team=team_id;
+
 	lea_teacher=teacher;
+	lea_always_learn=always_learn;
+
 	lea_db_filename=db_filename;
 	lea_db=NULL;
-	lea_always_learn=always_learn;
+
+	lea_victory_coefficient=victory_coefficient;
+	lea_defeat_coefficient=defeat_coefficient;
+	lea_draw_coefficient=draw_coefficient;
+}
+
+void Learner::sql_open(){
+	if (lea_db == NULL){
+		int rc = sqlite3_open(lea_db_filename.c_str(), &lea_db);
+		if( rc ){
+		  cerr << "Can't open database: " << endl;
+		}
+	}
+}
+
+void Learner::sql_close(){
+	if (lea_db != NULL){
+		sqlite3_close(lea_db);
+		lea_db = NULL;
+	}
+}
+
+void Learner::sql_request(string request){
+	bool lea_db_was_null = false;
+	if (lea_db == NULL){
+		sql_open();
+		lea_db_was_null = true;
+	}
+	char *zErrMsg = 0;
+	int rc = sqlite3_exec(lea_db, request.c_str(), callback, this, &zErrMsg);
+	if( rc != SQLITE_OK ){
+	  cerr << "SQL Error" << string(sqlite3_errmsg(lea_db)) << endl;
+	}
+	if (lea_db_was_null){
+		sql_close();
+	}
 }
 
 void Learner::start(Game * game){
 	lea_teacher->start(game);
 	lea_played_moves.clear();
 
-	char *zErrMsg = 0;
+	ostringstream create_table_stream;
+	create_table_stream << "CREATE TABLE IF NOT EXISTS ";
+	create_table_stream << LEARNER_TABLE_NAME << " (";
+	create_table_stream << LEARNER_COL_GAME << " TEXT, ";
+	create_table_stream << LEARNER_COL_PLAYER << " TEXT, ";
+	create_table_stream << LEARNER_COL_PRE_MOVES << " TEXT, ";
+	create_table_stream << LEARNER_COL_MOVE << " TEXT, ";
+	create_table_stream << LEARNER_COL_N_GAMES << " INTEGER DEFAULT 0, ";
+	create_table_stream << LEARNER_COL_N_VICTORIES << " INTEGER DEFAULT 0, ";
+	create_table_stream << LEARNER_COL_N_DEFEATS << " INTEGER DEFAULT 0, ";
+	create_table_stream << LEARNER_COL_N_DRAWS << " INTEGER DEFAULT 0, ";
+	create_table_stream << "PRIMARY KEY (" << LEARNER_COL_GAME << "," << LEARNER_COL_PLAYER << "," << LEARNER_COL_PRE_MOVES << "," << LEARNER_COL_MOVE << ")";
+	create_table_stream << ");";
 
-	int rc = sqlite3_open(lea_db_filename.c_str(), &lea_db);
-	if( rc ){
-	  cerr << "Can't open database: " << endl;
-	}
-
-	string sql=string("CREATE TABLE IF NOT EXISTS moves (game_name TEXT, player_name TEXT, pre_moves TEXT, move TEXT, n_games INTEGER DEFAULT 0, n_victories INTEGER DEFAULT 0, n_defeats INTEGER DEFAULT 0, n_draws INTEGER DEFAULT 0, PRIMARY KEY (game_name, player_name, pre_moves, move));");
-
-	rc = sqlite3_exec(lea_db, sql.c_str(), callback, this, &zErrMsg);
-	if( rc != SQLITE_OK ){
-	  cerr << "SQL Error" << endl;
-	}
-
+	sql_request(create_table_stream.str());
 }
 
 int Learner::compute_score(MoveInfo * move_info){
-	return (move_info->mi_victories * 2 - move_info->mi_draws - move_info->mi_defeats * 2);
+	return (move_info->mi_victories * lea_victory_coefficient + move_info->mi_draws * lea_draw_coefficient + move_info->mi_defeats * lea_defeat_coefficient);
 }
 
 Coordinates Learner::play(Game * game, vector<Coordinates> limit_choices){
@@ -124,7 +173,13 @@ Coordinates Learner::play(Game * game, vector<Coordinates> limit_choices){
 
 		lea_moves_info.insert(pair<string, MoveInfo *>(move, move_info));
 
-		insert_sql_stream << "INSERT OR IGNORE INTO moves(game_name, player_name, pre_moves, move) ";
+		insert_sql_stream << "INSERT OR IGNORE INTO ";
+		insert_sql_stream << LEARNER_TABLE_NAME << "(";
+		insert_sql_stream << LEARNER_COL_GAME << ",";
+		insert_sql_stream << LEARNER_COL_PLAYER << ",";
+		insert_sql_stream << LEARNER_COL_PRE_MOVES << ",";
+		insert_sql_stream << LEARNER_COL_MOVE;
+		insert_sql_stream << ") ";
 		insert_sql_stream << "VALUES(\"";
 		insert_sql_stream << game_name;
 		insert_sql_stream << "\",\"" << teacher_name;
@@ -134,22 +189,19 @@ Coordinates Learner::play(Game * game, vector<Coordinates> limit_choices){
 	}
 
 	ostringstream select_sql_stream;
-	select_sql_stream << "SELECT * FROM moves WHERE ";
-	select_sql_stream << "game_name=\"" << game_name << "\" AND ";
-	select_sql_stream << "player_name=\"" << teacher_name << "\" AND ";
-	select_sql_stream << "pre_moves=\"" << pre_moves << "\";";
+	select_sql_stream << "SELECT * FROM ";
+	select_sql_stream << LEARNER_TABLE_NAME << " WHERE ";
+	select_sql_stream << LEARNER_COL_GAME << "=\"" << game_name << "\" AND ";
+	select_sql_stream << LEARNER_COL_PLAYER << "=\"" << teacher_name << "\" AND ";
+	select_sql_stream << LEARNER_COL_PRE_MOVES << "=\"" << pre_moves << "\";";
 
-	char *zErrMsg = 0;
+	sql_open();
 
-	int rc = sqlite3_exec(lea_db, insert_sql_stream.str().c_str(), callback, this, &zErrMsg);
-	if( rc != SQLITE_OK ){
-	  cerr << "SQL error:" << string(sqlite3_errmsg(lea_db)) << endl;
-	}
+	sql_request(insert_sql_stream.str());
 
-	rc = sqlite3_exec(lea_db, select_sql_stream.str().c_str(), callback, this, &zErrMsg);
-	if( rc != SQLITE_OK ){
-	  cerr << "SQL error:" << string(sqlite3_errmsg(lea_db)) << endl;
-	}
+	sql_request(select_sql_stream.str());
+
+	sql_close();
 
 	Coordinates result;
 
@@ -208,37 +260,34 @@ Coordinates Learner::play(Game * game, vector<Coordinates> limit_choices){
 void Learner::end(Game * game){
 	lea_teacher->end(game);
 
-	string column_to_increment = "n_draws";
+	string column_to_increment = LEARNER_COL_N_DRAWS;
 	if (game->isWon()){
 		if (game->whoWon() == (int)this->getTeam()){
-			column_to_increment = "n_victories";
+			column_to_increment = LEARNER_COL_N_VICTORIES;
 		}
 		else{
-			column_to_increment = "n_defeats";
+			column_to_increment = LEARNER_COL_N_DEFEATS;
 		}
 	}
 
 	ostringstream update_sql_stream;
 	for (vector<MoveInfo *>::iterator played_moves_it = lea_played_moves.begin(); played_moves_it != lea_played_moves.end(); played_moves_it++){
-		update_sql_stream << "UPDATE moves SET n_games = n_games + 1, ";
+		update_sql_stream << "UPDATE ";
+		update_sql_stream << LEARNER_TABLE_NAME;
+		update_sql_stream << " SET " << LEARNER_COL_N_GAMES << " = " << LEARNER_COL_N_GAMES << " + 1, ";
 		update_sql_stream << column_to_increment << " = " << column_to_increment << " + 1 ";
-		update_sql_stream << "WHERE game_name=\"" << game->getName() << "\" AND ";
-		update_sql_stream << "player_name=\"" << lea_teacher->getName() << "\" AND ";
-		update_sql_stream << "pre_moves=\"" << (*played_moves_it)->mi_pre_moves << "\" AND ";
-		update_sql_stream << "move=\"" << (*played_moves_it)->mi_label << "\";";
+		update_sql_stream << "WHERE ";
+		update_sql_stream << LEARNER_COL_GAME << "=\"" << game->getName() << "\" AND ";
+		update_sql_stream << LEARNER_COL_PLAYER << "=\"" << lea_teacher->getName() << "\" AND ";
+		update_sql_stream << LEARNER_COL_PRE_MOVES << "=\"" << (*played_moves_it)->mi_pre_moves << "\" AND ";
+		update_sql_stream << LEARNER_COL_MOVE << "=\"" << (*played_moves_it)->mi_label << "\";";
 	}
 
-	char *zErrMsg = 0;
-	int rc = sqlite3_exec(lea_db, update_sql_stream.str().c_str(), callback, this, &zErrMsg);
-	if( rc != SQLITE_OK ){
-	  cerr << "SQL error:" << string(sqlite3_errmsg(lea_db)) << endl;
-	}
+	sql_request(update_sql_stream.str());
 
 	for (vector<MoveInfo *>::iterator played_moves_it = lea_played_moves.begin(); played_moves_it != lea_played_moves.end(); played_moves_it++){
 		delete *played_moves_it;
 	}
-
-	sqlite3_close(lea_db);
 }
 
 string Learner::getName(){
