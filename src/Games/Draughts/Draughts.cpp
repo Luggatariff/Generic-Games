@@ -206,8 +206,8 @@ void Draughts::update_playable_moves(bool change_player){
 									if (check_height(square[0] + offset*height_direction)){
 										if (check_width(square[1] + offset*width_direction)){
 											Coordinates potential_destination(2);
-											potential_destination[0] = square[0] + 2*height_direction;
-											potential_destination[1] = square[1] + 2*width_direction;
+											potential_destination[0] = square[0] + offset*height_direction;
+											potential_destination[1] = square[1] + offset*width_direction;
 											if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
 												potential_move[2] = potential_destination[0];
 												potential_move[3] = potential_destination[1];
