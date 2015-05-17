@@ -222,11 +222,15 @@ Coordinates Learner::play(Game * game, vector<Coordinates> limit_choices){
 		}
 	}
 	if (lea_always_learn || best_moves.size() > 1){
-		vector<Coordinates> best_moves_coordinates;
-		for (vector<MoveInfo *>::iterator best_moves_it = best_moves.begin(); best_moves_it != best_moves.end(); best_moves_it++){
-			best_moves_coordinates.push_back((*best_moves_it)->mi_coordinates);
+		if (!lea_always_learn){
+			vector<Coordinates> best_moves_coordinates;
+			for (vector<MoveInfo *>::iterator best_moves_it = best_moves.begin(); best_moves_it != best_moves.end(); best_moves_it++){
+				best_moves_coordinates.push_back((*best_moves_it)->mi_coordinates);
+			}
+			result = lea_teacher->play(game, best_moves_coordinates);
 		}
-		result = lea_teacher->play(game, best_moves_coordinates);
+		else
+			result = lea_teacher->play(game, playable_moves);
 	}
 	else{
 		result = best_moves[0]->mi_coordinates;
