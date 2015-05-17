@@ -8,6 +8,7 @@
 #define COORDINATES_HPP
 
 #include "vector"
+#include <iostream>
 
 using namespace std;
 
@@ -73,9 +74,9 @@ public:
 	unsigned int z();
 
 	/*!
-	 * \brief displays the coordinates on the error output
+	 * \brief displays the coordinates on the standard output
 	 */
-	void display();
+	void display(std::ostream & out = std::cout);
 };
 
 #endif

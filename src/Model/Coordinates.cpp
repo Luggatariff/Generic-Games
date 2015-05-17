@@ -4,8 +4,6 @@
  * \author Anaël Petit
  */
 
-#include <iostream>
-
 #include "Coordinates.hpp"
 
 Coordinates::Coordinates(unsigned int dimension){
@@ -50,13 +48,13 @@ unsigned int Coordinates::z(){
 	return (*this)[2];
 }
 
-void Coordinates::display(){
-	cerr << "(";
+void Coordinates::display(std::ostream & out){
+	out << "(";
 	for (vector<unsigned int>::iterator coord_iterator = m_coordinates.begin(); coord_iterator != m_coordinates.end(); ++coord_iterator){
 		if ( coord_iterator != m_coordinates.begin() ){
-			cerr << " ";
+			out << " ";
 		}
-		cerr << *coord_iterator;
+		out << *coord_iterator;
 	}
-	cerr << ")";
+	out << ")";
 }
