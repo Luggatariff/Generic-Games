@@ -9,7 +9,7 @@
 
 #define DRAUGHTS_WIDTH 	10		/*!<Draughts board width*/
 #define DRAUGHTS_HEIGHT	10		/*!<Draughts board height*/
-#define DRAUGHTS_MAX_SCORE 50	/*!<Draughts Maximal score (victory)*/
+#define DRAUGHTS_MAX_SCORE 100	/*!<Draughts Maximal score (victory)*/
 
 #include "Game.hpp"
 #include "Board.hpp"
@@ -60,7 +60,7 @@ class Draughts: public Game{
 	 * \brief updates t_playable_moves attribute depending on the board structure
 	 * \param change_player : indicates if the player has to change if there is no pawn to take
 	 */
-	void update_playable_moves(bool change_player=true);
+	void update_playable_moves(bool change_player);
 
 	/*!
 	 * \brief checks if the given height is in the board

@@ -90,7 +90,14 @@ bool Draughts::isWinner(unsigned int team_id){
 int Draughts::score(unsigned int team_id){
 	int winner = whoWon();
 	if (winner == (int)team_id) return victoryScore();
-	if (winner == -1) return 0;
+	if (winner == -1){
+		if (t_players[0]->getTeam() == team_id){
+			return t_white_pawns + t_white_queens*2 - t_black_pawns - t_black_queens*2;
+		}
+		else{
+			return t_black_pawns + t_black_queens*2 - t_white_pawns - t_white_queens*2;
+		}
+	}
 	return -victoryScore();
 }
 int Draughts::victoryScore(){
@@ -192,17 +199,44 @@ void Draughts::update_playable_moves(bool change_player){
 						}
 					}
 					else if (board_square->isAttribute(player_queen)){
-
-
-						//if there is already taking moves, simple_moves are no longer needed to compute
-						if (taking_moves.empty()){
-
+						for (int height_direction = -1; height_direction <= 1; height_direction += 2){
+							for (int width_direction = -1; width_direction <= 1; width_direction += 2){
+								bool found_adverse_piece = false;
+								for (unsigned int offset = 1; offset < DRAUGHTS_HEIGHT; offset++){
+									if (check_height(square[0] + offset*height_direction)){
+										if (check_width(square[1] + offset*width_direction)){
+											Coordinates potential_destination(2);
+											potential_destination[0] = square[0] + 2*height_direction;
+											potential_destination[1] = square[1] + 2*width_direction;
+											if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
+												potential_move[2] = potential_destination[0];
+												potential_move[3] = potential_destination[1];
+												if (!found_adverse_piece){
+													simple_moves.push_back(potential_move);
+												}
+												else{
+													taking_moves.push_back(potential_move);
+												}
+											}
+											else if (t_board->getSquare(potential_destination)->isAttribute(adverse_pawn) || t_board->getSquare(potential_destination)->isAttribute(adverse_queen)){
+												if (found_adverse_piece){
+													break;
+												}
+												found_adverse_piece=true;
+											}
+											else{
+												break;
+											}
+										}
+									}
+								}
+							}
 						}
 					}
 				}
 			}
 		}
-		if (change_player && taking_moves.empty()){
+		if (!player_changed && change_player && taking_moves.empty()){
 			if (t_next_player == t_players[1]){
 				t_next_player = t_players[0];
 			}
@@ -214,7 +248,7 @@ void Draughts::update_playable_moves(bool change_player){
 		else
 			player_changed = false;
 	}
-	while (player_changed);
+	while (change_player && player_changed);
 
 	if (!taking_moves.empty()){
 		t_playable_moves=taking_moves;
@@ -339,28 +373,36 @@ void Draughts::play(Coordinates coordinates){
 		t_board->getSquare(destination)->delAttribute(DRAUGHTS_EMPTY);
 		t_board->getSquare(destination)->addAttribute(destination_piece);
 
-		Coordinates minimal(2);
-		Coordinates maximal(2);
-		for (unsigned int i = 0; i<2; i++){
-			minimal[i] = (source[i] < destination[i]) ? source[i] : destination[i];
-			maximal[i] = (source[i] > destination[i]) ? source[i] : destination[i];
-		}
+		int height_direction = (source[0] < destination[0]) ? 1 : -1;
+		int width_direction = (source[1] < destination[1]) ? 1 : -1;
 
+		bool took_a_piece = false;
 		Coordinates square(2);
 		unsigned int offset = 1;
-		square[0] = minimal[0] + offset;
-		square[1] = minimal[1] + offset;
-		while (! (square == maximal)){
+		square[0] = source[0] + offset*height_direction;
+		square[1] = source[1] + offset*width_direction;
+		while (! (square == destination)){
 			if (!t_board->getSquare(square)->isAttribute(DRAUGHTS_EMPTY)){
 				set_to_empty(t_board->getSquare(square));
+				took_a_piece = true;
 				break;
 			}
 			offset++;
-			square[0] = minimal[0] + offset;
-			square[1] = minimal[1] + offset;
+			square[0] = source[0] + offset*height_direction;
+			square[1] = source[1] + offset*width_direction;
 		}
 
-		update_playable_moves();
+		if (took_a_piece)
+			update_playable_moves(true);
+		else{
+			if (t_next_player == t_players[1]){
+				t_next_player = t_players[0];
+			}
+			else{
+				t_next_player = t_players[1];
+			}
+			update_playable_moves(false);
+		}
 	}
 }
 vector<Coordinates> Draughts::lastMoves(){
