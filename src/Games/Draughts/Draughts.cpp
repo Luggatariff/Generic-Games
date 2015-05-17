@@ -116,117 +116,121 @@ bool Draughts::check_existence(Coordinates square){
 	return check_height(square[0]) && check_width(square[1]);
 }
 
-void Draughts::update_playable_moves(bool change_player){
-	t_playable_moves.clear();
-
-	bool player_changed=false;
-
+void Draughts::update_playable_moves(bool use_last_taking_move){
 	// It's necessary to discriminate taking moves from simple moves (taking moves have to be played)
 	vector<Coordinates> simple_moves;
 	vector<Coordinates> taking_moves;
 
-	do{
-		simple_moves.clear();
-		taking_moves.clear();
+	//White pawns move to the up of the board
+	int move_direction = 1;
+	Draughts_Attributes player_pawn = DRAUGHTS_WHITE_PAWN;
+	Draughts_Attributes player_queen = DRAUGHTS_WHITE_QUEEN;
+	Draughts_Attributes adverse_pawn = DRAUGHTS_BLACK_PAWN;
+	Draughts_Attributes adverse_queen = DRAUGHTS_BLACK_QUEEN;
+	if (t_next_player == t_players[1]){
+		//Black pawns move backward
+		move_direction = -1;
+		player_pawn = DRAUGHTS_BLACK_PAWN;
+		player_queen = DRAUGHTS_BLACK_QUEEN;
+		adverse_pawn = DRAUGHTS_WHITE_PAWN;
+		adverse_queen = DRAUGHTS_WHITE_QUEEN;
+	}
 
-		//White pawns move to the up of the board
-		int move_direction = 1;
-		Draughts_Attributes player_pawn = DRAUGHTS_WHITE_PAWN;
-		Draughts_Attributes player_queen = DRAUGHTS_WHITE_QUEEN;
-		Draughts_Attributes adverse_pawn = DRAUGHTS_BLACK_PAWN;
-		Draughts_Attributes adverse_queen = DRAUGHTS_BLACK_QUEEN;
-		if (t_next_player == t_players[1]){
-			//Black pawns move backward
-			move_direction = -1;
-			player_pawn = DRAUGHTS_BLACK_PAWN;
-			player_queen = DRAUGHTS_BLACK_QUEEN;
-			adverse_pawn = DRAUGHTS_WHITE_PAWN;
-			adverse_queen = DRAUGHTS_WHITE_QUEEN;
-		}
+	unsigned int first_height = 0;
+	unsigned int last_height = DRAUGHTS_HEIGHT;
+	unsigned int first_width = 0;
+	unsigned int last_width = DRAUGHTS_WIDTH;
+	//If we may be in a row of taking moves
+	if (use_last_taking_move){
+		//Then we only care about last moved piece, so it's no really a loop on the board
+		first_height = t_last_moves.back()[2];
+		first_width = t_last_moves.back()[3];
+		last_height = first_height + 1;
+		last_width = first_width + 1;
+	}
 
-		Coordinates square(2);
-		for (square[0]=0; square[0]<DRAUGHTS_HEIGHT; square[0]++){
-			for (square[1]=0; square[1]<DRAUGHTS_WIDTH; square[1]++){
-				Square<Draughts_Attributes> * board_square = t_board->getSquare(square);
-				// First, check if the square represents a playable piece
-				if (! (board_square->isAttribute(DRAUGHTS_UNPLAYABLE) || board_square->isAttribute(DRAUGHTS_EMPTY))){
-					// Then it could be the source of a move
-					Coordinates potential_move(4);
-					potential_move[0] = square[0];
-					potential_move[1] = square[1];
+	Coordinates square(2);
+	for (square[0]=first_height; square[0]<last_height; square[0]++){
+		for (square[1]=first_width; square[1]<last_width; square[1]++){
+			Square<Draughts_Attributes> * board_square = t_board->getSquare(square);
+			// First, check if the square represents a playable piece
+			if (! (board_square->isAttribute(DRAUGHTS_UNPLAYABLE) || board_square->isAttribute(DRAUGHTS_EMPTY))){
+				// Then it could be the source of a move
+				Coordinates potential_move(4);
+				potential_move[0] = square[0];
+				potential_move[1] = square[1];
 
-					// differentiate a pawn from a queen
-					if (board_square->isAttribute(player_pawn)){
-						for (int height_direction = -1; height_direction <= 1; height_direction += 2){
-							for (int width_direction = -1; width_direction <= 1; width_direction += 2){
-								if (check_height(square[0] + 2*height_direction)){
-									if (check_width(square[1] + 2*width_direction)){
-										Coordinates potential_destination(2);
-										potential_destination[0] = square[0] + 2*height_direction;
-										potential_destination[1] = square[1] + 2*width_direction;
-										if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
-											Coordinates potential_take(2);
-											potential_take[0] = square[0] + height_direction;
-											potential_take[1] = square[1] + width_direction;
-											if (t_board->getSquare(potential_take)->isAttribute(adverse_pawn) || t_board->getSquare(potential_take)->isAttribute(adverse_queen)){
-												potential_move[2] = potential_destination[0];
-												potential_move[3] = potential_destination[1];
-												taking_moves.push_back(potential_move);
-											}
-										}
-									}
-								}
-							}
-						}
-
-						//if there is already taking moves, simple_moves are no longer needed to compute
-						if (taking_moves.empty()){
-							int height_direction = move_direction;
-							for (int width_direction = -1; width_direction <= 1; width_direction += 2){
-								if (check_height(square[0] + height_direction)){
-									if (check_width(square[1] + width_direction)){
-										Coordinates potential_destination(2);
-										potential_destination[0] = square[0] + height_direction;
-										potential_destination[1] = square[1] + width_direction;
-										if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
+				// differentiate a pawn from a queen
+				if (board_square->isAttribute(player_pawn)){
+					for (int height_direction = -1; height_direction <= 1; height_direction += 2){
+						for (int width_direction = -1; width_direction <= 1; width_direction += 2){
+							if (check_height(square[0] + 2*height_direction)){
+								if (check_width(square[1] + 2*width_direction)){
+									Coordinates potential_destination(2);
+									potential_destination[0] = square[0] + 2*height_direction;
+									potential_destination[1] = square[1] + 2*width_direction;
+									if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
+										Coordinates potential_take(2);
+										potential_take[0] = square[0] + height_direction;
+										potential_take[1] = square[1] + width_direction;
+										if (t_board->getSquare(potential_take)->isAttribute(adverse_pawn) || t_board->getSquare(potential_take)->isAttribute(adverse_queen)){
 											potential_move[2] = potential_destination[0];
 											potential_move[3] = potential_destination[1];
-											simple_moves.push_back(potential_move);
+											taking_moves.push_back(potential_move);
 										}
 									}
 								}
 							}
 						}
 					}
-					else if (board_square->isAttribute(player_queen)){
-						for (int height_direction = -1; height_direction <= 1; height_direction += 2){
-							for (int width_direction = -1; width_direction <= 1; width_direction += 2){
-								bool found_adverse_piece = false;
-								for (unsigned int offset = 1; offset < DRAUGHTS_HEIGHT; offset++){
-									if (check_height(square[0] + offset*height_direction)){
-										if (check_width(square[1] + offset*width_direction)){
-											Coordinates potential_destination(2);
-											potential_destination[0] = square[0] + offset*height_direction;
-											potential_destination[1] = square[1] + offset*width_direction;
-											if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
-												potential_move[2] = potential_destination[0];
-												potential_move[3] = potential_destination[1];
-												if (!found_adverse_piece){
-													simple_moves.push_back(potential_move);
-												}
-												else{
-													taking_moves.push_back(potential_move);
-												}
-											}
-											else if (t_board->getSquare(potential_destination)->isAttribute(adverse_pawn) || t_board->getSquare(potential_destination)->isAttribute(adverse_queen)){
-												if (found_adverse_piece){
-													break;
-												}
-												found_adverse_piece=true;
+
+					//if there is already taking moves, simple_moves are no longer needed to compute
+					if (taking_moves.empty()){
+						int height_direction = move_direction;
+						for (int width_direction = -1; width_direction <= 1; width_direction += 2){
+							if (check_height(square[0] + height_direction)){
+								if (check_width(square[1] + width_direction)){
+									Coordinates potential_destination(2);
+									potential_destination[0] = square[0] + height_direction;
+									potential_destination[1] = square[1] + width_direction;
+									if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
+										potential_move[2] = potential_destination[0];
+										potential_move[3] = potential_destination[1];
+										simple_moves.push_back(potential_move);
+									}
+								}
+							}
+						}
+					}
+				}
+				else if (board_square->isAttribute(player_queen)){
+					for (int height_direction = -1; height_direction <= 1; height_direction += 2){
+						for (int width_direction = -1; width_direction <= 1; width_direction += 2){
+							bool found_adverse_piece = false;
+							for (unsigned int offset = 1; offset < DRAUGHTS_HEIGHT; offset++){
+								if (check_height(square[0] + offset*height_direction)){
+									if (check_width(square[1] + offset*width_direction)){
+										Coordinates potential_destination(2);
+										potential_destination[0] = square[0] + offset*height_direction;
+										potential_destination[1] = square[1] + offset*width_direction;
+										if (t_board->getSquare(potential_destination)->isAttribute(DRAUGHTS_EMPTY)){
+											potential_move[2] = potential_destination[0];
+											potential_move[3] = potential_destination[1];
+											if (!found_adverse_piece){
+												simple_moves.push_back(potential_move);
 											}
 											else{
+												taking_moves.push_back(potential_move);
+											}
+										}
+										else if (t_board->getSquare(potential_destination)->isAttribute(adverse_pawn) || t_board->getSquare(potential_destination)->isAttribute(adverse_queen)){
+											if (found_adverse_piece){
 												break;
 											}
+											found_adverse_piece=true;
+										}
+										else{
+											break;
 										}
 									}
 								}
@@ -236,25 +240,24 @@ void Draughts::update_playable_moves(bool change_player){
 				}
 			}
 		}
-		if (!player_changed && change_player && taking_moves.empty()){
-			if (t_next_player == t_players[1]){
-				t_next_player = t_players[0];
-			}
-			else{
-				t_next_player = t_players[1];
-			}
-			player_changed = true;
-		}
-		else
-			player_changed = false;
 	}
-	while (change_player && player_changed);
 
-	if (!taking_moves.empty()){
-		t_playable_moves=taking_moves;
+	if (use_last_taking_move && taking_moves.empty()){
+		if (t_next_player == t_players[1]){
+			t_next_player = t_players[0];
+		}
+		else{
+			t_next_player = t_players[1];
+		}
+		update_playable_moves();
 	}
 	else{
-		t_playable_moves=simple_moves;
+		if (!taking_moves.empty()){
+			t_playable_moves=taking_moves;
+		}
+		else{
+			t_playable_moves=simple_moves;
+		}
 	}
 }
 
@@ -262,6 +265,17 @@ void Draughts::start(){
 	t_last_moves.clear();
 
 	Coordinates square(2);
+	for (square[0]=0; square[0]<DRAUGHTS_HEIGHT; square[0]++){
+		for (square[1]=0; square[1]<DRAUGHTS_WIDTH; square[1]++){
+			if (!t_board->getSquare(square)->isAttribute(DRAUGHTS_EMPTY) && !t_board->getSquare(square)->isAttribute(DRAUGHTS_UNPLAYABLE)){
+				set_to_empty(t_board->getSquare(square));
+			}
+		}
+	}
+
+	this->t_white_pawns=0;
+	this->t_black_pawns=0;
+
 	for (square[0]=0; square[0]<DRAUGHTS_HEIGHT/2-1; square[0]++){
 		for (square[1]=0; square[1]<DRAUGHTS_WIDTH; square[1]++){
 			if (t_board->getSquare(square)->isAttribute(DRAUGHTS_EMPTY)){
@@ -287,7 +301,7 @@ void Draughts::start(){
 	this->t_white_queens = 0;
 	this->t_next_player = t_players[0];
 
-	update_playable_moves(false);
+	update_playable_moves();
 }
 unsigned int Draughts::dimension(){
 	return 4;
@@ -359,16 +373,19 @@ void Draughts::play(Coordinates coordinates){
 		t_board->getSquare(source)->delAttribute(source_piece);
 		t_board->getSquare(source)->addAttribute(DRAUGHTS_EMPTY);
 
+		bool became_a_queen=false;
 		Draughts_Attributes destination_piece = source_piece;
 		if ( source_piece == DRAUGHTS_WHITE_PAWN && destination[0] == DRAUGHTS_HEIGHT - 1){
 			destination_piece = DRAUGHTS_WHITE_QUEEN;
 			this->t_white_queens++;
 			this->t_white_pawns--;
+			became_a_queen = true;
 		}
 		else if ( source_piece == DRAUGHTS_BLACK_PAWN && destination[0] == 0){
 			destination_piece = DRAUGHTS_BLACK_QUEEN;
 			this->t_black_queens++;
 			this->t_black_pawns--;
+			became_a_queen = true;
 		}
 		t_board->getSquare(destination)->delAttribute(DRAUGHTS_EMPTY);
 		t_board->getSquare(destination)->addAttribute(destination_piece);
@@ -392,7 +409,7 @@ void Draughts::play(Coordinates coordinates){
 			square[1] = source[1] + offset*width_direction;
 		}
 
-		if (took_a_piece)
+		if (took_a_piece && !became_a_queen)
 			update_playable_moves(true);
 		else{
 			if (t_next_player == t_players[1]){
@@ -401,7 +418,7 @@ void Draughts::play(Coordinates coordinates){
 			else{
 				t_next_player = t_players[1];
 			}
-			update_playable_moves(false);
+			update_playable_moves();
 		}
 	}
 }
@@ -438,6 +455,15 @@ void Draughts::display(std::ostream & out){
 	for(int column=0; column<DRAUGHTS_WIDTH; column++)
 		out<<"|"<<column;
 	out<<"|"<<std::endl;
+
+	out<<"Playable Coordinates :"<<endl;
+	for (vector<Coordinates>::iterator playable_moves_it = t_playable_moves.begin(); playable_moves_it != t_playable_moves.end(); playable_moves_it++){
+		playable_moves_it->display(out);
+		if (distance(t_playable_moves.begin(), playable_moves_it) % 3 == 2){
+			out<<endl;
+		}
+	}
+	out<<endl;
 }
 
 string Draughts::getName(){

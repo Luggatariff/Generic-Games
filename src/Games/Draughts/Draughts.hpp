@@ -60,7 +60,7 @@ class Draughts: public Game{
 	 * \brief updates t_playable_moves attribute depending on the board structure
 	 * \param change_player : indicates if the player has to change if there is no pawn to take
 	 */
-	void update_playable_moves(Coordinates last_taking_move);
+	void update_playable_moves(bool use_last_taking_move = false);
 
 	/*!
 	 * \brief checks if the given height is in the board
