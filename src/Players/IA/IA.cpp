@@ -75,7 +75,6 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 	while(choices.size() > 1 && temp_level <= ia_level){
 		unsigned int true_level = temp_level * player_number - 1;
 
-		#pragma omp parallel for
 		for(unsigned int choices_iterator_index = 0; choices_iterator_index < choices.size() ; choices_iterator_index++){
 			map<Coordinates, IATree *>::iterator omp_choices_iterator=choices.begin();
 			advance(omp_choices_iterator, choices_iterator_index);
