@@ -10,6 +10,8 @@
 #include <ctime>
 #include <algorithm>
 
+#define FEW_CHOICES 3
+
 IA::IA(string name, unsigned int team_id, unsigned int level, bool display_tree){
 	ia_name = name;
 	ia_team = team_id;
@@ -69,10 +71,16 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 	}
 
 	unsigned int temp_level = 1;
+	unsigned int max_level = ia_level;
 	unsigned int player_number = game->players().size();
 	int victory_score = game->victoryScore();
+
+	if (choices.size() <= FEW_CHOICES){
+		max_level++;
+	}
+
 	cout<<"Thinking.."<<endl;
-	while(choices.size() > 1 && temp_level <= ia_level){
+	while(choices.size() > 1 && temp_level <= max_level){
 		unsigned int true_level = temp_level * player_number - 1;
 
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
