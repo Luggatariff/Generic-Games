@@ -416,7 +416,7 @@ void Draughts::display(std::ostream & out){
 	out<<"|"<<std::endl;
 	Coordinates coordinates(2);
 	for(int line = DRAUGHTS_HEIGHT - 1; line>=0; line--){
-		out<<" ";
+		out<<line;
 		for(coordinates[1]=0; coordinates[1]<DRAUGHTS_WIDTH; coordinates[1]++){
 			coordinates[0] = (unsigned int) line;
 
@@ -432,11 +432,11 @@ void Draughts::display(std::ostream & out){
 			else
 				out<<" ";
 		}
-		out<<"|"<<std::endl;
+		out<<"|"<<line<<std::endl;
 	}
 	out<<" ";
 	for(int column=0; column<DRAUGHTS_WIDTH; column++)
-		out<<"|-";
+		out<<"|"<<column;
 	out<<"|"<<std::endl;
 }
 
