@@ -8,15 +8,17 @@
 
 #define PLAYERS_NUMBER 2
 
+#define INFINITE_LOOP true
+
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
 	Player * first_teacher = new IA(string("Octave"), 0, 1);
-	Player * second_teacher = new IA(string("Octave"), 1, 1);
-	players[0] = new Learner(string("Eugenie"), 0, first_teacher, string("out/learner.db"), 1, -5, -10);
-	players[1] = new Learner(string("Amelie"), 1, second_teacher, string("out/learner.db"), 1, -5, -10);
+	Player * second_teacher = new IA(string("Octave"), 1, 2);
+	players[0] = new Learner(string("Eugenie"), 0, first_teacher, string("out/learner.db"), 2, -5, -1);
+	players[1] = new Learner(string("Amelie"), 1, second_teacher, string("out/learner.db"), 2, -5, -1);
 
 	Game * game;
-	game = new FourInALine(players[0], players[1]);
+	game = new TicTacToe(players[0], players[1]);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
@@ -49,10 +51,12 @@ int main( int argamec, const char* argamev[] ){
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
 			players[i_p]->end(game);
 
-		//char commande;
-		//cout<<"Continue? (o/n):";
-		//cin>>commande;
-		//if (commande == 'n') break;
+		if (!INFINITE_LOOP){
+			char commande;
+			cout<<"Continue? (o/n):";
+			cin>>commande;
+			if (commande == 'n') break;
+		}
 	}
 	delete game;
 	for (unsigned int i_p = 0; i_p < players.size(); i_p++)
