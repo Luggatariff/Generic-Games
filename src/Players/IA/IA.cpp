@@ -75,23 +75,22 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 	while(choices.size() > 1 && temp_level <= ia_level){
 		unsigned int true_level = temp_level * player_number - 1;
 
-		for(unsigned int choices_iterator_index = 0; choices_iterator_index < choices.size() ; choices_iterator_index++){
-			map<Coordinates, IATree *>::iterator omp_choices_iterator=choices.begin();
-			advance(omp_choices_iterator, choices_iterator_index);
-
-			if (omp_choices_iterator->second->populate(true_level)){
-				omp_choices_iterator->second->compute();
-			}
-		}
-
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
+		if (choices_iterator->second->populate(true_level)){
+			choices_iterator->second->compute();
+		}
 		Score * best_choice_score = choices_iterator->second->getScore();
-		for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
-			Score * res_score = choices_iterator->second->getScore();
-			if ((res_score->value() >= best_choice_score->value()) && ((res_score->value() > best_choice_score->value()) || (res_score->value() > 0 && res_score->depth() < best_choice_score->depth()) || (res_score->value() < 0 && res_score->depth() > best_choice_score->depth()))){
-				best_choice_score = res_score;
-				if (best_choice_score->value() == victory_score)
-					break;
+		if (best_choice_score->value() != victory_score) {
+			for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
+				if (choices_iterator->second->populate(true_level)){
+					choices_iterator->second->compute();
+				}
+				Score * res_score = choices_iterator->second->getScore();
+				if ((res_score->value() >= best_choice_score->value()) && ((res_score->value() > best_choice_score->value()) || (res_score->value() > 0 && res_score->depth() < best_choice_score->depth()) || (res_score->value() < 0 && res_score->depth() > best_choice_score->depth()))){
+					best_choice_score = res_score;
+					if (best_choice_score->value() == victory_score)
+						break;
+				}
 			}
 		}
 
