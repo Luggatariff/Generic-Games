@@ -14,8 +14,8 @@ int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
 	Player * first_teacher = new IA(string("Octave"), 0, 1);
 	Player * second_teacher = new IA(string("Octave"), 1, 2);
-	players[0] = new Learner(string("Eugenie"), 0, first_teacher, string("out/learner.db"), 2, -5, -1);
-	players[1] = new Learner(string("Amelie"), 1, second_teacher, string("out/learner.db"), 2, -5, -1);
+	players[0] = new Learner(string("Eugenie"), 0, first_teacher, string("out/learner.db"), 0, -5, -1);
+	players[1] = new Learner(string("Amelie"), 1, second_teacher, string("out/learner.db"), 0, -5, -1);
 
 	Game * game;
 	game = new TicTacToe(players[0], players[1]);
