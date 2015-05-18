@@ -95,6 +95,7 @@ int Draughts::score(unsigned int team_id){
 	int winner = whoWon();
 	if (winner == (int)team_id) return victoryScore();
 	if (winner == -1){
+		if (isEnded()) return 0;
 		if (t_players[0]->getTeam() == team_id){
 			return t_white_pawns + t_white_queens*2 - t_black_pawns - t_black_queens*2;
 		}
