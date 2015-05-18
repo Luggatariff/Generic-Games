@@ -269,6 +269,8 @@ void Draughts::update_playable_moves(bool use_last_taking_move){
 void Draughts::start(){
 	t_last_moves.clear();
 
+	this->t_count_null_moves = 0;
+
 	Coordinates square(2);
 	for (square[0]=0; square[0]<DRAUGHTS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<DRAUGHTS_WIDTH; square[1]++){
