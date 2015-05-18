@@ -44,6 +44,8 @@ class Draughts: public Game{
 	unsigned int t_white_total;				/*!<White total number (pawns+queens)*/
 	unsigned int t_black_total;				/*!<Black total number (pawns+queens)*/
 
+	unsigned int t_count_null_moves;		/*!<counting moves without a taking or a pawn move*/
+
 	/*!
 	 * \brief sets a square with unknown but certain content to empty
 	 * \param draughts_square : square to set to empty

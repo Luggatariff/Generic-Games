@@ -24,6 +24,8 @@ Draughts::Draughts(Player * player_one, Player * player_two){
 	this->t_white_queens = 0;
 	this->t_white_total = 0;
 
+	this->t_count_null_moves = 0;
+
 	Coordinates square(2);
 	for (square[0]=0; square[0]<DRAUGHTS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<DRAUGHTS_WIDTH; square[1]++){
@@ -55,6 +57,8 @@ Game * Draughts::copy(){
 	result->t_white_queens = this->t_white_queens;
 	result->t_white_total = this->t_white_total;
 
+	result->t_count_null_moves = this->t_count_null_moves;
+
 	return (Game *)result;
 }
 
@@ -64,7 +68,7 @@ vector<Player *> Draughts::players(){
 
 bool Draughts::isEnded(){
 	if (isWon()) return true;
-	return false;
+	return (this->t_count_null_moves >= 25);
 }
 bool Draughts::isWon(){
 	return (whoWon() != -1);
@@ -362,6 +366,8 @@ void Draughts::set_to_empty(Square<Draughts_Attributes> * draughts_square){
 void Draughts::play(Coordinates coordinates){
 	if (isPlayable(coordinates)){
 		t_last_moves.push_back(coordinates);
+		this->t_count_null_moves++;
+
 		Coordinates source(2);
 		Coordinates destination(2);
 		source[0] = coordinates[0];
@@ -375,17 +381,20 @@ void Draughts::play(Coordinates coordinates){
 
 		bool became_a_queen=false;
 		Draughts_Attributes destination_piece = source_piece;
-		if ( source_piece == DRAUGHTS_WHITE_PAWN && destination[0] == DRAUGHTS_HEIGHT - 1){
-			destination_piece = DRAUGHTS_WHITE_QUEEN;
-			this->t_white_queens++;
-			this->t_white_pawns--;
-			became_a_queen = true;
-		}
-		else if ( source_piece == DRAUGHTS_BLACK_PAWN && destination[0] == 0){
-			destination_piece = DRAUGHTS_BLACK_QUEEN;
-			this->t_black_queens++;
-			this->t_black_pawns--;
-			became_a_queen = true;
+		if ( source_piece == DRAUGHTS_WHITE_PAWN || source_piece == DRAUGHTS_BLACK_PAWN){
+			this->t_count_null_moves = 0;
+			if ( source_piece == DRAUGHTS_WHITE_PAWN && destination[0] == DRAUGHTS_HEIGHT - 1){
+				destination_piece = DRAUGHTS_WHITE_QUEEN;
+				this->t_white_queens++;
+				this->t_white_pawns--;
+				became_a_queen = true;
+			}
+			else if ( source_piece == DRAUGHTS_BLACK_PAWN && destination[0] == 0){
+				destination_piece = DRAUGHTS_BLACK_QUEEN;
+				this->t_black_queens++;
+				this->t_black_pawns--;
+				became_a_queen = true;
+			}
 		}
 		t_board->getSquare(destination)->delAttribute(DRAUGHTS_EMPTY);
 		t_board->getSquare(destination)->addAttribute(destination_piece);
@@ -401,6 +410,7 @@ void Draughts::play(Coordinates coordinates){
 		while (! (square == destination)){
 			if (!t_board->getSquare(square)->isAttribute(DRAUGHTS_EMPTY)){
 				set_to_empty(t_board->getSquare(square));
+				this->t_count_null_moves = 0;
 				took_a_piece = true;
 				break;
 			}
