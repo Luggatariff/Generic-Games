@@ -10,7 +10,7 @@
 #include <ctime>
 #include <algorithm>
 
-#define FEW_CHOICES 3
+#define FEW_CHOICES 2
 
 IA::IA(string name, unsigned int team_id, unsigned int level, bool display_tree){
 	ia_name = name;
