@@ -26,6 +26,8 @@ Draughts::Draughts(Player * player_one, Player * player_two){
 
 	this->t_count_null_moves = 0;
 
+	this->t_in_a_taking_row = false;
+
 	Coordinates square(2);
 	for (square[0]=0; square[0]<DRAUGHTS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<DRAUGHTS_WIDTH; square[1]++){
@@ -59,6 +61,8 @@ Game * Draughts::copy(){
 
 	result->t_count_null_moves = this->t_count_null_moves;
 
+	result->t_in_a_taking_row=this->t_in_a_taking_row;
+
 	return (Game *)result;
 }
 
@@ -68,7 +72,12 @@ vector<Player *> Draughts::players(){
 
 bool Draughts::isEnded(){
 	if (isWon()) return true;
-	return (this->t_count_null_moves >= 25);
+
+	bool draw_condition = (this->t_count_null_moves >= 25);
+	if (!draw_condition)
+		draw_condition = (!t_in_a_taking_row && (t_white_pawns == 0 && t_black_pawns == 0 && (t_white_queens + t_black_queens) <= 3));
+
+	return ( draw_condition );
 }
 bool Draughts::isWon(){
 	return (whoWon() != -1);
@@ -112,12 +121,17 @@ int Draughts::score(unsigned int team_id){
 			adverse_queens=(int)t_white_queens;
 		}
 		int pure_score = player_pawns*25 + player_queens*50 - adverse_pawns*25 - adverse_queens*50;
+
+		int draw_modifier = t_count_null_moves*40;
+		if ( isEnded() ){
+			draw_modifier = victoryScore();
+		}
 		//player in a bad situation will try to reach draw game
 		if (pure_score >= 0){
-			return pure_score - t_count_null_moves*20;
+			return pure_score - draw_modifier;
 		}
 		else{
-			return pure_score + t_count_null_moves*20;
+			return pure_score + draw_modifier;
 		}
 	}
 	return -victoryScore();
@@ -139,6 +153,8 @@ bool Draughts::check_existence(Coordinates square){
 }
 
 void Draughts::update_playable_moves(bool use_last_taking_move){
+	t_in_a_taking_row=use_last_taking_move;
+
 	// It's necessary to discriminate taking moves from simple moves (taking moves have to be played)
 	vector<Coordinates> simple_moves;
 	vector<Coordinates> taking_moves;

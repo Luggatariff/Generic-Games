@@ -46,6 +46,8 @@ class Draughts: public Game{
 
 	unsigned int t_count_null_moves;		/*!<counting moves without a taking or a pawn move*/
 
+	bool t_in_a_taking_row;					/*!<Indicates if a Player is in a row of taking moves*/
+
 	/*!
 	 * \brief sets a square with unknown but certain content to empty
 	 * \param draughts_square : square to set to empty
