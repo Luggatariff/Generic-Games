@@ -9,7 +9,7 @@
 
 #define DRAUGHTS_WIDTH 	10		/*!<Draughts board width*/
 #define DRAUGHTS_HEIGHT	10		/*!<Draughts board height*/
-#define DRAUGHTS_MAX_SCORE 100	/*!<Draughts Maximal score (victory)*/
+#define DRAUGHTS_MAX_SCORE 1000	/*!<Draughts Maximal score (victory)*/
 
 #include "Game.hpp"
 #include "Board.hpp"

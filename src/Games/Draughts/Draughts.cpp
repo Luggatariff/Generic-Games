@@ -95,12 +95,29 @@ int Draughts::score(unsigned int team_id){
 	int winner = whoWon();
 	if (winner == (int)team_id) return victoryScore();
 	if (winner == -1){
-		if (isEnded()) return 0;
+		int player_pawns;
+		int player_queens;
+		int adverse_pawns;
+		int adverse_queens;
 		if (t_players[0]->getTeam() == team_id){
-			return t_white_pawns + t_white_queens*2 - t_black_pawns - t_black_queens*2;
+			player_pawns=(int)t_white_pawns;
+			player_queens=(int)t_white_queens;
+			adverse_pawns=(int)t_black_pawns;
+			adverse_queens=(int)t_black_queens;
 		}
 		else{
-			return t_black_pawns + t_black_queens*2 - t_white_pawns - t_white_queens*2;
+			player_pawns=(int)t_black_pawns;
+			player_queens=(int)t_black_queens;
+			adverse_pawns=(int)t_white_pawns;
+			adverse_queens=(int)t_white_queens;
+		}
+		int pure_score = player_pawns*25 + player_queens*50 - adverse_pawns*25 - adverse_queens*50;
+		//player in a bad situation will try to reach draw game
+		if (pure_score >= 0){
+			return pure_score - t_count_null_moves*20;
+		}
+		else{
+			return pure_score + t_count_null_moves*20;
 		}
 	}
 	return -victoryScore();
@@ -238,6 +255,12 @@ void Draughts::update_playable_moves(bool use_last_taking_move){
 											break;
 										}
 									}
+									else{
+										break;
+									}
+								}
+								else{
+									break;
 								}
 							}
 						}
