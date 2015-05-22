@@ -122,6 +122,17 @@ public:
 		return false;
 	}
 
+	/*!
+	 * \brief compares two Squares
+	 */
+	bool operator==(const Square& square) const{
+		vector<Attribute> first = (*this).s_attributes;
+		vector<Attribute> second = square.s_attributes;
+		sort (first.begin(), first.end());
+		sort (second.begin(), second.end());
+		return ( first == second );
+	}
+
 };
 
 #endif
