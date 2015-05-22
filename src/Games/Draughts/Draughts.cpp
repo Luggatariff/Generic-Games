@@ -207,6 +207,28 @@ void Draughts::change_player(){
 	update_playable_moves();
 }
 
+unsigned int Draughts::compute_takes(Coordinates taking_move){
+	unsigned int result = 1;
+	Draughts * game_copy = (Draughts *)this->copy();
+
+	game_copy->play(taking_move);
+	if ( !game_copy->isEnded() && this->t_next_player == game_copy->t_next_player){
+		vector<Coordinates> next_taking_moves = game_copy->playableCoordinates();
+		vector<Coordinates>::iterator next_taking_moves_it = next_taking_moves.begin();
+		unsigned int max_takes = game_copy->compute_takes(*next_taking_moves_it);
+		for (next_taking_moves_it++; next_taking_moves_it != next_taking_moves.end(); next_taking_moves_it++){
+			unsigned int takes = game_copy->compute_takes(*next_taking_moves_it);
+			if (takes > max_takes){
+				max_takes = takes;
+			}
+		}
+		result = max_takes + 1;
+	}
+
+	delete game_copy;
+	return result;
+}
+
 void Draughts::update_playable_moves(bool use_last_taking_move){
 	t_in_a_taking_row=use_last_taking_move;
 
@@ -347,6 +369,25 @@ void Draughts::update_playable_moves(bool use_last_taking_move){
 	else{
 		if (!taking_moves.empty()){
 			t_playable_moves=taking_moves;
+
+			vector<Coordinates> final_taking_moves;
+			unsigned int max_taken_pieces;
+			vector<Coordinates>::iterator taking_moves_it = taking_moves.begin();
+
+			max_taken_pieces = compute_takes(*taking_moves_it);
+			final_taking_moves.push_back(*taking_moves_it);
+			for (taking_moves_it++; taking_moves_it != taking_moves.end(); taking_moves_it++){
+				unsigned int taken_pieces = compute_takes(*taking_moves_it);
+				if (taken_pieces > max_taken_pieces){
+					final_taking_moves.clear();
+					max_taken_pieces = taken_pieces;
+					final_taking_moves.push_back(*taking_moves_it);
+				}
+				else if(taken_pieces == max_taken_pieces){
+					final_taking_moves.push_back(*taking_moves_it);
+				}
+			}
+			t_playable_moves=final_taking_moves;
 		}
 		else{
 			t_playable_moves=simple_moves;

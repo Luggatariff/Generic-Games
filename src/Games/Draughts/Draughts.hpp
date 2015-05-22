@@ -72,6 +72,12 @@ class Draughts: public Game{
 	void change_player();
 
 	/*!
+	 * \brief compute the number of pieces a taking move allows to take
+	 * \param taking_move : move to test
+	 * \return amount of eaten pieces
+	 */
+	unsigned int compute_takes(Coordinates taking_move);
+	/*!
 	 * \brief updates t_playable_moves attribute depending on the board structure
 	 * \param change_player : indicates if the player has to change if there is no pawn to take
 	 */
