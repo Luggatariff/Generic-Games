@@ -117,6 +117,13 @@ public:
 	Coordinates getMaxCoordinates(){
 		return b_max_coordinates;
 	}
+
+	/*!
+	 * \brief compares two Boards
+	 */
+	bool operator==(const Board& board) const{
+		return ( (*this).b_max_coordinates == board.b_max_coordinates && (*this).b_squares == board.b_squares );
+	}
 };
 
 #endif
