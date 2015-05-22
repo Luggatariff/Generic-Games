@@ -44,9 +44,13 @@ class Draughts: public Game{
 	unsigned int t_white_total;				/*!<White total number (pawns+queens)*/
 	unsigned int t_black_total;				/*!<Black total number (pawns+queens)*/
 
+	bool t_last_move_was_null;				/*!<Indicate if last move was null (non taking and not a pawn)*/
 	unsigned int t_count_null_moves;		/*!<counting moves without a taking or a pawn move (25 maximum, then Draw Game)*/
 	bool t_count_last_moves_started;		/*!<boolean indicating if last moves count has started*/
 	unsigned int t_count_last_moves;		/*!<counter for last moves*/
+
+	vector<pair< pair<Board<Draughts_Attributes>, Player *>, unsigned int > > t_recurring_boards; /*!<Recurring boards*/
+	unsigned int t_current_board_occurence;
 
 	bool t_in_a_taking_row;					/*!<Indicates if a Player is in a row of taking moves*/
 

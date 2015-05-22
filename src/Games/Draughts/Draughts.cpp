@@ -24,9 +24,12 @@ Draughts::Draughts(Player * player_one, Player * player_two){
 	this->t_white_queens = 0;
 	this->t_white_total = 0;
 
+	this->t_last_move_was_null=false;
 	this->t_count_null_moves = 0;
 	this->t_count_last_moves_started = false;
 	this->t_count_last_moves = 0;
+
+	this->t_current_board_occurence = 1;
 
 	this->t_in_a_taking_row = false;
 
@@ -61,9 +64,13 @@ Game * Draughts::copy(){
 	result->t_white_queens = this->t_white_queens;
 	result->t_white_total = this->t_white_total;
 
+	result->t_last_move_was_null = this->t_last_move_was_null;
 	result->t_count_null_moves = this->t_count_null_moves;
 	result->t_count_last_moves = this->t_count_last_moves;
 	result->t_count_last_moves_started = this->t_count_last_moves_started;
+
+	result->t_recurring_boards = this->t_recurring_boards;
+	result->t_current_board_occurence = this->t_current_board_occurence;
 
 	result->t_in_a_taking_row=this->t_in_a_taking_row;
 
@@ -82,6 +89,9 @@ bool Draughts::isEnded(){
 		draw_condition = (!t_in_a_taking_row && (t_white_pawns == 0 && t_black_pawns == 0 && (t_white_queens + t_black_queens) <= 3));
 	if (!draw_condition)
 		draw_condition = (t_count_last_moves_started && t_count_last_moves>=32);
+	if (!draw_condition){
+		draw_condition = (t_current_board_occurence >= 3);
+	}
 
 	return ( draw_condition );
 }
@@ -173,6 +183,27 @@ void Draughts::change_player(){
 		t_count_last_moves++;
 	}
 
+	if (t_last_move_was_null){
+		pair<Board<Draughts_Attributes>, Player *> recurring_boards_key(*t_board, t_next_player);
+		vector<pair< pair<Board<Draughts_Attributes>, Player *>, unsigned int > >::iterator t_recurring_boards_it;
+		for (t_recurring_boards_it = t_recurring_boards.begin(); t_recurring_boards_it != t_recurring_boards.end(); t_recurring_boards_it++){
+			if (t_recurring_boards_it->first == recurring_boards_key){
+				t_recurring_boards_it->second++;
+				break;
+			}
+		}
+		if (t_recurring_boards_it == t_recurring_boards.end()){
+			pair< pair<Board<Draughts_Attributes>, Player *>, unsigned int > new_recurring_board(recurring_boards_key, 1);
+			t_recurring_boards.push_back(new_recurring_board);
+			t_current_board_occurence = 1;
+		}
+		else{
+			t_current_board_occurence = t_recurring_boards_it->second;
+		}
+	}
+	else{
+		t_current_board_occurence = 1;
+	}
 	update_playable_moves();
 }
 
@@ -326,10 +357,14 @@ void Draughts::update_playable_moves(bool use_last_taking_move){
 void Draughts::start(){
 	t_last_moves.clear();
 
+	t_last_move_was_null = false;
 	t_count_null_moves = 0;
 	t_count_last_moves_started = false;
 	t_count_last_moves = 0;
 	t_in_a_taking_row = false;
+
+	t_recurring_boards.clear();
+	t_current_board_occurence = 1;
 
 	Coordinates square(2);
 	for (square[0]=0; square[0]<DRAUGHTS_HEIGHT; square[0]++){
@@ -434,6 +469,7 @@ void Draughts::play(Coordinates coordinates){
 		t_last_moves.push_back(coordinates);
 
 		t_count_null_moves++;
+		t_last_move_was_null = true;
 
 		Coordinates source(2);
 		Coordinates destination(2);
@@ -450,6 +486,7 @@ void Draughts::play(Coordinates coordinates){
 		Draughts_Attributes destination_piece = source_piece;
 		if ( source_piece == DRAUGHTS_WHITE_PAWN || source_piece == DRAUGHTS_BLACK_PAWN){
 			this->t_count_null_moves = 0;
+			t_last_move_was_null = false;
 			if ( source_piece == DRAUGHTS_WHITE_PAWN && destination[0] == DRAUGHTS_HEIGHT - 1){
 				destination_piece = DRAUGHTS_WHITE_QUEEN;
 				this->t_white_queens++;
@@ -478,6 +515,7 @@ void Draughts::play(Coordinates coordinates){
 			if (!t_board->getSquare(square)->isAttribute(DRAUGHTS_EMPTY)){
 				set_to_empty(t_board->getSquare(square));
 				this->t_count_null_moves = 0;
+				t_last_move_was_null = false;
 				took_a_piece = true;
 				break;
 			}
@@ -486,8 +524,9 @@ void Draughts::play(Coordinates coordinates){
 			square[1] = source[1] + offset*width_direction;
 		}
 
-		if ((t_white_queens == 1 && t_white_total == 1 && t_black_queens >= 1 && t_black_total == 3) ||
-				(t_black_queens == 1 && t_black_total == 1 && t_white_queens >= 1 && t_white_total == 3)){
+		if ((!t_count_last_moves_started) &&
+				((t_white_queens == 1 && t_white_total == 1 && t_black_queens >= 1 && t_black_total == 3) ||
+				(t_black_queens == 1 && t_black_total == 1 && t_white_queens >= 1 && t_white_total == 3))){
 			t_count_last_moves_started=true;
 			t_count_last_moves=0;
 		}
@@ -526,12 +565,29 @@ void Draughts::display(std::ostream & out){
 			else
 				out<<" ";
 		}
-		out<<"|"<<line;
+		out<<"|"<<line<<"   ";
 		if (line == DRAUGHTS_HEIGHT - 3){
-			out<<"   "<<t_count_null_moves<<"/25 Null moves";
+			switch (t_current_board_occurence)
+			{
+				case 1:{
+					out<<"First ";
+					break;
+				}
+				case 2:{
+					out<<"Second ";
+					break;
+				}
+				case 3:{
+					out<<"Third ";
+				}
+			}
+			out<<"Occurrence(s) of this configuration";
 		}
-		else if(t_count_last_moves_started && line == DRAUGHTS_HEIGHT - 4){
-			out<<"   "<<t_count_last_moves<<"/32 Last moves";
+		else if (line == DRAUGHTS_HEIGHT - 4){
+			out<<t_count_null_moves<<"/25 Null moves";
+		}
+		else if(t_count_last_moves_started && line == DRAUGHTS_HEIGHT - 5){
+			out<<t_count_last_moves<<"/32 Last moves";
 		}
 		out<<std::endl;
 	}
