@@ -25,6 +25,8 @@ Draughts::Draughts(Player * player_one, Player * player_two){
 	this->t_white_total = 0;
 
 	this->t_count_null_moves = 0;
+	this->t_count_last_moves_started = false;
+	this->t_count_last_moves = 0;
 
 	this->t_in_a_taking_row = false;
 
@@ -60,6 +62,8 @@ Game * Draughts::copy(){
 	result->t_white_total = this->t_white_total;
 
 	result->t_count_null_moves = this->t_count_null_moves;
+	result->t_count_last_moves = this->t_count_last_moves;
+	result->t_count_last_moves_started = this->t_count_last_moves_started;
 
 	result->t_in_a_taking_row=this->t_in_a_taking_row;
 
@@ -73,9 +77,11 @@ vector<Player *> Draughts::players(){
 bool Draughts::isEnded(){
 	if (isWon()) return true;
 
-	bool draw_condition = (this->t_count_null_moves >= 25);
+	bool draw_condition = (t_count_null_moves >= 25);
 	if (!draw_condition)
 		draw_condition = (!t_in_a_taking_row && (t_white_pawns == 0 && t_black_pawns == 0 && (t_white_queens + t_black_queens) <= 3));
+	if (!draw_condition)
+		draw_condition = (t_count_last_moves_started && t_count_last_moves>=32);
 
 	return ( draw_condition );
 }
@@ -122,9 +128,12 @@ int Draughts::score(unsigned int team_id){
 		}
 		int pure_score = player_pawns*25 + player_queens*50 - adverse_pawns*25 - adverse_queens*50;
 
-		int draw_modifier = t_count_null_moves*40;
+		int draw_modifier = t_count_null_moves*2;
+		if ((int)t_count_last_moves > draw_modifier){
+			draw_modifier = t_count_last_moves;
+		}
 		if ( isEnded() ){
-			draw_modifier = victoryScore();
+			draw_modifier = victoryScore()/10;
 		}
 		//player in a bad situation will try to reach draw game
 		if (pure_score >= 0){
@@ -150,6 +159,21 @@ bool Draughts::check_width(int width){
 
 bool Draughts::check_existence(Coordinates square){
 	return check_height(square[0]) && check_width(square[1]);
+}
+
+void Draughts::change_player(){
+	if (t_next_player == t_players[1]){
+		t_next_player = t_players[0];
+	}
+	else{
+		t_next_player = t_players[1];
+	}
+
+	if (t_count_last_moves_started){
+		t_count_last_moves++;
+	}
+
+	update_playable_moves();
 }
 
 void Draughts::update_playable_moves(bool use_last_taking_move){
@@ -287,13 +311,7 @@ void Draughts::update_playable_moves(bool use_last_taking_move){
 	}
 
 	if (use_last_taking_move && taking_moves.empty()){
-		if (t_next_player == t_players[1]){
-			t_next_player = t_players[0];
-		}
-		else{
-			t_next_player = t_players[1];
-		}
-		update_playable_moves();
+		change_player();
 	}
 	else{
 		if (!taking_moves.empty()){
@@ -308,7 +326,10 @@ void Draughts::update_playable_moves(bool use_last_taking_move){
 void Draughts::start(){
 	t_last_moves.clear();
 
-	this->t_count_null_moves = 0;
+	t_count_null_moves = 0;
+	t_count_last_moves_started = false;
+	t_count_last_moves = 0;
+	t_in_a_taking_row = false;
 
 	Coordinates square(2);
 	for (square[0]=0; square[0]<DRAUGHTS_HEIGHT; square[0]++){
@@ -359,7 +380,10 @@ bool Draughts::isPlayable(Coordinates coordinates){
 	return (find(this->t_playable_moves.begin(), this->t_playable_moves.end(), coordinates) != this->t_playable_moves.end());
 }
 vector<Coordinates> Draughts::playableCoordinates(){
-	return this->t_playable_moves;
+	if (!isEnded())
+		return this->t_playable_moves;
+	else
+		return vector<Coordinates>();
 }
 
 Player * Draughts::nextPlayer(){
@@ -408,7 +432,8 @@ void Draughts::set_to_empty(Square<Draughts_Attributes> * draughts_square){
 void Draughts::play(Coordinates coordinates){
 	if (isPlayable(coordinates)){
 		t_last_moves.push_back(coordinates);
-		this->t_count_null_moves++;
+
+		t_count_null_moves++;
 
 		Coordinates source(2);
 		Coordinates destination(2);
@@ -461,16 +486,16 @@ void Draughts::play(Coordinates coordinates){
 			square[1] = source[1] + offset*width_direction;
 		}
 
+		if ((t_white_queens == 1 && t_white_total == 1 && t_black_queens >= 1 && t_black_total == 3) ||
+				(t_black_queens == 1 && t_black_total == 1 && t_white_queens >= 1 && t_white_total == 3)){
+			t_count_last_moves_started=true;
+			t_count_last_moves=0;
+		}
+
 		if (took_a_piece && !became_a_queen)
 			update_playable_moves(true);
 		else{
-			if (t_next_player == t_players[1]){
-				t_next_player = t_players[0];
-			}
-			else{
-				t_next_player = t_players[1];
-			}
-			update_playable_moves();
+			change_player();
 		}
 	}
 }
@@ -501,7 +526,14 @@ void Draughts::display(std::ostream & out){
 			else
 				out<<" ";
 		}
-		out<<"|"<<line<<std::endl;
+		out<<"|"<<line;
+		if (line == DRAUGHTS_HEIGHT - 3){
+			out<<"   "<<t_count_null_moves<<"/25 Null moves";
+		}
+		else if(t_count_last_moves_started && line == DRAUGHTS_HEIGHT - 4){
+			out<<"   "<<t_count_last_moves<<"/32 Last moves";
+		}
+		out<<std::endl;
 	}
 	out<<" ";
 	for(int column=0; column<DRAUGHTS_WIDTH; column++)

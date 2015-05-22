@@ -44,7 +44,9 @@ class Draughts: public Game{
 	unsigned int t_white_total;				/*!<White total number (pawns+queens)*/
 	unsigned int t_black_total;				/*!<Black total number (pawns+queens)*/
 
-	unsigned int t_count_null_moves;		/*!<counting moves without a taking or a pawn move*/
+	unsigned int t_count_null_moves;		/*!<counting moves without a taking or a pawn move (25 maximum, then Draw Game)*/
+	bool t_count_last_moves_started;		/*!<boolean indicating if last moves count has started*/
+	unsigned int t_count_last_moves;		/*!<counter for last moves*/
 
 	bool t_in_a_taking_row;					/*!<Indicates if a Player is in a row of taking moves*/
 
@@ -59,6 +61,11 @@ class Draughts: public Game{
 	 * \param draughts_square : non empty square
 	 */
 	Draughts_Attributes get_piece(Square<Draughts_Attributes> * draughts_square);
+
+	/*!
+	 * \brief gives the turn to the other player
+	 */
+	void change_player();
 
 	/*!
 	 * \brief updates t_playable_moves attribute depending on the board structure
