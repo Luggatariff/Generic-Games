@@ -23,6 +23,9 @@ Chess::Chess(Player * player_one, Player * player_two){
 	this->t_king_position.insert(pair<Player *, Coordinates>(player_one, Coordinates(2)));
 	this->t_king_position.insert(pair<Player *, Coordinates>(player_two, Coordinates(2)));
 
+	this->t_king_checked.insert(pair<Player *, bool>(player_one, false));
+	this->t_king_checked.insert(pair<Player *, bool>(player_two, false));
+
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
@@ -43,8 +46,9 @@ Game * Chess::copy(){
 	result->t_next_player = this->t_next_player;
 	result->t_playable_moves = this->t_playable_moves;
 
-	result->t_points = this->t_points;
-	result->t_king_position = this->t_king_position;
+	result->t_points = map<Player *, unsigned int>(this->t_points);
+	result->t_king_position =map<Player *, Coordinates>(this->t_king_position);
+	result->t_king_checked=map<Player *, bool>(this->t_king_checked);
 
 	return (Game *)result;
 }
@@ -159,11 +163,13 @@ bool Chess::position_is_under_attack(Coordinates position){
 bool Chess::isWinner(unsigned int team_id){
 	bool result = false;
 
-	if (team_id == t_players[0]->getTeam()){
-		result = (this->t_next_player == t_players[1] && position_is_under_attack(this->t_king_position[this->t_next_player]) && this->t_playable_moves.empty());
+	Player * opponent=t_players[0];
+	if (opponent->getTeam() == team_id){
+		opponent=t_players[1];
 	}
-	else{
-		result = (this->t_next_player == t_players[0] && position_is_under_attack(this->t_king_position[this->t_next_player]) && this->t_playable_moves.empty());
+
+	if (opponent==t_next_player){
+		result=(t_king_checked[t_next_player] && t_playable_moves.empty());
 	}
 
 	return result;
@@ -247,27 +253,42 @@ void Chess::add_playable_move(Player * player, Coordinates move_start, Coordinat
 	move[2]=move_end[0];
 	move[3]=move_end[1];
 
-	Chess * chess_copy=(Chess *)this->copy();
-	chess_copy->play(move);
+	Player * opponent=t_players[0];
+	if (opponent == player){
+		opponent=t_players[1];
+	}
 
-	if (!chess_copy->position_is_under_attack(t_king_position[player]))
+	if (this->t_king_position[opponent] == move_end){
 		this->t_playable_moves.push_back(move);
+	}
+	else{
+		Chess * chess_copy=(Chess *)this->copy();
+		chess_copy->play(move);
 
-	delete chess_copy;
+		if (!chess_copy->t_king_checked[player])
+			this->t_playable_moves.push_back(move);
+		else{
+			cerr<<"WARNING ";
+			move.display(cerr);
+			cerr<<endl;
+			chess_copy->display(cerr);
+			cerr<<"END"<<endl;
+		}
+
+		delete chess_copy;
+	}
 }
 void Chess::update_playable_moves(){
+	this->t_playable_moves.clear();
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
-			Square<Chess_Attributes> * board_square = t_board->getSquare(square);
+			Chess_Attributes piece=this->get_piece(t_board->getSquare(square));
 			// First, check if the square represents a playable piece
-			if (! (board_square->isAttribute(CHESS_EMPTY))){
-				Chess_Attributes piece = this->get_piece(board_square);
-
-				Player * player=get_piece_player(piece);
+			if (get_piece_player(piece) == t_next_player){
 				if ( piece == CHESS_BLACK_PAWN || piece == CHESS_WHITE_PAWN ){
 					int move_direction=1;
-					if ( player == t_players[1] )
+					if ( t_next_player == t_players[1] )
 						move_direction=-1;
 
 					bool already_moved=true;
@@ -278,11 +299,11 @@ void Chess::update_playable_moves(){
 					next_square[0]=next_square[0]+move_direction;
 
 					if (check_existence(next_square) && t_board->getSquare(next_square)->isAttribute(CHESS_EMPTY)){
-						add_playable_move(player, square, next_square);
+						add_playable_move(t_next_player, square, next_square);
 						if (!already_moved){
 							next_square[0]=next_square[0]+move_direction;
 							if (t_board->getSquare(next_square)->isAttribute(CHESS_EMPTY)){
-								add_playable_move(player, square, next_square);
+								add_playable_move(t_next_player, square, next_square);
 							}
 						}
 					}
@@ -290,12 +311,12 @@ void Chess::update_playable_moves(){
 					next_square=square;
 					next_square[0]=next_square[0]+move_direction;
 					next_square[1]=next_square[1]-1;
-					if (check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player){
-						add_playable_move(player, square, next_square);
+					if (check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != t_next_player){
+						add_playable_move(t_next_player, square, next_square);
 					}
 					next_square[1]=next_square[1]+2;
-					if (check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player){
-						add_playable_move(player, square, next_square);
+					if (check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != t_next_player){
+						add_playable_move(t_next_player, square, next_square);
 					}
 				}
 				else if ( piece == CHESS_BLACK_KNIGHT || piece == CHESS_WHITE_KNIGHT ){
@@ -311,8 +332,8 @@ void Chess::update_playable_moves(){
 									next_square[0]=next_square[0]+2*two_square_move_direction;
 									next_square[1]=next_square[1]+one_square_move_direction;
 								}
-								if (check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player){
-									add_playable_move(player, square, next_square);
+								if (check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != t_next_player){
+									add_playable_move(t_next_player, square, next_square);
 								}
 							}
 						}
@@ -325,12 +346,12 @@ void Chess::update_playable_moves(){
 							next_square[0]=next_square[0]+height_direction;
 							next_square[1]=next_square[1]+width_direction;
 							while ( check_existence(next_square) && get_piece(t_board->getSquare(next_square)) == CHESS_EMPTY ){
-								add_playable_move(player, square, next_square);
+								add_playable_move(t_next_player, square, next_square);
 								next_square[0]=next_square[0]+height_direction;
 								next_square[1]=next_square[1]+width_direction;
 							}
-							if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
-								add_playable_move(player, square, next_square);
+							if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != t_next_player ){
+								add_playable_move(t_next_player, square, next_square);
 							}
 						}
 					}
@@ -343,12 +364,12 @@ void Chess::update_playable_moves(){
 								next_square[0]=next_square[0]+height_direction;
 								next_square[1]=next_square[1]+width_direction;
 								while ( check_existence(next_square) && get_piece(t_board->getSquare(next_square)) == CHESS_EMPTY ){
-									add_playable_move(player, square, next_square);
+									add_playable_move(t_next_player, square, next_square);
 									next_square[0]=next_square[0]+height_direction;
 									next_square[1]=next_square[1]+width_direction;
 								}
-								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
-									add_playable_move(player, square, next_square);
+								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != t_next_player ){
+									add_playable_move(t_next_player, square, next_square);
 								}
 							}
 						}
@@ -362,12 +383,12 @@ void Chess::update_playable_moves(){
 								next_square[0]=next_square[0]+height_direction;
 								next_square[1]=next_square[1]+width_direction;
 								while ( check_existence(next_square) && get_piece(t_board->getSquare(next_square)) == CHESS_EMPTY ){
-									add_playable_move(player, square, next_square);
+									add_playable_move(t_next_player, square, next_square);
 									next_square[0]=next_square[0]+height_direction;
 									next_square[1]=next_square[1]+width_direction;
 								}
-								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
-									add_playable_move(player, square, next_square);
+								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != t_next_player ){
+									add_playable_move(t_next_player, square, next_square);
 								}
 							}
 						}
@@ -380,8 +401,8 @@ void Chess::update_playable_moves(){
 								Coordinates next_square=square;
 								next_square[0]=next_square[0]+height_direction;
 								next_square[1]=next_square[1]+width_direction;
-								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
-									add_playable_move(player, square, next_square);
+								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != t_next_player ){
+									add_playable_move(t_next_player, square, next_square);
 								}
 							}
 						}
@@ -435,6 +456,9 @@ void Chess::set_piece(Coordinates set_square, Chess_Attributes set_piece){
 
 void Chess::start(){
 	t_last_moves.clear();
+
+	this->t_king_checked[t_players[0]]=false;
+	this->t_king_checked[t_players[1]]=false;
 
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
@@ -515,9 +539,7 @@ unsigned int Chess::dimension(){
 }
 
 bool Chess::isPlayable(Coordinates coordinates){
-	if (isEnded()) return false;
-
-	return (find(this->t_playable_moves.begin(), this->t_playable_moves.end(), coordinates) != this->t_playable_moves.end());
+	return true;
 }
 vector<Coordinates> Chess::playableCoordinates(){
 	if (!isEnded())
@@ -561,6 +583,12 @@ Chess_Attributes Chess::get_piece(Square<Chess_Attributes> * chess_square){
 	else if (chess_square->isAttribute(CHESS_WHITE_BISHOP)){
 		return CHESS_WHITE_BISHOP;
 	}
+	else if (chess_square->isAttribute(CHESS_BLACK_ROOK)){
+		return CHESS_BLACK_ROOK;
+	}
+	else if (chess_square->isAttribute(CHESS_WHITE_ROOK)){
+		return CHESS_WHITE_ROOK;
+	}
 	else{
 		return CHESS_EMPTY;
 	}
@@ -602,6 +630,12 @@ void Chess::set_to_empty(Square<Chess_Attributes> * chess_square){
 	else if (chess_square->isAttribute(CHESS_WHITE_BISHOP)){
 		remove_piece(chess_square, CHESS_WHITE_BISHOP);
 	}
+	else if (chess_square->isAttribute(CHESS_BLACK_ROOK)){
+		remove_piece(chess_square, CHESS_BLACK_ROOK);
+	}
+	else if (chess_square->isAttribute(CHESS_WHITE_ROOK)){
+		remove_piece(chess_square, CHESS_WHITE_ROOK);
+	}
 	chess_square->addAttribute(CHESS_EMPTY);
 }
 
@@ -620,7 +654,17 @@ void Chess::play(Coordinates coordinates){
 		set_to_empty(t_board->getSquare(source));
 		set_piece(destination, source_piece);
 
+		update_playable_moves();
+		Player * player=t_next_player;
+		Player * opponent=t_players[0];
+		if (player == t_players[0]){
+			opponent=t_players[1];
+		}
+		t_king_checked[opponent]=position_is_under_attack(t_king_position[opponent]);
+
 		change_player();
+
+		t_king_checked[player]=position_is_under_attack(t_king_position[player]);
 	}
 }
 vector<Coordinates> Chess::lastMoves(){
@@ -730,19 +774,27 @@ void Chess::display(std::ostream & out){
 					break;
 				}
 				case CHESS_EMPTY:{
-					if (thick == 0)
+					if (!position_is_under_attack(coordinates))
 						out<<"  ";
-					else{
-						if (!position_is_under_attack(coordinates))
-							out<<"  ";
-						else
-							out<<"==";
-					}
+					else
+						out<<"==";
 				}
 				}
 			}
 			if (thick==0)
 				out<<"|"<<line;
+			else
+				out<<"|";
+
+			if (line==0 && thick==0){
+				if (t_king_checked[t_players[0]])
+					out<<"    WHITE KING IS CHECKED";
+			}
+			if (line==CHESS_HEIGHT-1 && thick==1){
+				if (t_king_checked[t_players[1]])
+					out<<"    BLACK KING IS CHECKED";;
+			}
+
 			out<<std::endl;
 		}
 	}

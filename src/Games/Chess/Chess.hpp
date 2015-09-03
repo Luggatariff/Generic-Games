@@ -39,7 +39,7 @@ enum Chess_Attributes{
  * \brief class representing a Chess Game
  */
 class Chess: public Game{
-	Board<Chess_Attributes> * t_board;	/*!<Chess Game Board*/
+	Board<Chess_Attributes> * t_board;		/*!<Chess Game Board*/
 	vector<Player *> t_players;				/*!<Chess Players */
 	Player * t_next_player;					/*!<next Player*/
 	vector<Coordinates> t_last_moves;		/*!<last moves played*/
@@ -47,6 +47,7 @@ class Chess: public Game{
 	vector<Coordinates> t_playable_moves;		/*!<playable moves*/
 	map<Player *, unsigned int> t_points;		/*!<Player points*/
 	map<Player *, Coordinates> t_king_position;	/*!<Player king position*/
+	map<Player *, bool> t_king_checked;			/*!<indicates if king is checked*/
 
 	/*!
 	 * \brief sets a square with unknown but certain content to empty
@@ -78,7 +79,7 @@ class Chess: public Game{
 	 * \param move_start : starting square for the specified move
 	 * \param move_end : ending square for the specified move
 	 */
-	inline void add_playable_move(Player * player, Coordinates move_start, Coordinates move_end);
+	void add_playable_move(Player * player, Coordinates move_start, Coordinates move_end);
 	/*!
 	 * \brief updates t_playable_moves attribute depending on the board structure
 	 */
