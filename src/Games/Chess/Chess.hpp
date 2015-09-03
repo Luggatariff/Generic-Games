@@ -44,9 +44,9 @@ class Chess: public Game{
 	Player * t_next_player;					/*!<next Player*/
 	vector<Coordinates> t_last_moves;		/*!<last moves played*/
 
-	map<Player *, vector<Coordinates> > t_playable_moves;	/*!<playable moves*/
-	map<Player *, unsigned int> t_points;					/*!<Player points*/
-	map<Player *, Coordinates> t_king_position;				/*!<Player king position*/
+	vector<Coordinates> t_playable_moves;		/*!<playable moves*/
+	map<Player *, unsigned int> t_points;		/*!<Player points*/
+	map<Player *, Coordinates> t_king_position;	/*!<Player king position*/
 
 	/*!
 	 * \brief sets a square with unknown but certain content to empty
@@ -66,12 +66,11 @@ class Chess: public Game{
 	void change_player();
 
 	/*!
-	 * \brief checks if a position of the board is under attack by a specified player
+	 * \brief checks if a position of the board is under attack
 	 * \param position : position Coordinates
-	 * \param attacking_player : potentially attacking player
-	 * \return true if the position is under attack by the specified player
+	 * \return true if the position is under attack
 	 */
-	bool position_is_under_attack(Coordinates position, Player * attacking_player);
+	bool position_is_under_attack(Coordinates position);
 
 	/*
 	 * \brief adds a playable move for the given player
@@ -115,6 +114,24 @@ class Chess: public Game{
 	 * \return pointer on corresponding Player
 	 */
 	inline Player * get_piece_player(Chess_Attributes chess_piece);
+	/*!
+	 * \brief gets a piece value
+	 * \param chess_piece : piece name
+	 * \return given piece value
+	 */
+	inline unsigned int get_piece_value(Chess_Attributes chess_piece);
+	/*!
+	 * \brief sets a given piece in a given square
+	 * \param set_square : square Coordinates
+	 * \param set_piece : piece to set
+	 */
+	inline void set_piece(Coordinates set_square, Chess_Attributes set_piece);
+	/*!
+	 * \brief remove a given piece from a given square
+	 * \param remove_square : square Coordinates
+	 * \param remove_piece : piece to remove
+	 */
+	inline void remove_piece(Square<Chess_Attributes> * remove_square, Chess_Attributes remove_piece);
 public:
 	/*!
 	 * \brief Chess constructor

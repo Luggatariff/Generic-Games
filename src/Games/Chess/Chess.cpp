@@ -23,9 +23,6 @@ Chess::Chess(Player * player_one, Player * player_two){
 	this->t_king_position.insert(pair<Player *, Coordinates>(player_one, Coordinates(2)));
 	this->t_king_position.insert(pair<Player *, Coordinates>(player_two, Coordinates(2)));
 
-	this->t_playable_moves.insert(pair<Player *, vector<Coordinates> >(player_one, vector<Coordinates>()));
-	this->t_playable_moves.insert(pair<Player *, vector<Coordinates> >(player_two, vector<Coordinates>()));
-
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
@@ -56,10 +53,14 @@ vector<Player *> Chess::players(){
 	return t_players;
 }
 
+bool Chess::check_white_square(Coordinates square){
+	return (((square[0]+square[1])%2)==0);
+}
+
 bool Chess::isEnded(){
 	if (isWon()) return true;
 
-	bool draw_condition = this->t_playable_moves[this->t_next_player].empty();
+	bool draw_condition = this->t_playable_moves.empty();
 	if (!draw_condition){
 		bool flag_white_knight=false;
 		bool flag_black_knight=false;
@@ -145,14 +146,24 @@ int Chess::whoWon(){
 	if (isWinner(t_players[1]->getTeam())) return t_players[1]->getTeam();
 	return -1;
 }
+
+bool Chess::position_is_under_attack(Coordinates position){
+	vector<Coordinates>::iterator playable_moves_it;
+	for ( playable_moves_it = t_playable_moves.begin(); playable_moves_it != t_playable_moves.end(); playable_moves_it++){
+		if (playable_moves_it->operator [](2) == position[0] && playable_moves_it->operator [](3) == position[1])
+			return true;
+	}
+	return false;
+}
+
 bool Chess::isWinner(unsigned int team_id){
 	bool result = false;
 
 	if (team_id == t_players[0]->getTeam()){
-		result = (this->t_next_player == t_players[1] && position_is_under_attack(this->t_king_position[this->t_next_player], t_players[0]) && this->t_playable_moves[this->t_next_player].empty());
+		result = (this->t_next_player == t_players[1] && position_is_under_attack(this->t_king_position[this->t_next_player]) && this->t_playable_moves.empty());
 	}
 	else{
-		result = (this->t_next_player == t_players[0] && position_is_under_attack(this->t_king_position[this->t_next_player], t_players[1]) && this->t_playable_moves[this->t_next_player].empty());
+		result = (this->t_next_player == t_players[0] && position_is_under_attack(this->t_king_position[this->t_next_player]) && this->t_playable_moves.empty());
 	}
 
 	return result;
@@ -225,7 +236,7 @@ Player * Chess::get_piece_player(Chess_Attributes chess_piece){
 		return t_players[1];
 	case CHESS_WHITE_QUEEN:
 		return t_players[0];
-	case CHESS_EMPTY:
+	default:
 		return NULL;
 	}
 }
@@ -235,7 +246,14 @@ void Chess::add_playable_move(Player * player, Coordinates move_start, Coordinat
 	move[1]=move_start[1];
 	move[2]=move_end[0];
 	move[3]=move_end[1];
-	this->t_playable_moves[player].push_back(move);
+
+	Chess * chess_copy=(Chess *)this->copy();
+	chess_copy->play(move);
+
+	if (!chess_copy->position_is_under_attack(t_king_position[player]))
+		this->t_playable_moves.push_back(move);
+
+	delete chess_copy;
 }
 void Chess::update_playable_moves(){
 	Coordinates square(2);
@@ -281,72 +299,213 @@ void Chess::update_playable_moves(){
 					}
 				}
 				else if ( piece == CHESS_BLACK_KNIGHT || piece == CHESS_WHITE_KNIGHT ){
-
+					for (unsigned int two_square_move_on_height=0; two_square_move_on_height<=1; two_square_move_on_height++){
+						for (int two_square_move_direction=-1; two_square_move_direction<=1; two_square_move_direction+=2){
+							for (int one_square_move_direction=-1; one_square_move_direction<=1; one_square_move_direction+=2){
+								Coordinates next_square=square;
+								if (two_square_move_on_height==0){
+									next_square[0]=next_square[0]+one_square_move_direction;
+									next_square[1]=next_square[1]+2*two_square_move_direction;
+								}
+								else{
+									next_square[0]=next_square[0]+2*two_square_move_direction;
+									next_square[1]=next_square[1]+one_square_move_direction;
+								}
+								if (check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player){
+									add_playable_move(player, square, next_square);
+								}
+							}
+						}
+					}
 				}
 				else if ( piece == CHESS_BLACK_BISHOP || piece == CHESS_WHITE_BISHOP ){
-
+					for (int height_direction=-1; height_direction<=1; height_direction+=2){
+						for (int width_direction=-1; width_direction<=1; width_direction+=2){
+							Coordinates next_square=square;
+							next_square[0]=next_square[0]+height_direction;
+							next_square[1]=next_square[1]+width_direction;
+							while ( check_existence(next_square) && get_piece(t_board->getSquare(next_square)) == CHESS_EMPTY ){
+								add_playable_move(player, square, next_square);
+								next_square[0]=next_square[0]+height_direction;
+								next_square[1]=next_square[1]+width_direction;
+							}
+							if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
+								add_playable_move(player, square, next_square);
+							}
+						}
+					}
 				}
 				else if ( piece == CHESS_BLACK_ROOK || piece == CHESS_WHITE_ROOK ){
-
+					for (int height_direction=-1; height_direction<=1; height_direction++){
+						for (int width_direction=-1; width_direction<=1; width_direction++){
+							if ( (width_direction==0 || height_direction==0) && (width_direction != height_direction) ){
+								Coordinates next_square=square;
+								next_square[0]=next_square[0]+height_direction;
+								next_square[1]=next_square[1]+width_direction;
+								while ( check_existence(next_square) && get_piece(t_board->getSquare(next_square)) == CHESS_EMPTY ){
+									add_playable_move(player, square, next_square);
+									next_square[0]=next_square[0]+height_direction;
+									next_square[1]=next_square[1]+width_direction;
+								}
+								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
+									add_playable_move(player, square, next_square);
+								}
+							}
+						}
+					}
 				}
 				else if ( piece == CHESS_BLACK_QUEEN || piece == CHESS_WHITE_QUEEN ){
-
+					for (int height_direction=-1; height_direction<=1; height_direction++){
+						for (int width_direction=-1; width_direction<=1; width_direction++){
+							if ( ! (width_direction==0 && height_direction==0) ){
+								Coordinates next_square=square;
+								next_square[0]=next_square[0]+height_direction;
+								next_square[1]=next_square[1]+width_direction;
+								while ( check_existence(next_square) && get_piece(t_board->getSquare(next_square)) == CHESS_EMPTY ){
+									add_playable_move(player, square, next_square);
+									next_square[0]=next_square[0]+height_direction;
+									next_square[1]=next_square[1]+width_direction;
+								}
+								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
+									add_playable_move(player, square, next_square);
+								}
+							}
+						}
+					}
 				}
 				else if ( piece == CHESS_BLACK_KING || piece == CHESS_WHITE_KING ){
-
+					for (int height_direction=-1; height_direction<=1; height_direction++){
+						for (int width_direction=-1; width_direction<=1; width_direction++){
+							if ( ! (width_direction==0 && height_direction==0) ){
+								Coordinates next_square=square;
+								next_square[0]=next_square[0]+height_direction;
+								next_square[1]=next_square[1]+width_direction;
+								if ( check_existence(next_square) && get_piece_player(get_piece(t_board->getSquare(next_square))) != player ){
+									add_playable_move(player, square, next_square);
+								}
+							}
+						}
+					}
 				}
 			}
 		}
+	}
+
+}
+
+unsigned int Chess::get_piece_value(Chess_Attributes chess_piece){
+	switch (chess_piece)
+	{
+	case CHESS_BLACK_PAWN:
+		return 1;
+	case CHESS_WHITE_PAWN:
+		return 1;
+	case CHESS_BLACK_KNIGHT:
+		return 3;
+	case CHESS_WHITE_KNIGHT:
+		return 3;
+	case CHESS_BLACK_BISHOP:
+		return 3;
+	case CHESS_WHITE_BISHOP:
+		return 3;
+	case CHESS_BLACK_ROOK:
+		return 5;
+	case CHESS_WHITE_ROOK:
+		return 5;
+	case CHESS_BLACK_QUEEN:
+		return 10;
+	case CHESS_WHITE_QUEEN:
+		return 10;
+	default:
+		return 0;
+	}
+}
+
+void Chess::set_piece(Coordinates set_square, Chess_Attributes set_piece){
+	set_to_empty(t_board->getSquare(set_square));
+	t_board->getSquare(set_square)->delAttribute(CHESS_EMPTY);
+	t_board->getSquare(set_square)->addAttribute(set_piece);
+
+	Player * player=get_piece_player(set_piece);
+	t_points[player]+=get_piece_value(set_piece);
+	if ( set_piece == CHESS_WHITE_KING || set_piece == CHESS_BLACK_KING ){
+		t_king_position[player]=set_square;
 	}
 }
 
 void Chess::start(){
 	t_last_moves.clear();
 
-	t_last_move_was_null = false;
-	t_count_null_moves = 0;
-	t_count_last_moves_started = false;
-	t_count_last_moves = 0;
-	t_in_a_taking_row = false;
-
-	t_recurring_boards.clear();
-	t_current_board_occurence = 1;
-
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
-			if (!t_board->getSquare(square)->isAttribute(CHESS_EMPTY) && !t_board->getSquare(square)->isAttribute(CHESS_UNPLAYABLE)){
-				set_to_empty(t_board->getSquare(square));
-			}
+			set_to_empty(t_board->getSquare(square));
 		}
 	}
+	Chess_Attributes piece;
 
-	this->t_white_pawns=0;
-	this->t_black_pawns=0;
+	for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
+		square[0]=1;
+		piece=CHESS_WHITE_PAWN;
+		set_piece(square, piece);
 
-	for (square[0]=0; square[0]<CHESS_HEIGHT/2-1; square[0]++){
-		for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
-			if (t_board->getSquare(square)->isAttribute(CHESS_EMPTY)){
-				t_board->getSquare(square)->delAttribute(CHESS_EMPTY);
-				t_board->getSquare(square)->addAttribute(CHESS_WHITE_PAWN);
-				this->t_white_pawns++;
-			}
-		}
-	}
-	for (square[0]=CHESS_HEIGHT/2+1; square[0]<CHESS_HEIGHT; square[0]++){
-		for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
-			if (t_board->getSquare(square)->isAttribute(CHESS_EMPTY)){
-				t_board->getSquare(square)->delAttribute(CHESS_EMPTY);
-				t_board->getSquare(square)->addAttribute(CHESS_BLACK_PAWN);
-				this->t_black_pawns++;
-			}
-		}
+		square[0]=CHESS_HEIGHT-2;
+		piece=CHESS_BLACK_PAWN;
+		set_piece(square, piece);
 	}
 
-	this->t_black_total = this->t_black_pawns;
-	this->t_white_total = this->t_white_pawns;
-	this->t_black_queens = 0;
-	this->t_white_queens = 0;
+	square[0]=0;
+	piece=CHESS_WHITE_ROOK;
+	square[1]=0;
+	set_piece(square, piece);
+	square[1]=CHESS_WIDTH-1;
+	set_piece(square, piece);
+
+	piece=CHESS_WHITE_KNIGHT;
+	square[1]=1;
+	set_piece(square, piece);
+	square[1]=CHESS_WIDTH-2;
+	set_piece(square, piece);
+
+	piece=CHESS_WHITE_BISHOP;
+	square[1]=2;
+	set_piece(square, piece);
+	square[1]=CHESS_WIDTH-3;
+	set_piece(square, piece);
+
+	piece=CHESS_WHITE_QUEEN;
+	square[1]=3;
+	set_piece(square, piece);
+	piece=CHESS_WHITE_KING;
+	square[1]=CHESS_WIDTH-4;
+	set_piece(square, piece);
+
+	square[0]=CHESS_HEIGHT-1;
+	piece=CHESS_BLACK_ROOK;
+	square[1]=0;
+	set_piece(square, piece);
+	square[1]=CHESS_WIDTH-1;
+	set_piece(square, piece);
+
+	piece=CHESS_BLACK_KNIGHT;
+	square[1]=1;
+	set_piece(square, piece);
+	square[1]=CHESS_WIDTH-2;
+	set_piece(square, piece);
+
+	piece=CHESS_BLACK_BISHOP;
+	square[1]=2;
+	set_piece(square, piece);
+	square[1]=CHESS_WIDTH-3;
+	set_piece(square, piece);
+
+	piece=CHESS_BLACK_QUEEN;
+	square[1]=3;
+	set_piece(square, piece);
+	piece=CHESS_BLACK_KING;
+	square[1]=CHESS_WIDTH-4;
+	set_piece(square, piece);
+
 	this->t_next_player = t_players[0];
 
 	update_playable_moves();
@@ -378,34 +537,70 @@ Chess_Attributes Chess::get_piece(Square<Chess_Attributes> * chess_square){
 	else if (chess_square->isAttribute(CHESS_WHITE_PAWN)){
 		return CHESS_WHITE_PAWN;
 	}
+	else if (chess_square->isAttribute(CHESS_BLACK_QUEEN)){
+		return CHESS_BLACK_QUEEN;
+	}
 	else if (chess_square->isAttribute(CHESS_WHITE_QUEEN)){
 		return CHESS_WHITE_QUEEN;
 	}
-	else{
-		return CHESS_BLACK_QUEEN;
+	else if (chess_square->isAttribute(CHESS_BLACK_KING)){
+		return CHESS_BLACK_KING;
 	}
+	else if (chess_square->isAttribute(CHESS_WHITE_KING)){
+		return CHESS_WHITE_KING;
+	}
+	else if (chess_square->isAttribute(CHESS_BLACK_KNIGHT)){
+		return CHESS_BLACK_KNIGHT;
+	}
+	else if (chess_square->isAttribute(CHESS_WHITE_KNIGHT)){
+		return CHESS_WHITE_KNIGHT;
+	}
+	else if (chess_square->isAttribute(CHESS_BLACK_BISHOP)){
+		return CHESS_BLACK_BISHOP;
+	}
+	else if (chess_square->isAttribute(CHESS_WHITE_BISHOP)){
+		return CHESS_WHITE_BISHOP;
+	}
+	else{
+		return CHESS_EMPTY;
+	}
+}
+
+void Chess::remove_piece(Square<Chess_Attributes> * remove_square, Chess_Attributes remove_piece){
+	remove_square->delAttribute(remove_piece);
+	t_points[get_piece_player(remove_piece)]-=get_piece_value(remove_piece);
 }
 
 void Chess::set_to_empty(Square<Chess_Attributes> * chess_square){
 	if (chess_square->isAttribute(CHESS_BLACK_PAWN)){
-		chess_square->delAttribute(CHESS_BLACK_PAWN);
-		this->t_black_pawns--;
-		this->t_black_total--;
+		remove_piece(chess_square, CHESS_BLACK_PAWN);
 	}
 	else if (chess_square->isAttribute(CHESS_WHITE_PAWN)){
-		chess_square->delAttribute(CHESS_WHITE_PAWN);
-		this->t_white_pawns--;
-		this->t_white_total--;
+		remove_piece(chess_square, CHESS_WHITE_PAWN);
+	}
+	else if (chess_square->isAttribute(CHESS_BLACK_QUEEN)){
+		remove_piece(chess_square, CHESS_BLACK_QUEEN);
 	}
 	else if (chess_square->isAttribute(CHESS_WHITE_QUEEN)){
-		chess_square->delAttribute(CHESS_WHITE_QUEEN);
-		this->t_white_queens--;
-		this->t_white_total--;
+		remove_piece(chess_square, CHESS_WHITE_QUEEN);
 	}
-	else{
-		chess_square->delAttribute(CHESS_BLACK_QUEEN);
-		this->t_black_queens--;
-		this->t_black_total--;
+	else if (chess_square->isAttribute(CHESS_BLACK_KING)){
+		remove_piece(chess_square, CHESS_BLACK_KING);
+	}
+	else if (chess_square->isAttribute(CHESS_WHITE_KING)){
+		remove_piece(chess_square, CHESS_WHITE_KING);
+	}
+	else if (chess_square->isAttribute(CHESS_BLACK_KNIGHT)){
+		remove_piece(chess_square, CHESS_BLACK_KNIGHT);
+	}
+	else if (chess_square->isAttribute(CHESS_WHITE_KNIGHT)){
+		remove_piece(chess_square, CHESS_WHITE_KNIGHT);
+	}
+	else if (chess_square->isAttribute(CHESS_BLACK_BISHOP)){
+		remove_piece(chess_square, CHESS_BLACK_BISHOP);
+	}
+	else if (chess_square->isAttribute(CHESS_WHITE_BISHOP)){
+		remove_piece(chess_square, CHESS_WHITE_BISHOP);
 	}
 	chess_square->addAttribute(CHESS_EMPTY);
 }
@@ -413,9 +608,6 @@ void Chess::set_to_empty(Square<Chess_Attributes> * chess_square){
 void Chess::play(Coordinates coordinates){
 	if (isPlayable(coordinates)){
 		t_last_moves.push_back(coordinates);
-
-		t_count_null_moves++;
-		t_last_move_was_null = true;
 
 		Coordinates source(2);
 		Coordinates destination(2);
@@ -425,63 +617,10 @@ void Chess::play(Coordinates coordinates){
 		destination[1] = coordinates[3];
 
 		Chess_Attributes source_piece = get_piece(t_board->getSquare(source));
-		t_board->getSquare(source)->delAttribute(source_piece);
-		t_board->getSquare(source)->addAttribute(CHESS_EMPTY);
+		set_to_empty(t_board->getSquare(source));
+		set_piece(destination, source_piece);
 
-		bool became_a_queen=false;
-		Chess_Attributes destination_piece = source_piece;
-		if ( source_piece == CHESS_WHITE_PAWN || source_piece == CHESS_BLACK_PAWN){
-			this->t_count_null_moves = 0;
-			t_last_move_was_null = false;
-			if ( source_piece == CHESS_WHITE_PAWN && destination[0] == CHESS_HEIGHT - 1){
-				destination_piece = CHESS_WHITE_QUEEN;
-				this->t_white_queens++;
-				this->t_white_pawns--;
-				became_a_queen = true;
-			}
-			else if ( source_piece == CHESS_BLACK_PAWN && destination[0] == 0){
-				destination_piece = CHESS_BLACK_QUEEN;
-				this->t_black_queens++;
-				this->t_black_pawns--;
-				became_a_queen = true;
-			}
-		}
-		t_board->getSquare(destination)->delAttribute(CHESS_EMPTY);
-		t_board->getSquare(destination)->addAttribute(destination_piece);
-
-		int height_direction = (source[0] < destination[0]) ? 1 : -1;
-		int width_direction = (source[1] < destination[1]) ? 1 : -1;
-
-		bool took_a_piece = false;
-		Coordinates square(2);
-		unsigned int offset = 1;
-		square[0] = source[0] + offset*height_direction;
-		square[1] = source[1] + offset*width_direction;
-		while (! (square == destination)){
-			if (!t_board->getSquare(square)->isAttribute(CHESS_EMPTY)){
-				set_to_empty(t_board->getSquare(square));
-				this->t_count_null_moves = 0;
-				t_last_move_was_null = false;
-				took_a_piece = true;
-				break;
-			}
-			offset++;
-			square[0] = source[0] + offset*height_direction;
-			square[1] = source[1] + offset*width_direction;
-		}
-
-		if ((!t_count_last_moves_started) &&
-				((t_white_queens == 1 && t_white_total == 1 && t_black_queens >= 1 && t_black_total == 3) ||
-				(t_black_queens == 1 && t_black_total == 1 && t_white_queens >= 1 && t_white_total == 3))){
-			t_count_last_moves_started=true;
-			t_count_last_moves=0;
-		}
-
-		if (took_a_piece && !became_a_queen)
-			update_playable_moves(true);
-		else{
-			change_player();
-		}
+		change_player();
 	}
 }
 vector<Coordinates> Chess::lastMoves(){
@@ -491,64 +630,125 @@ vector<Coordinates> Chess::lastMoves(){
 void Chess::display(std::ostream & out){
 	out<<" ";
 	for(int column=0; column<CHESS_WIDTH; column++)
-		out<<"|"<<column;
+		out<<"|"<<column<<" ";
 	out<<"|"<<std::endl;
 	Coordinates coordinates(2);
 	for(int line = CHESS_HEIGHT - 1; line>=0; line--){
-		out<<line;
-		for(coordinates[1]=0; coordinates[1]<CHESS_WIDTH; coordinates[1]++){
-			coordinates[0] = (unsigned int) line;
+		for (unsigned int thick=0; thick<=1; thick++){
+			if (thick==0)
+				out<<line;
+			else
+				out<<" ";
+			for(coordinates[1]=0; coordinates[1]<CHESS_WIDTH; coordinates[1]++){
+				coordinates[0] = (unsigned int) line;
+				Chess_Attributes piece = get_piece(t_board->getSquare(coordinates));
 
-			out<<"|";
-			if (t_board->getSquare(coordinates)->isAttribute(CHESS_WHITE_PAWN))
-				out<<'o';
-			else if (t_board->getSquare(coordinates)->isAttribute(CHESS_BLACK_PAWN))
-				out<<'x';
-			else if (t_board->getSquare(coordinates)->isAttribute(CHESS_BLACK_QUEEN))
-				out<<'X';
-			else if (t_board->getSquare(coordinates)->isAttribute(CHESS_WHITE_QUEEN))
-				out<<'O';
-			else{
-				vector<Coordinates>::iterator playable_moves_it;
-				for ( playable_moves_it = t_playable_moves.begin(); playable_moves_it != t_playable_moves.end(); playable_moves_it++){
-					if (playable_moves_it->operator [](2) == coordinates[0] && playable_moves_it->operator [](3) == coordinates[1])
-						break;
-				}
-				if (playable_moves_it == t_playable_moves.end())
-					out<<' ';
-				else
-					out<<"=";
-			}
-		}
-		out<<"|"<<line<<"   ";
-		if (line == CHESS_HEIGHT - 3){
-			switch (t_current_board_occurence)
-			{
-				case 1:{
-					out<<"First ";
+				out<<"|";
+				switch (piece){
+				case CHESS_BLACK_PAWN:{
+					if (thick == 0)
+						out<<"  ";
+					else
+						out<<" .";
 					break;
 				}
-				case 2:{
-					out<<"Second ";
+				case CHESS_WHITE_PAWN:{
+					if (thick == 0)
+						out<<"  ";
+					else
+						out<<"#.";
 					break;
 				}
-				case 3:{
-					out<<"Third ";
+				case CHESS_BLACK_KNIGHT:{
+					if (thick == 0)
+						out<<"^>";
+					else
+						out<<" \\";
+					break;
+				}
+				case CHESS_WHITE_KNIGHT:{
+					if (thick == 0)
+						out<<"^>";
+					else
+						out<<"#\\";
+					break;
+				}
+				case CHESS_BLACK_BISHOP:{
+					if (thick == 0)
+						out<<"/\\";
+					else
+						out<<"/\\";
+					break;
+				}
+				case CHESS_WHITE_BISHOP:{
+					if (thick == 0)
+						out<<"/\\";
+					else
+						out<<"#\\";
+					break;
+				}
+				case CHESS_BLACK_ROOK:{
+					if (thick == 0)
+						out<<"++";
+					else
+						out<<"||";
+					break;
+				}
+				case CHESS_WHITE_ROOK:{
+					if (thick == 0)
+						out<<"++";
+					else
+						out<<"#|";
+					break;
+				}
+				case CHESS_BLACK_KING:{
+					if (thick == 0)
+						out<<"><";
+					else
+						out<<"/\\";
+					break;
+				}
+				case CHESS_WHITE_KING:{
+					if (thick == 0)
+						out<<"><";
+					else
+						out<<"#\\";
+					break;
+				}
+				case CHESS_BLACK_QUEEN:{
+					if (thick == 0)
+						out<<"YY";
+					else
+						out<<"/\\";
+					break;
+				}
+				case CHESS_WHITE_QUEEN:{
+					if (thick == 0)
+						out<<"YY";
+					else
+						out<<"#\\";
+					break;
+				}
+				case CHESS_EMPTY:{
+					if (thick == 0)
+						out<<"  ";
+					else{
+						if (!position_is_under_attack(coordinates))
+							out<<"  ";
+						else
+							out<<"==";
+					}
+				}
 				}
 			}
-			out<<"Occurrence(s) of this configuration";
+			if (thick==0)
+				out<<"|"<<line;
+			out<<std::endl;
 		}
-		else if (line == CHESS_HEIGHT - 4){
-			out<<t_count_null_moves<<"/25 Null moves";
-		}
-		else if(t_count_last_moves_started && line == CHESS_HEIGHT - 5){
-			out<<t_count_last_moves<<"/32 Last moves";
-		}
-		out<<std::endl;
 	}
 	out<<" ";
 	for(int column=0; column<CHESS_WIDTH; column++)
-		out<<"|"<<column;
+		out<<"|"<<column<<" ";
 	out<<"|"<<std::endl;
 
 	out<<"Playable Coordinates :"<<endl;
