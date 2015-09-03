@@ -603,8 +603,17 @@ void Draughts::display(std::ostream & out){
 				out<<'X';
 			else if (t_board->getSquare(coordinates)->isAttribute(DRAUGHTS_WHITE_QUEEN))
 				out<<'O';
-			else
-				out<<" ";
+			else{
+				vector<Coordinates>::iterator playable_moves_it;
+				for ( playable_moves_it = t_playable_moves.begin(); playable_moves_it != t_playable_moves.end(); playable_moves_it++){
+					if (playable_moves_it->operator [](2) == coordinates[0] && playable_moves_it->operator [](3) == coordinates[1])
+						break;
+				}
+				if (playable_moves_it == t_playable_moves.end())
+					out<<' ';
+				else
+					out<<"=";
+			}
 		}
 		out<<"|"<<line<<"   ";
 		if (line == DRAUGHTS_HEIGHT - 3){
