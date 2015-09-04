@@ -10,13 +10,14 @@
 #include <ctime>
 #include <algorithm>
 
-IA::IA(string name, unsigned int team_id, unsigned int level, bool display_tree){
+IA::IA(string name, unsigned int team_id, unsigned int level, bool display_messages, bool display_tree){
 	ia_name = name;
 	ia_team = team_id;
 
 	ia_level = level;
 	ia_tree = NULL;
 	ia_display_tree = display_tree;
+	ia_display_messages = display_messages;
 }
 
 void IA::start(Game * game){
@@ -73,7 +74,8 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 	unsigned int player_number = game->players().size();
 	int victory_score = game->victoryScore();
 
-	cout<<"Thinking.."<<endl;
+	if (ia_display_messages)
+		cout<<"Thinking.."<<endl;
 	while(choices.size() > 1 && temp_level <= max_level){
 		unsigned int true_level = temp_level * player_number - 1;
 
@@ -114,8 +116,8 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 
 		temp_level++;
 	}
-
-	cout<<"Done!"<<endl;
+	if (ia_display_messages)
+		cout<<"Done!"<<endl;
 
 	map<Coordinates, IATree *>::iterator choice = choices.begin();
 	if (choices.size() > 1){
@@ -133,10 +135,12 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 		delete choices_iterator->second;
 	}
 
-	cout<<"IA chose:";
-	for (unsigned int dim = 0; dim < game->dimension(); dim++)
-		cout<<result[dim]<<" ";
-	cout<<endl;
+	if (ia_display_messages){
+		cout<<"IA chose:";
+		for (unsigned int dim = 0; dim < game->dimension(); dim++)
+			cout<<result[dim]<<" ";
+		cout<<endl;
+	}
 
 	if (ia_display_tree)
 		ia_tree->display();

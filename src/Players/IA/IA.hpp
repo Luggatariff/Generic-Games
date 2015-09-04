@@ -20,13 +20,14 @@ class IA: public Player{
 	unsigned int ia_level;					/*!<IA level of thinking*/
 	IATree * ia_tree;						/*!<IA Choice Tree*/
 	bool ia_display_tree;					/*!<indicates if IA must display the choice Tree (debug)*/
+	bool ia_display_messages;				/*!<indicates if IA must display flags*/
 public:
 	/*!
 	 * \brief IA constructor
 	 * \param level : IA thinking level
 	 * \param display_tree : indicates if IA must display the choice Tree (debug)
 	 */
-	IA(string name, unsigned int team_id, unsigned int level, bool display_tree = false);
+	IA(string name, unsigned int team_id, unsigned int level, bool display_messages=true, bool display_tree = false);
 
 	void start(Game * game);
 	void end(Game * game);
