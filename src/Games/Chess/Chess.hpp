@@ -79,11 +79,11 @@ class Chess: public Game{
 	 * \param move_start : starting square for the specified move
 	 * \param move_end : ending square for the specified move
 	 */
-	void add_playable_move(Player * player, Coordinates move_start, Coordinates move_end);
+	void add_playable_move(Player * player, Coordinates move_start, Coordinates move_end, bool verify_checked_king);
 	/*!
 	 * \brief updates t_playable_moves attribute depending on the board structure
 	 */
-	void update_playable_moves();
+	void update_playable_moves(bool verify_checked_king);
 
 	/*!
 	 * \brief checks if the given height is in the board
