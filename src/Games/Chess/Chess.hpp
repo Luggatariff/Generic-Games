@@ -49,6 +49,9 @@ class Chess: public Game{
 	map<Player *, Coordinates> t_king_position;	/*!<Player king position*/
 	map<Player *, bool> t_king_checked;			/*!<indicates if king is checked*/
 
+	bool t_display_playable_coordinates;	/*!<Indicates if playable coordinates must be displayed under game board*/
+	bool t_highlight_playable_squares;		/*!<Indicates if playable squares must be highlighted on game board*/
+
 	/*!
 	 * \brief sets a square with unknown but certain content to empty
 	 * \param chess_square : square to set to empty
@@ -79,7 +82,7 @@ class Chess: public Game{
 	 * \param move_start : starting square for the specified move
 	 * \param move_end : ending square for the specified move
 	 */
-	void add_playable_move(Player * player, Coordinates move_start, Coordinates move_end, bool verify_checked_king);
+	inline void add_playable_move(Player * player, Coordinates move_start, Coordinates move_end, Chess_Attributes promotion, bool verify_checked_king);
 	/*!
 	 * \brief updates t_playable_moves attribute depending on the board structure
 	 */
@@ -139,7 +142,7 @@ public:
 	 * \param player_one : First Player
 	 * \param player_two : Second Player
 	 */
-	Chess(Player * player_one, Player * player_two);
+	Chess(Player * player_one, Player * player_two, bool highlight_playable_squares = false, bool display_playable_coordinates=false);
 	~Chess();
 	Game * copy();
 
