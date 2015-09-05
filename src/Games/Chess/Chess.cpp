@@ -26,6 +26,15 @@ Chess::Chess(Player * player_one, Player * player_two, bool highlight_playable_s
 	this->t_king_checked.insert(pair<Player *, bool>(player_one, false));
 	this->t_king_checked.insert(pair<Player *, bool>(player_two, false));
 
+	this->t_castling_kingside_possible.insert(pair<Player *, bool>(player_one, true));
+	this->t_castling_kingside_possible.insert(pair<Player *, bool>(player_two, true));
+	this->t_castling_kingside_clear.insert(pair<Player *, bool>(player_one, false));
+	this->t_castling_kingside_clear.insert(pair<Player *, bool>(player_two, false));
+	this->t_castling_queenside_possible.insert(pair<Player *, bool>(player_one, true));
+	this->t_castling_queenside_possible.insert(pair<Player *, bool>(player_two, true));
+	this->t_castling_queenside_clear.insert(pair<Player *, bool>(player_one, false));
+	this->t_castling_queenside_clear.insert(pair<Player *, bool>(player_two, false));
+
 	this->t_display_playable_coordinates=display_playable_coordinates;
 	this->t_highlight_playable_squares=highlight_playable_squares;
 
@@ -55,6 +64,11 @@ Game * Chess::copy(){
 
 	result->t_highlight_playable_squares=this->t_highlight_playable_squares;
 	result->t_display_playable_coordinates=this->t_display_playable_coordinates;
+
+	result->t_castling_kingside_clear=this->t_castling_kingside_possible;
+	result->t_castling_kingside_possible=this->t_castling_kingside_possible;
+	result->t_castling_queenside_clear=this->t_castling_queenside_clear;
+	result->t_castling_queenside_possible=this->t_castling_queenside_possible;
 
 	return (Game *)result;
 }
@@ -457,6 +471,26 @@ void Chess::update_playable_moves(bool verify_checked_king){
 							}
 						}
 					}
+					if (piece == CHESS_WHITE_KING && t_castling_kingside_possible[t_players[0]] && t_castling_kingside_clear[t_players[0]]){
+						Coordinates next_square=square;
+						next_square[1]=next_square[1]+2;
+						add_playable_move(t_next_player, square, next_square, CHESS_EMPTY, verify_checked_king);
+					}
+					if (piece == CHESS_WHITE_KING && t_castling_queenside_possible[t_players[0]] && t_castling_queenside_clear[t_players[0]]){
+						Coordinates next_square=square;
+						next_square[1]=next_square[1]-2;
+						add_playable_move(t_next_player, square, next_square, CHESS_EMPTY, verify_checked_king);
+					}
+					if (piece == CHESS_BLACK_KING && t_castling_kingside_possible[t_players[1]] && t_castling_kingside_clear[t_players[1]]){
+						Coordinates next_square=square;
+						next_square[1]=next_square[1]+2;
+						add_playable_move(t_next_player, square, next_square, CHESS_EMPTY, verify_checked_king);
+					}
+					if (piece == CHESS_BLACK_KING && t_castling_queenside_possible[t_players[1]] && t_castling_queenside_clear[t_players[1]]){
+						Coordinates next_square=square;
+						next_square[1]=next_square[1]-2;
+						add_playable_move(t_next_player, square, next_square, CHESS_EMPTY, verify_checked_king);
+					}
 				}
 			}
 		}
@@ -509,6 +543,14 @@ void Chess::start(){
 
 	this->t_king_checked[t_players[0]]=false;
 	this->t_king_checked[t_players[1]]=false;
+	this->t_castling_kingside_clear[t_players[0]]=false;
+	this->t_castling_kingside_clear[t_players[1]]=false;
+	this->t_castling_kingside_possible[t_players[0]]=true;
+	this->t_castling_kingside_possible[t_players[1]]=true;
+	this->t_castling_queenside_clear[t_players[0]]=false;
+	this->t_castling_queenside_clear[t_players[1]]=false;
+	this->t_castling_queenside_possible[t_players[0]]=true;
+	this->t_castling_queenside_possible[t_players[1]]=true;
 
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
@@ -714,6 +756,58 @@ void Chess::play(Coordinates coordinates){
 				en_passant_direction=-1;
 			}
 		}
+		else if (source_piece==CHESS_WHITE_KING){
+			t_castling_kingside_possible[t_players[0]]=false;
+			t_castling_queenside_possible[t_players[0]]=false;
+			if ((int)destination[1]-(int)source[1] == 2){
+				Coordinates rook_position(2);
+				rook_position[0]=0;
+				rook_position[1]=CHESS_WIDTH-1;
+				set_to_empty(t_board->getSquare(rook_position));
+				rook_position[1]=destination[1]-1;
+				set_piece(rook_position, CHESS_WHITE_ROOK);
+			}
+			else if ((int)destination[1]-(int)source[1] == -2){
+				Coordinates rook_position(2);
+				rook_position[0]=0;
+				rook_position[1]=0;
+				set_to_empty(t_board->getSquare(rook_position));
+				rook_position[1]=destination[1]+1;
+				set_piece(rook_position, CHESS_WHITE_ROOK);
+			}
+		}
+		else if (source_piece==CHESS_BLACK_KING){
+			t_castling_kingside_possible[t_players[1]]=false;
+			t_castling_queenside_possible[t_players[1]]=false;
+			if ((int)destination[1]-(int)source[1] == 2){
+				Coordinates rook_position(2);
+				rook_position[0]=CHESS_HEIGHT-1;
+				rook_position[1]=CHESS_WIDTH-1;
+				set_to_empty(t_board->getSquare(rook_position));
+				rook_position[1]=destination[1]-1;
+				set_piece(rook_position, CHESS_BLACK_ROOK);
+			}
+			else if ((int)destination[1]-(int)source[1] == -2){
+				Coordinates rook_position(2);
+				rook_position[0]=CHESS_HEIGHT-1;
+				rook_position[1]=0;
+				set_to_empty(t_board->getSquare(rook_position));
+				rook_position[1]=destination[1]+1;
+				set_piece(rook_position, CHESS_BLACK_ROOK);
+			}
+		}
+		else if (source[0]==0 && source[1]==0){
+			t_castling_queenside_possible[t_players[0]]=false;
+		}
+		else if (source[0]==0 && source[1]==CHESS_WIDTH-1){
+			t_castling_kingside_possible[t_players[0]]=false;
+		}
+		else if (source[0]==CHESS_HEIGHT-1 && source[1]==0){
+			t_castling_queenside_possible[t_players[1]]=false;
+		}
+		else if (source[0]==CHESS_HEIGHT-1 && source[1]==CHESS_WIDTH-1){
+			t_castling_kingside_possible[t_players[1]]=false;
+		}
 
 		set_to_empty(t_board->getSquare(source));
 		if (destination_piece != CHESS_EMPTY)
@@ -735,6 +829,41 @@ void Chess::play(Coordinates coordinates){
 			opponent=t_players[1];
 		}
 		t_king_checked[opponent]=position_is_under_attack(t_king_position[opponent]);
+
+		if (t_castling_kingside_possible[opponent]){
+			t_castling_kingside_clear[opponent]=true;
+
+			Coordinates medium_position=t_king_position[opponent];
+			medium_position[1]++;
+			if (position_is_under_attack(medium_position)){
+				t_castling_kingside_clear[opponent]=false;
+			}
+			else{
+				for (medium_position[1]; medium_position[1]<CHESS_WIDTH-1; medium_position[1]++){
+					if (get_piece(t_board->getSquare(medium_position))!=CHESS_EMPTY){
+						t_castling_kingside_clear[opponent]=false;
+						break;
+					}
+				}
+			}
+		}
+		if (t_castling_queenside_possible[opponent]){
+			t_castling_queenside_clear[opponent]=true;
+
+			Coordinates medium_position=t_king_position[opponent];
+			medium_position[1]--;
+			if (position_is_under_attack(medium_position)){
+				t_castling_queenside_clear[opponent]=false;
+			}
+			else{
+				for (medium_position[1]; medium_position[1]>0; medium_position[1]--){
+					if (get_piece(t_board->getSquare(medium_position))!=CHESS_EMPTY){
+						t_castling_queenside_clear[opponent]=false;
+						break;
+					}
+				}
+			}
+		}
 
 		change_player();
 
