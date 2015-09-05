@@ -877,13 +877,13 @@ vector<Coordinates> Chess::lastMoves(){
 void Chess::display(std::ostream & out){
 	out<<" ";
 	for(int column=0; column<CHESS_WIDTH; column++)
-		out<<"|  "<<column<<"  ";
+		out<<"|  "<<(char)(65+column)<<"  ";
 	out<<"|"<<std::endl;
 	Coordinates coordinates(2);
 	for(int line = CHESS_HEIGHT - 1; line>=0; line--){
 		for (unsigned int thick=0; thick<3; thick++){
 			if (thick==1)
-				out<<line;
+				out<<line+1;
 			else
 				out<<" ";
 			for(coordinates[1]=0; coordinates[1]<CHESS_WIDTH; coordinates[1]++){
@@ -1012,7 +1012,7 @@ void Chess::display(std::ostream & out){
 				out<<" ";
 			}
 			if (thick==1)
-				out<<"|"<<line;
+				out<<"|"<<line+1;
 			else
 				out<<"| ";
 
@@ -1034,7 +1034,7 @@ void Chess::display(std::ostream & out){
 	}
 	out<<" ";
 	for(int column=0; column<CHESS_WIDTH; column++)
-		out<<"|  "<<column<<"  ";
+		out<<"|  "<<(char)(65+column)<<"  ";
 	out<<"|"<<std::endl;
 
 	if (this->t_display_playable_coordinates){
