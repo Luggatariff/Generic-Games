@@ -14,6 +14,7 @@
 #include "Game.hpp"
 #include "Board.hpp"
 #include "map"
+#include "sstream"
 
 /*!
  * \brief Attributes than can be found in Chess Board Squares
@@ -56,6 +57,25 @@ class Chess: public Game{
 
 	bool t_display_playable_coordinates;	/*!<Indicates if playable coordinates must be displayed under game board*/
 	bool t_highlight_playable_squares;		/*!<Indicates if playable squares must be highlighted on game board*/
+
+	stringstream t_pgn;	/*!<Contains an updated Portable Game Notation for current Game*/
+
+	/*!
+	 * \brief updates Portable Game Notation
+	 * \param square_src : Coordinates of source square for last move
+	 * \param square_dst : Coordinates of destination square for last move
+	 * \param piece_src : moved piece
+	 * \param piece_prom : piece which a pawn is promoted to (CHESS_EMPTY when no promotion occured)
+	 * \param is_capture : true if a capture occured
+	 * \param is_check : true if the move lead to a check on the king
+	 */
+	inline void update_pgn(Coordinates square_src, Coordinates square_dst, Chess_Attributes piece_src, Chess_Attributes piece_prom, bool is_capture, bool is_check, bool is_kingside_castling, bool is_queenside_castling);
+	/*!
+	 * \brief computes the corresponding letter for given Chess Piece
+	 * \param piece: chess piece
+	 * \return corresponding letter in a char
+	 */
+	inline char get_pgn_piece(Chess_Attributes piece);
 
 	/*!
 	 * \brief sets a square with unknown but certain content to empty

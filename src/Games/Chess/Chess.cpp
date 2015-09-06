@@ -552,6 +552,8 @@ void Chess::start(){
 	this->t_castling_queenside_possible[t_players[0]]=true;
 	this->t_castling_queenside_possible[t_players[1]]=true;
 
+	this->t_pgn.clear();
+
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
 		for (square[1]=0; square[1]<CHESS_WIDTH; square[1]++){
@@ -733,6 +735,71 @@ void Chess::set_to_empty(Square<Chess_Attributes> * chess_square){
 	chess_square->addAttribute(CHESS_EMPTY);
 }
 
+char Chess::get_pgn_piece(Chess_Attributes piece){
+	switch (piece){
+	case CHESS_WHITE_PAWN:
+	case CHESS_BLACK_PAWN:{
+		return 'P';
+	}
+	case CHESS_WHITE_ROOK:
+	case CHESS_BLACK_ROOK:{
+		return 'R';
+	}
+	case CHESS_WHITE_KNIGHT:
+	case CHESS_BLACK_KNIGHT:{
+		return 'N';
+	}
+	case CHESS_WHITE_BISHOP:
+	case CHESS_BLACK_BISHOP:{
+		return 'B';
+	}
+	case CHESS_WHITE_QUEEN:
+	case CHESS_BLACK_QUEEN:{
+		return 'Q';
+	}
+	case CHESS_WHITE_KING:
+	case CHESS_BLACK_KING:{
+		return 'K';
+	}
+	case CHESS_EMPTY:
+		return 'P';
+	}
+	return 'P';
+}
+
+void Chess::update_pgn(Coordinates square_src, Coordinates square_dst, Chess_Attributes piece_src, Chess_Attributes piece_prom, bool is_capture, bool is_check, bool is_kingside_castling, bool is_queenside_castling){
+	if (t_last_moves.size()%2 != 0){
+		t_pgn << t_last_moves.size()/2+1 << ". ";
+	}
+	if (is_kingside_castling){
+		t_pgn << "O-O ";
+	}
+	else if (is_queenside_castling){
+		t_pgn << "O-O-O ";
+	}
+	else{
+		t_pgn<<(char)get_pgn_piece(piece_src);
+		t_pgn<<(char)(97+square_src[1])<<square_src[0]+1;
+		if (is_capture){
+			t_pgn<<"x";
+		}
+		t_pgn<<(char)(97+square_dst[1])<<square_dst[0]+1;
+		if (piece_prom != CHESS_EMPTY){
+			t_pgn<<"="<<(char)get_pgn_piece(piece_prom);
+		}
+		if (isWon()){
+			t_pgn<<"#";
+		}
+		else if (isEnded()){
+			t_pgn<<" 1/2-1/2";
+		}
+		else if (is_check){
+			t_pgn<<"+";
+		}
+		t_pgn<<" ";
+	}
+}
+
 void Chess::play(Coordinates coordinates){
 	if (isPlayable(coordinates)){
 		t_last_moves.push_back(coordinates);
@@ -743,11 +810,15 @@ void Chess::play(Coordinates coordinates){
 		source[1] = coordinates[1];
 		destination[0] = coordinates[2];
 		destination[1] = coordinates[3];
-		Chess_Attributes destination_piece=(Chess_Attributes)coordinates[4];
+		Chess_Attributes promotion_piece=(Chess_Attributes)coordinates[4];
 
 		Chess_Attributes source_piece = get_piece(t_board->getSquare(source));
+		Chess_Attributes destination_piece = get_piece(t_board->getSquare(destination));
 
 		bool en_passant=false;
+		bool kingside_castling=false;
+		bool queenside_castling=false;
+
 		int en_passant_direction;
 		if ((source_piece==CHESS_WHITE_PAWN || source_piece==CHESS_BLACK_PAWN) && get_piece(t_board->getSquare(destination))==CHESS_EMPTY && source[1]!=destination[1]){
 			en_passant=true;
@@ -760,6 +831,7 @@ void Chess::play(Coordinates coordinates){
 			t_castling_kingside_possible[t_players[0]]=false;
 			t_castling_queenside_possible[t_players[0]]=false;
 			if ((int)destination[1]-(int)source[1] == 2){
+				kingside_castling=true;
 				Coordinates rook_position(2);
 				rook_position[0]=0;
 				rook_position[1]=CHESS_WIDTH-1;
@@ -768,6 +840,7 @@ void Chess::play(Coordinates coordinates){
 				set_piece(rook_position, CHESS_WHITE_ROOK);
 			}
 			else if ((int)destination[1]-(int)source[1] == -2){
+				queenside_castling=true;
 				Coordinates rook_position(2);
 				rook_position[0]=0;
 				rook_position[1]=0;
@@ -780,6 +853,7 @@ void Chess::play(Coordinates coordinates){
 			t_castling_kingside_possible[t_players[1]]=false;
 			t_castling_queenside_possible[t_players[1]]=false;
 			if ((int)destination[1]-(int)source[1] == 2){
+				kingside_castling=true;
 				Coordinates rook_position(2);
 				rook_position[0]=CHESS_HEIGHT-1;
 				rook_position[1]=CHESS_WIDTH-1;
@@ -788,6 +862,7 @@ void Chess::play(Coordinates coordinates){
 				set_piece(rook_position, CHESS_BLACK_ROOK);
 			}
 			else if ((int)destination[1]-(int)source[1] == -2){
+				queenside_castling=true;
 				Coordinates rook_position(2);
 				rook_position[0]=CHESS_HEIGHT-1;
 				rook_position[1]=0;
@@ -810,8 +885,8 @@ void Chess::play(Coordinates coordinates){
 		}
 
 		set_to_empty(t_board->getSquare(source));
-		if (destination_piece != CHESS_EMPTY)
-			set_piece(destination, destination_piece);
+		if (promotion_piece != CHESS_EMPTY)
+			set_piece(destination, promotion_piece);
 		else{
 			set_piece(destination, source_piece);
 			if (en_passant){
@@ -868,6 +943,9 @@ void Chess::play(Coordinates coordinates){
 		change_player();
 
 		t_king_checked[player]=position_is_under_attack(t_king_position[player]);
+
+		bool capture=(destination_piece!=CHESS_EMPTY);
+		update_pgn(source, destination, source_piece, promotion_piece, capture, t_king_checked[opponent], kingside_castling, queenside_castling);
 	}
 }
 vector<Coordinates> Chess::lastMoves(){
@@ -1046,6 +1124,8 @@ void Chess::display(std::ostream & out){
 			}
 		}
 	}
+	out<<endl;
+	out<<t_pgn.str();
 	out<<endl;
 }
 
