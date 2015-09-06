@@ -7,7 +7,7 @@
 #include <Chess/Chess.hpp>
 #include <algorithm>
 
-Chess::Chess(Player * player_one, Player * player_two, bool highlight_playable_squares, bool display_playable_coordinates){
+Chess::Chess(Player * player_one, Player * player_two, bool display_board, bool highlight_playable_squares, bool display_playable_coordinates, bool display_pgn){
 	Coordinates board_size(2);
 	board_size[0] = CHESS_HEIGHT;
 	board_size[1] = CHESS_WIDTH;
@@ -37,6 +37,8 @@ Chess::Chess(Player * player_one, Player * player_two, bool highlight_playable_s
 
 	this->t_display_playable_coordinates=display_playable_coordinates;
 	this->t_highlight_playable_squares=highlight_playable_squares;
+	this->t_display_board=display_board;
+	this->t_display_pgn=display_pgn;
 
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
@@ -64,6 +66,8 @@ Game * Chess::copy(){
 
 	result->t_highlight_playable_squares=this->t_highlight_playable_squares;
 	result->t_display_playable_coordinates=this->t_display_playable_coordinates;
+	result->t_display_board=this->t_display_board;
+	result->t_display_pgn=this->t_display_pgn;
 
 	result->t_castling_kingside_clear=this->t_castling_kingside_possible;
 	result->t_castling_kingside_possible=this->t_castling_kingside_possible;
@@ -956,167 +960,169 @@ vector<Coordinates> Chess::lastMoves(){
 }
 
 void Chess::display(std::ostream & out){
-	out<<" ";
-	for(int column=0; column<CHESS_WIDTH; column++)
-		out<<"|  "<<(char)(65+column)<<"  ";
-	out<<"|"<<std::endl;
-	Coordinates coordinates(2);
-	for(int line = CHESS_HEIGHT - 1; line>=0; line--){
-		for (unsigned int thick=0; thick<3; thick++){
-			if (thick==1)
-				out<<line+1;
-			else
-				out<<" ";
-			for(coordinates[1]=0; coordinates[1]<CHESS_WIDTH; coordinates[1]++){
-				coordinates[0] = (unsigned int) line;
-				Chess_Attributes piece = get_piece(t_board->getSquare(coordinates));
+	if (this->t_display_board){
+		out<<" ";
+		for(int column=0; column<CHESS_WIDTH; column++)
+			out<<"|  "<<(char)(65+column)<<"  ";
+		out<<"|"<<std::endl;
+		Coordinates coordinates(2);
+		for(int line = CHESS_HEIGHT - 1; line>=0; line--){
+			for (unsigned int thick=0; thick<3; thick++){
+				if (thick==1)
+					out<<line+1;
+				else
+					out<<" ";
+				for(coordinates[1]=0; coordinates[1]<CHESS_WIDTH; coordinates[1]++){
+					coordinates[0] = (unsigned int) line;
+					Chess_Attributes piece = get_piece(t_board->getSquare(coordinates));
 
-				out<<"| ";
-				switch (piece){
-				case CHESS_BLACK_PAWN:{
-					if (thick == 0)
-						out<<" ^ ";
-					else if (thick == 1)
-						out<<" | ";
-					else if (thick == 2)
-						out<<"/|\\";
-					break;
+					out<<"| ";
+					switch (piece){
+					case CHESS_BLACK_PAWN:{
+						if (thick == 0)
+							out<<" ^ ";
+						else if (thick == 1)
+							out<<" | ";
+						else if (thick == 2)
+							out<<"/|\\";
+						break;
+					}
+					case CHESS_WHITE_PAWN:{
+						if (thick == 0)
+							out<<" ^ ";
+						else if (thick == 1)
+							out<<" # ";
+						else if (thick == 2)
+							out<<"/|\\";
+						break;
+					}
+					case CHESS_BLACK_KNIGHT:{
+						if (thick == 0)
+							out<<"^->";
+						else if (thick == 1)
+							out<<"|| ";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_WHITE_KNIGHT:{
+						if (thick == 0)
+							out<<"^->";
+						else if (thick == 1)
+							out<<"|# ";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_BLACK_BISHOP:{
+						if (thick == 0)
+							out<<" ^ ";
+						else if (thick == 1)
+							out<<"/ \\";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_WHITE_BISHOP:{
+						if (thick == 0)
+							out<<" ^ ";
+						else if (thick == 1)
+							out<<"/#\\";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_BLACK_ROOK:{
+						if (thick == 0)
+							out<<"+-+";
+						else if (thick == 1)
+							out<<"| |";
+						else if (thick == 2)
+							out<<"| |";
+						break;
+					}
+					case CHESS_WHITE_ROOK:{
+						if (thick == 0)
+							out<<"+-+";
+						else if (thick == 1)
+							out<<"|#|";
+						else if (thick == 2)
+							out<<"| |";
+						break;
+					}
+					case CHESS_BLACK_KING:{
+						if (thick == 0)
+							out<<" + ";
+						else if (thick == 1)
+							out<<"/ \\";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_WHITE_KING:{
+						if (thick == 0)
+							out<<" + ";
+						else if (thick == 1)
+							out<<"/#\\";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_BLACK_QUEEN:{
+						if (thick == 0)
+							out<<"YYY";
+						else if (thick == 1)
+							out<<"/ \\";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_WHITE_QUEEN:{
+						if (thick == 0)
+							out<<"YYY";
+						else if (thick == 1)
+							out<<"/#\\";
+						else if (thick == 2)
+							out<<"/ \\";
+						break;
+					}
+					case CHESS_EMPTY:{
+						if ( thick != 1 )
+							out<<"   ";
+						else if (this->t_highlight_playable_squares && position_is_under_attack(coordinates))
+							out<<" = ";
+						else
+							out<<"   ";
+					}
+					}
+					out<<" ";
 				}
-				case CHESS_WHITE_PAWN:{
-					if (thick == 0)
-						out<<" ^ ";
-					else if (thick == 1)
-						out<<" # ";
-					else if (thick == 2)
-						out<<"/|\\";
-					break;
-				}
-				case CHESS_BLACK_KNIGHT:{
-					if (thick == 0)
-						out<<"^->";
-					else if (thick == 1)
-						out<<"|| ";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_WHITE_KNIGHT:{
-					if (thick == 0)
-						out<<"^->";
-					else if (thick == 1)
-						out<<"|# ";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_BLACK_BISHOP:{
-					if (thick == 0)
-						out<<" ^ ";
-					else if (thick == 1)
-						out<<"/ \\";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_WHITE_BISHOP:{
-					if (thick == 0)
-						out<<" ^ ";
-					else if (thick == 1)
-						out<<"/#\\";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_BLACK_ROOK:{
-					if (thick == 0)
-						out<<"+-+";
-					else if (thick == 1)
-						out<<"| |";
-					else if (thick == 2)
-						out<<"| |";
-					break;
-				}
-				case CHESS_WHITE_ROOK:{
-					if (thick == 0)
-						out<<"+-+";
-					else if (thick == 1)
-						out<<"|#|";
-					else if (thick == 2)
-						out<<"| |";
-					break;
-				}
-				case CHESS_BLACK_KING:{
-					if (thick == 0)
-						out<<" + ";
-					else if (thick == 1)
-						out<<"/ \\";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_WHITE_KING:{
-					if (thick == 0)
-						out<<" + ";
-					else if (thick == 1)
-						out<<"/#\\";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_BLACK_QUEEN:{
-					if (thick == 0)
-						out<<"YYY";
-					else if (thick == 1)
-						out<<"/ \\";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_WHITE_QUEEN:{
-					if (thick == 0)
-						out<<"YYY";
-					else if (thick == 1)
-						out<<"/#\\";
-					else if (thick == 2)
-						out<<"/ \\";
-					break;
-				}
-				case CHESS_EMPTY:{
-					if ( thick != 1 )
-						out<<"   ";
-					else if (this->t_highlight_playable_squares && position_is_under_attack(coordinates))
-						out<<" = ";
-					else
-						out<<"   ";
-				}
-				}
-				out<<" ";
-			}
-			if (thick==1)
-				out<<"|"<<line+1;
-			else
-				out<<"| ";
+				if (thick==1)
+					out<<"|"<<line+1;
+				else
+					out<<"| ";
 
-			if (line==0){
-				if (thick == 0)
-					out<<"    WHITE POINTS "<<t_points[t_players[0]];
-				else if (thick==1 && t_king_checked[t_players[0]])
-					out<<"    WHITE KING IS CHECKED";
-			}
-			if (line==CHESS_HEIGHT-1){
-				if (thick == 0)
-					out<<"    BLACK POINTS "<<t_points[t_players[1]];
-				else if (thick==1 && t_king_checked[t_players[1]])
-					out<<"    BLACK KING IS CHECKED";
-			}
+				if (line==0){
+					if (thick == 0)
+						out<<"    WHITE POINTS "<<t_points[t_players[0]];
+					else if (thick==1 && t_king_checked[t_players[0]])
+						out<<"    WHITE KING IS CHECKED";
+				}
+				if (line==CHESS_HEIGHT-1){
+					if (thick == 0)
+						out<<"    BLACK POINTS "<<t_points[t_players[1]];
+					else if (thick==1 && t_king_checked[t_players[1]])
+						out<<"    BLACK KING IS CHECKED";
+				}
 
-			out<<std::endl;
+				out<<std::endl;
+			}
 		}
+		out<<" ";
+		for(int column=0; column<CHESS_WIDTH; column++)
+			out<<"|  "<<(char)(65+column)<<"  ";
+		out<<"|"<<std::endl;
 	}
-	out<<" ";
-	for(int column=0; column<CHESS_WIDTH; column++)
-		out<<"|  "<<(char)(65+column)<<"  ";
-	out<<"|"<<std::endl;
 
 	if (this->t_display_playable_coordinates){
 		out<<"Playable Coordinates :"<<endl;
@@ -1127,9 +1133,11 @@ void Chess::display(std::ostream & out){
 			}
 		}
 	}
-	out<<endl;
-	out<<t_pgn.str();
-	out<<endl;
+	if (this->t_display_pgn){
+		out<<endl;
+		out<<t_pgn.str();
+		out<<endl;
+	}
 	out<<endl;
 }
 

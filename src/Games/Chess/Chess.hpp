@@ -57,6 +57,8 @@ class Chess: public Game{
 
 	bool t_display_playable_coordinates;	/*!<Indicates if playable coordinates must be displayed under game board*/
 	bool t_highlight_playable_squares;		/*!<Indicates if playable squares must be highlighted on game board*/
+	bool t_display_board;					/*!<Indicates if board is displayed*/
+	bool t_display_pgn;						/*!<Indicates if Portable Game Notation is displayed*/
 
 	stringstream t_pgn;	/*!<Contains an updated Portable Game Notation for current Game*/
 
@@ -167,7 +169,7 @@ public:
 	 * \param player_one : First Player
 	 * \param player_two : Second Player
 	 */
-	Chess(Player * player_one, Player * player_two, bool highlight_playable_squares = false, bool display_playable_coordinates=false);
+	Chess(Player * player_one, Player * player_two, bool display_board=true, bool highlight_playable_squares = false, bool display_playable_coordinates=false, bool display_pgn=true);
 	~Chess();
 	Game * copy();
 
