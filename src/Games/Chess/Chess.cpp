@@ -798,6 +798,9 @@ void Chess::update_pgn(Coordinates square_src, Coordinates square_dst, Chess_Att
 		}
 		t_pgn<<" ";
 	}
+	if (t_last_moves.size()%6 == 0){
+		t_pgn << endl;
+	}
 }
 
 void Chess::play(Coordinates coordinates){
@@ -1126,6 +1129,7 @@ void Chess::display(std::ostream & out){
 	}
 	out<<endl;
 	out<<t_pgn.str();
+	out<<endl;
 	out<<endl;
 }
 
