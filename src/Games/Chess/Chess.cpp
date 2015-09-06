@@ -557,7 +557,7 @@ void Chess::start(){
 	this->t_castling_queenside_possible[t_players[0]]=true;
 	this->t_castling_queenside_possible[t_players[1]]=true;
 
-	this->t_pgn.flush();
+	this->t_pgn.str(string());
 
 	Coordinates square(2);
 	for (square[0]=0; square[0]<CHESS_HEIGHT; square[0]++){
