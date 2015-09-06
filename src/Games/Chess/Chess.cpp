@@ -772,6 +772,9 @@ const char * Chess::get_pgn_piece(Chess_Attributes piece){
 }
 
 void Chess::update_pgn(Coordinates square_src, Coordinates square_dst, Chess_Attributes piece_src, Chess_Attributes piece_prom, bool is_capture, bool is_check, bool is_kingside_castling, bool is_queenside_castling){
+	if ((t_last_moves.size()!=1) && (t_last_moves.size()-1)%6 == 0){
+		t_pgn << endl;
+	}
 	if (t_last_moves.size()%2 != 0){
 		t_pgn << t_last_moves.size()/2+1 << ". ";
 	}
@@ -801,9 +804,6 @@ void Chess::update_pgn(Coordinates square_src, Coordinates square_dst, Chess_Att
 			t_pgn<<"+";
 		}
 		t_pgn<<" ";
-	}
-	if (t_last_moves.size()%6 == 0){
-		t_pgn << endl;
 	}
 }
 
@@ -1125,20 +1125,23 @@ void Chess::display(std::ostream & out){
 	}
 
 	if (this->t_display_playable_coordinates){
+		bool add_endl=false;
 		out<<"Playable Coordinates :"<<endl;
 		for (vector<Coordinates>::iterator playable_moves_it = t_playable_moves.begin(); playable_moves_it != t_playable_moves.end(); playable_moves_it++){
+			if (add_endl){
+				out<<endl;
+				add_endl=false;
+			}
 			playable_moves_it->display(out);
 			if (distance(t_playable_moves.begin(), playable_moves_it) % 3 == 2){
-				out<<endl;
+				add_endl=true;
 			}
 		}
 	}
 	if (this->t_display_pgn){
-		out<<endl;
 		out<<t_pgn.str();
 		out<<endl;
 	}
-	out<<endl;
 }
 
 string Chess::getName(){
