@@ -75,7 +75,7 @@ class Chess: public Game{
 	 * \param piece: chess piece
 	 * \return corresponding letter in a char
 	 */
-	inline char get_pgn_piece(Chess_Attributes piece);
+	inline const char * get_pgn_piece(Chess_Attributes piece);
 
 	/*!
 	 * \brief sets a square with unknown but certain content to empty
