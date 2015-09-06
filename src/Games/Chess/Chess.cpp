@@ -348,7 +348,8 @@ void Chess::update_playable_moves(bool verify_checked_king){
 					}
 
 					next_square[0]=square[0]+move_direction;
-					for (next_square[1]=square[1]-1;next_square[1]<=square[1]+1;next_square[1]=next_square[1]+2){
+					for (int dir=-1;dir<=1;dir+=2){
+						next_square[1]=square[1]+dir;
 						if (check_existence(next_square)){
 							Player * next_square_player=get_piece_player(get_piece(t_board->getSquare(next_square)));
 							if (next_square_player != t_next_player && next_square_player!=NULL){
@@ -1137,6 +1138,7 @@ void Chess::display(std::ostream & out){
 				add_endl=true;
 			}
 		}
+		out<<endl;
 	}
 	if (this->t_display_pgn){
 		out<<t_pgn.str();
