@@ -4,7 +4,10 @@
  * \author Anaël Petit
  */
 
+#include <ctime>
 #include <iomanip>
+#include <cstdlib>
+#include <algorithm>
 
 #include "IATree.hpp"
 
@@ -51,6 +54,23 @@ IATree::~IATree(){
 	}
 }
 
+vector<unsigned int> IATree::pickRandomIndexes(unsigned int number, unsigned int max){
+	vector<unsigned int> result;
+	unsigned int true_number=number;
+	if (max < number){
+		true_number=max;
+	}
+	srand (time(NULL));
+	for (unsigned int index=0; index<true_number; index++){
+		unsigned int random_index=0;
+		random_index = rand() % (max);
+		if (find(result.begin(), result.end(), random_index) == result.end()){
+			result.push_back(random_index);
+		}
+	}
+	return result;
+}
+
 vector<Coordinates> IATree::get_last_moves(){
 	vector<Coordinates> result;
 	if (it_root != this){
@@ -69,14 +89,14 @@ Game * IATree::get_game_copy(){
 	return root_game_copy;
 }
 
-bool IATree::populate(unsigned int min_level){
+bool IATree::populate(unsigned int min_level, unsigned int free_choice_number){
 	int populate_iterations = min_level - it_level_stacks.size() + 1;
 	for (int iterations = 0; iterations < populate_iterations; iterations++)
-		populate_last_level();
+		populate_last_level(free_choice_number);
 	return (populate_iterations>0);
 }
 
-void IATree::populate_last_level(unsigned int max_node_number){
+void IATree::populate_last_level(unsigned int free_choice_number){
 	vector<vector<pair<Coordinates, IATree *> > > new_level;
 	vector<vector<pair<Coordinates, IATree *> > >::iterator last_level_iterator;
 
@@ -100,6 +120,7 @@ void IATree::populate_last_level(unsigned int max_node_number){
 			vector<Coordinates> playable_moves = iatree_to_populate_game->playableCoordinates();
 
 			if (!playable_moves.empty()){
+					vector<unsigned int> picked_indexes=pickRandomIndexes(free_choice_number, playable_moves.size());
 					for (unsigned int i_pm = 0; i_pm < playable_moves.size(); i_pm++){
 						Game * son_game = iatree_to_populate_game->copy();
 						son_game->play(playable_moves[i_pm]);
@@ -109,7 +130,7 @@ void IATree::populate_last_level(unsigned int max_node_number){
 							new_iatree->it_score = new Score(son_game->score(it_player->getTeam()));
 							new_iatree->it_definitive_score = true;
 							bool is_winner = son_game->isWinner(it_player->getTeam());
-							if (is_winner && iatree_to_populate_game->nextPlayer() == it_player){
+							if (is_winner && iatree_to_populate_game->nextPlayer()->getTeam() == it_player->getTeam()){
 								for(map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_populate->it_sons.begin(); sons_iterator != iatree_to_populate->it_sons.end(); sons_iterator++){
 									delete sons_iterator->second;
 								}
@@ -121,8 +142,14 @@ void IATree::populate_last_level(unsigned int max_node_number){
 								iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
 							}
 						}
-						else
-							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
+						else{
+							if (iatree_to_populate_game->nextPlayer()->getTeam() != it_player->getTeam()){
+								iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
+							}
+							else if(free_choice_number==0 || find(picked_indexes.begin(), picked_indexes.end(), i_pm) != picked_indexes.end()){
+								iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
+							}
+						}
 						delete son_game;
 					}
 					for (map<Coordinates, IATree *>::iterator iter_sons = iatree_to_populate->it_sons.begin(); iter_sons != iatree_to_populate->it_sons.end(); iter_sons++){
@@ -167,7 +194,7 @@ void IATree::compute(){
 				}
 				else if (!iatree_to_compute->it_sons.empty()){
 					map<Coordinates, IATree *>::iterator sons_iterator = iatree_to_compute->it_sons.begin();
-					bool return_maximum = (iatree_to_compute->it_next_player == it_player);
+					bool return_maximum = (iatree_to_compute->it_next_player->getTeam() == it_player->getTeam());
 					Score * best_son_score = sons_iterator->second->it_score;
 
 					if (best_son_score != NULL){

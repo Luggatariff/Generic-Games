@@ -69,7 +69,7 @@ class IATree{
 	/*!
 	 * \brief adds a level to the choice Tree
 	 */
-	void populate_last_level(unsigned int max_node_number = 0);
+	void populate_last_level(unsigned int free_choice_number=0);
 
 	/*!
 	 * \brief only recursive function, changes the nodes root
@@ -109,7 +109,7 @@ public:
 	 * \param min_level : min depth of the computation
 	 * \return True if the Tree was effectively populated
 	 */
-	bool populate(unsigned int min_level);
+	bool populate(unsigned int min_level, unsigned int free_choice_number=0);
 	/*!
 	 * \brief computes the score for each node in the Tree in order to know the value of the Root Node
 	 */
@@ -132,6 +132,15 @@ public:
 	 * \return IATree list of next possible choices
 	 */
 	map<Coordinates, IATree *> changeRoot(vector<Coordinates> coordinates);
+
+	/*!
+	 * \brief picks a given number of different random indexes
+	 * \param number : Random indexes number
+	 * \param max : maximum value for the indexes
+	 * \return a vector of number size filled with indexes from 0 to max
+	 */
+	static vector<unsigned int> pickRandomIndexes(unsigned int number, unsigned int max);
+
 
 	/*!
 	 * \brief displays the Tree

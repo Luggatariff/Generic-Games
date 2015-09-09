@@ -10,11 +10,12 @@
 #include <ctime>
 #include <algorithm>
 
-IA::IA(string name, unsigned int team_id, unsigned int level, bool display_messages, bool display_tree){
+IA::IA(string name, unsigned int team_id, unsigned int level, unsigned int max_free_choices, bool display_messages, bool display_tree){
 	ia_name = name;
 	ia_team = team_id;
 
 	ia_level = level;
+	ia_max_free_choices = max_free_choices;
 	ia_tree = NULL;
 	ia_display_tree = display_tree;
 	ia_display_messages = display_messages;
@@ -39,13 +40,16 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 
 	map<Coordinates, IATree *> choices;
 
-	if (ia_tree != NULL){
+	if (ia_tree != NULL && ia_max_free_choices == 0){
 		vector<Coordinates> game_last_moves = game->lastMoves();
 		vector<Coordinates> each_player_last_move;
 		for (unsigned int i_p = game_last_moves.size() - (game->players().size() - 1); i_p < game_last_moves.size(); i_p++){
 			each_player_last_move.push_back(game_last_moves[i_p]);
 		}
 		choices = ia_tree->changeRoot(each_player_last_move);
+	}
+	else if (ia_tree != NULL){
+		delete ia_tree;
 	}
 
 	if (choices.empty()){
@@ -80,13 +84,13 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 		unsigned int true_level = temp_level * player_number - 1;
 
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
-		if (choices_iterator->second->populate(true_level)){
+		if (choices_iterator->second->populate(true_level, ia_max_free_choices)){
 			choices_iterator->second->compute();
 		}
 		Score * best_choice_score = choices_iterator->second->getScore();
 		if (best_choice_score->value() != victory_score) {
 			for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
-				if (choices_iterator->second->populate(true_level)){
+				if (choices_iterator->second->populate(true_level, ia_max_free_choices)){
 					choices_iterator->second->compute();
 				}
 				Score * res_score = choices_iterator->second->getScore();
