@@ -75,22 +75,19 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 
 	unsigned int temp_level = 1;
 	unsigned int max_level = ia_level;
-	unsigned int player_number = game->players().size();
 	int victory_score = game->victoryScore();
 
 	if (ia_display_messages)
 		cout<<"Thinking.."<<endl;
 	while(choices.size() > 1 && temp_level <= max_level){
-		unsigned int true_level = temp_level * player_number - 1;
-
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
-		if (choices_iterator->second->populate(true_level, ia_max_free_choices)){
+		if (choices_iterator->second->populate(temp_level, ia_max_free_choices)){
 			choices_iterator->second->compute();
 		}
 		Score * best_choice_score = choices_iterator->second->getScore();
 		if (best_choice_score->value() != victory_score) {
 			for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
-				if (choices_iterator->second->populate(true_level, ia_max_free_choices)){
+				if (choices_iterator->second->populate(temp_level, ia_max_free_choices)){
 					choices_iterator->second->compute();
 				}
 				Score * res_score = choices_iterator->second->getScore();
