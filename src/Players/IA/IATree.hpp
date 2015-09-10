@@ -97,14 +97,6 @@ class IATree{
 	 * \return a Game pointer (don't forget to delete it)
 	 */
 	Game * get_game_copy();
-
-	/*!
-	 * \brief picks a given number of different random indexes
-	 * \param number : Random indexes number
-	 * \param max : maximum value for the indexes
-	 * \return a vector of number size filled with indexes from 0 to max
-	 */
-	static vector<unsigned int> pick_random_indexes(unsigned int number, unsigned int max);
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Player
@@ -160,6 +152,14 @@ public:
 	 * \brief displays the Tree
 	 */
 	void display();
+
+	/*!
+	 * \brief picks a given number of different random indexes
+	 * \param number : Random indexes number
+	 * \param max : maximum value for the indexes
+	 * \return a vector of number size filled with indexes from 0 to max
+	 */
+	static vector<unsigned int> pick_random_indexes(unsigned int number, unsigned int max);
 };
 
 #endif

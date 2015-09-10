@@ -82,14 +82,23 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 	while(choices.size() > 1 && level <= max_level){
 		bool compute_occured=false;
 
+		vector<unsigned int> random_indexes = IATree::pick_random_indexes(choices.size(), choices.size());
+
+		vector<unsigned int>::iterator random_indexes_iterator = random_indexes.begin();
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
+		advance(choices_iterator, *random_indexes_iterator);
+
 		if (!choices_iterator->second->isDefinitve() && choices_iterator->second->populate(level, ia_max_free_choices)){
 			compute_occured=true;
 			choices_iterator->second->compute();
 		}
 		Score * best_choice_score = choices_iterator->second->getScore();
-		if (best_choice_score->value() != victory_score) {
-			for(choices_iterator++; choices_iterator != choices.end(); choices_iterator++){
+
+		if ( (best_choice_score->value() < victory_score && level < max_level) || (best_choice_score->value() < 0 && level == max_level) ) {
+			for(random_indexes_iterator++; random_indexes_iterator != random_indexes.end(); random_indexes_iterator++){
+				choices_iterator = choices.begin();
+				advance(choices_iterator, *random_indexes_iterator);
+
 				if (!choices_iterator->second->isDefinitve() && choices_iterator->second->populate(level, ia_max_free_choices)){
 					compute_occured=true;
 					choices_iterator->second->compute();
@@ -97,9 +106,9 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 				Score * res_score = choices_iterator->second->getScore();
 				if (res_score->compare(best_choice_score, true)){
 					best_choice_score = res_score;
-					if (best_choice_score->value() == victory_score)
-						break;
 				}
+				if ((best_choice_score->value() == victory_score && level < max_level) || (best_choice_score->value() >= 0 && level == max_level))
+					break;
 			}
 		}
 
