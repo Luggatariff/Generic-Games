@@ -68,6 +68,9 @@ vector<unsigned int> IATree::pick_random_indexes(unsigned int number, unsigned i
 		if (find(result.begin(), result.end(), random_index) == result.end()){
 			result.push_back(random_index);
 		}
+		else{
+			index--;
+		}
 	}
 	return result;
 }

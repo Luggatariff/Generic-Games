@@ -94,7 +94,7 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 		}
 		Score * best_choice_score = choices_iterator->second->getScore();
 
-		if ( (best_choice_score->value() < victory_score && level < max_level) || (best_choice_score->value() < 0 && level == max_level) ) {
+		if ( (best_choice_score->value() < victory_score && level <= max_level) || (best_choice_score->value() < 0 && level == max_level) ) {
 			for(random_indexes_iterator++; random_indexes_iterator != random_indexes.end(); random_indexes_iterator++){
 				choices_iterator = choices.begin();
 				advance(choices_iterator, *random_indexes_iterator);
@@ -107,7 +107,8 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 				if (res_score->compare(best_choice_score, true)){
 					best_choice_score = res_score;
 				}
-				if ((best_choice_score->value() == victory_score && level < max_level) || (best_choice_score->value() >= 0 && level == max_level))
+
+				if ((best_choice_score->value() == victory_score && level <= max_level) || (best_choice_score->value() >= 0 && level == max_level && compute_occured))
 					break;
 			}
 		}
