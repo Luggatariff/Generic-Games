@@ -3,6 +3,7 @@
 #include "FourInALine.hpp"
 #include "Sticks.hpp"
 #include "Draughts.hpp"
+#include "Chess.hpp"
 #include "Human.hpp"
 #include "IA.hpp"
 #include "Learner.hpp"
@@ -13,13 +14,13 @@
 
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
-	Player * first_teacher = new IA(string("Octave"), 0, 1);
-	Player * second_teacher = new IA(string("Octave"), 1, 1);
-	players[0] = new IA(string("AdA"), 0, 1);
-	players[1] = new IA(string("AdA"), 1, 1);
+	Player * first_teacher = new IA(string("Solene"), 0, 0);
+	Player * second_teacher = new IA(string("Lustu"), 1, 2);
+	players[0] = new IA(string("Solene"), 0, 4, 0, true); //new Learner(string("Triptonik"), 0, first_teacher, "learner1.db");
+	players[1] = new IA(string("Lustu"), 1, 6, 0, true); //new Learner(string("AdA"), 1, second_teacher, "learner2.db");
 
 	Game * game;
-	game = new Draughts(players[0], players[1]);
+	game = new TicTacToe(players[0], players[1]);
 	while(true){
 		game->start();
 		for (unsigned int i_p = 0; i_p < players.size(); i_p++)
@@ -53,10 +54,7 @@ int main( int argamec, const char* argamev[] ){
 			players[i_p]->end(game);
 
 		if (!INFINITE_LOOP){
-			char commande;
-			cout<<"Continue? (o/n):";
-			cin>>commande;
-			if (commande == 'n') break;
+			break;
 		}
 	}
 	delete game;
