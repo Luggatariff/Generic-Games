@@ -46,6 +46,8 @@ public:
 	 * \brief increases Score depth
 	 */
 	void incDepth();
+
+	bool compare(Score * score, bool return_best);
 };
 
 /*!
@@ -66,10 +68,13 @@ class IATree{
 	Coordinates it_son_id;				/*!<Indactes one IATree son id for its father*/
 	vector<vector<vector<pair<Coordinates,IATree *> > > > it_level_stacks; /*!<IATree stacks by level, used to derecursify populate and compute*/
 
+	unsigned int it_level;				/*!<Population level*/
+
 	/*!
 	 * \brief adds a level to the choice Tree
+	 * \return true if nodes was actually added
 	 */
-	void populate_last_level(unsigned int free_choice_number=0);
+	bool populate_last_level(unsigned int free_choice_number=0, bool last_call=false);
 
 	/*!
 	 * \brief only recursive function, changes the nodes root
@@ -92,6 +97,14 @@ class IATree{
 	 * \return a Game pointer (don't forget to delete it)
 	 */
 	Game * get_game_copy();
+
+	/*!
+	 * \brief picks a given number of different random indexes
+	 * \param number : Random indexes number
+	 * \param max : maximum value for the indexes
+	 * \return a vector of number size filled with indexes from 0 to max
+	 */
+	static vector<unsigned int> pick_random_indexes(unsigned int number, unsigned int max);
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Player
@@ -134,13 +147,14 @@ public:
 	map<Coordinates, IATree *> changeRoot(vector<Coordinates> coordinates);
 
 	/*!
-	 * \brief picks a given number of different random indexes
-	 * \param number : Random indexes number
-	 * \param max : maximum value for the indexes
-	 * \return a vector of number size filled with indexes from 0 to max
+	 * \return the IaTree population level
 	 */
-	static vector<unsigned int> pickRandomIndexes(unsigned int number, unsigned int max);
+	unsigned int level();
 
+	/*!
+	 * \return True if the IaTree doesn't need to be populated nor computed anymore
+	 */
+	bool isDefinitve();
 
 	/*!
 	 * \brief displays the Tree
