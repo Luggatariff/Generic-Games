@@ -206,18 +206,18 @@ int Chess::score(unsigned int team_id){
 	int winner = whoWon();
 	if (winner == (int)team_id) return victoryScore();
 	if (winner == -1){
-		if (t_players[0]->getTeam() == team_id){
-			int score=((int)t_points[t_players[0]] - (int)t_points[t_players[1]]);
-			if ( t_castling_kingside_possible[t_players[0]] || t_castling_queenside_possible[t_players[0]] || t_castling_done[t_players[0]] )
-				score+=2;
-			return score;
+		Player * player = t_players[0];
+		Player * opponent = t_players[1];
+		if (t_players[1]->getTeam() == team_id){
+			player = t_players[1];
+			opponent = t_players[0];
 		}
-		else{
-			int score=((int)t_points[t_players[1]] - (int)t_points[t_players[0]]);
-			if ( t_castling_kingside_possible[t_players[1]] || t_castling_queenside_possible[t_players[1]] || t_castling_done[t_players[1]] )
-				score+=2;
-			return score;
-		}
+		int score=((int)t_points[player] - (int)t_points[opponent]);
+		if ( t_castling_kingside_possible[player] || t_castling_queenside_possible[player] || t_castling_done[player] )
+			score+=2;
+		if ( t_castling_kingside_possible[opponent] || t_castling_queenside_possible[opponent] || t_castling_done[opponent] )
+			score-=2;
+		return score;
 	}
 	return -victoryScore();
 }
