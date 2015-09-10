@@ -34,6 +34,8 @@ Chess::Chess(Player * player_one, Player * player_two, bool display_board, bool 
 	this->t_castling_queenside_possible.insert(pair<Player *, bool>(player_two, true));
 	this->t_castling_queenside_clear.insert(pair<Player *, bool>(player_one, false));
 	this->t_castling_queenside_clear.insert(pair<Player *, bool>(player_two, false));
+	this->t_castling_done.insert(pair<Player *, bool>(player_one, false));
+	this->t_castling_done.insert(pair<Player *, bool>(player_two, false));
 
 	this->t_display_playable_coordinates=display_playable_coordinates;
 	this->t_highlight_playable_squares=highlight_playable_squares;
@@ -73,6 +75,7 @@ Game * Chess::copy(){
 	result->t_castling_kingside_possible=this->t_castling_kingside_possible;
 	result->t_castling_queenside_clear=this->t_castling_queenside_clear;
 	result->t_castling_queenside_possible=this->t_castling_queenside_possible;
+	result->t_castling_done=this->t_castling_done;
 
 	return (Game *)result;
 }
@@ -204,10 +207,16 @@ int Chess::score(unsigned int team_id){
 	if (winner == (int)team_id) return victoryScore();
 	if (winner == -1){
 		if (t_players[0]->getTeam() == team_id){
-			return ((int)t_points[t_players[0]] - (int)t_points[t_players[1]]);
+			int score=((int)t_points[t_players[0]] - (int)t_points[t_players[1]]);
+			if ( t_castling_kingside_possible[t_players[0]] || t_castling_queenside_possible[t_players[0]] || t_castling_done[t_players[0]] )
+				score+=2;
+			return score;
 		}
 		else{
-			return ((int)t_points[t_players[1]] - (int)t_points[t_players[0]]);
+			int score=((int)t_points[t_players[1]] - (int)t_points[t_players[0]]);
+			if ( t_castling_kingside_possible[t_players[1]] || t_castling_queenside_possible[t_players[1]] || t_castling_done[t_players[1]] )
+				score+=2;
+			return score;
 		}
 	}
 	return -victoryScore();
@@ -556,6 +565,8 @@ void Chess::start(){
 	this->t_castling_queenside_clear[t_players[1]]=false;
 	this->t_castling_queenside_possible[t_players[0]]=true;
 	this->t_castling_queenside_possible[t_players[1]]=true;
+	this->t_castling_done[t_players[0]]=false;
+	this->t_castling_done[t_players[1]]=false;
 
 	this->t_pgn.str("");
 	this->t_pgn.clear();
@@ -847,6 +858,7 @@ void Chess::play(Coordinates coordinates){
 				set_to_empty(t_board->getSquare(rook_position));
 				rook_position[1]=destination[1]-1;
 				set_piece(rook_position, CHESS_WHITE_ROOK);
+				t_castling_done[t_players[0]]=true;
 			}
 			else if ((int)destination[1]-(int)source[1] == -2){
 				queenside_castling=true;
@@ -856,6 +868,7 @@ void Chess::play(Coordinates coordinates){
 				set_to_empty(t_board->getSquare(rook_position));
 				rook_position[1]=destination[1]+1;
 				set_piece(rook_position, CHESS_WHITE_ROOK);
+				t_castling_done[t_players[0]]=true;
 			}
 		}
 		else if (source_piece==CHESS_BLACK_KING){
@@ -869,6 +882,7 @@ void Chess::play(Coordinates coordinates){
 				set_to_empty(t_board->getSquare(rook_position));
 				rook_position[1]=destination[1]-1;
 				set_piece(rook_position, CHESS_BLACK_ROOK);
+				t_castling_done[t_players[1]]=true;
 			}
 			else if ((int)destination[1]-(int)source[1] == -2){
 				queenside_castling=true;
@@ -878,6 +892,7 @@ void Chess::play(Coordinates coordinates){
 				set_to_empty(t_board->getSquare(rook_position));
 				rook_position[1]=destination[1]+1;
 				set_piece(rook_position, CHESS_BLACK_ROOK);
+				t_castling_done[t_players[1]]=true;
 			}
 		}
 		else if (source[0]==0 && source[1]==0){

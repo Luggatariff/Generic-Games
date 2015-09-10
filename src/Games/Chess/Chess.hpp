@@ -54,6 +54,7 @@ class Chess: public Game{
 	map<Player *, bool> t_castling_kingside_clear;			/*!<Indicates if path is clear for kingside castling*/
 	map<Player *, bool> t_castling_queenside_possible;		/*!<Indicates if queenside castling is still possible*/
 	map<Player *, bool> t_castling_queenside_clear;			/*!<Indicates if path is clear for queenside castling*/
+	map<Player *, bool> t_castling_done;					/*!<Indicates if a castling have been done*/
 
 	bool t_display_playable_coordinates;	/*!<Indicates if playable coordinates must be displayed under game board*/
 	bool t_highlight_playable_squares;		/*!<Indicates if playable squares must be highlighted on game board*/
