@@ -160,17 +160,15 @@ bool IATree::populate_last_level(unsigned int free_choice_number, bool last_call
 							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
 						}
 					}
-					else if (last_call){
-						IATree * new_iatree = new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm]);
-						new_iatree->it_score = new Score(son_game->score(it_player->getTeam()));
-						iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
-					}
 					else{
+						if (last_call){
+							new_iatree->it_score = new Score(son_game->score(it_player->getTeam()));
+						}
 						if (iatree_to_populate_game->nextPlayer()->getTeam() != it_player->getTeam()){
-							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
+							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
 						}
 						else if(free_choice_number==0 || find(picked_indexes.begin(), picked_indexes.end(), i_pm) != picked_indexes.end()){
-							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new IATree(son_game, it_player, this, iatree_to_populate, playable_moves[i_pm])));
+							iatree_to_populate->it_sons.insert(pair<Coordinates, IATree *>(playable_moves[i_pm], new_iatree));
 						}
 						else{
 							delete new_iatree;
