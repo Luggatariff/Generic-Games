@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     src/Games/FourInALine/FourInALine.cpp \
     src/Games/Sticks/Sticks.cpp \
     src/Games/TicTacToe/TicTacToe.cpp \
-    lib/sqlite-amalgamation-3081001/sqlite3.c
+    lib/sqlite-amalgamation-3081001/sqlite3.c \
+    src/Parameters/booleanparameter.cpp
 
 HEADERS  += mainwindow.h \
     src/Players/Player.hpp \
@@ -43,6 +44,8 @@ HEADERS  += mainwindow.h \
     src/Games/Sticks/Sticks.hpp \
     src/Games/TicTacToe/TicTacToe.hpp \
     lib/sqlite-amalgamation-3081001/sqlite3.h \
-    lib/sqlite-amalgamation-3081001/sqlite3ext.h
+    lib/sqlite-amalgamation-3081001/sqlite3ext.h \
+    src/Parameters/parameter.hpp \
+    src/Parameters/booleanparameter.hpp
 
 FORMS    += mainwindow.ui
