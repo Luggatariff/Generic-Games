@@ -7,3 +7,5 @@ doxygen/latex
 *.db
 *.user*
 build-*
+*.dll
+*.a

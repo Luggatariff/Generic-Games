@@ -11,7 +11,7 @@ TARGET = BooleanParameter
 TEMPLATE = lib
 CONFIG += plugin
 
-DESTDIR = $$[QT_INSTALL_PLUGINS]/generic
+DESTDIR = ..
 
 SOURCES += genericplugin.cpp
 
