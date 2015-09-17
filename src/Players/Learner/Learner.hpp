@@ -7,8 +7,8 @@
 #ifndef LEARNER_HPP
 #define LEARNER_HPP
 
-#include "Player.hpp"
-#include <sqlite3.h>
+#include "../Player.hpp"
+#include "../../../lib/sqlite-amalgamation-3081001/sqlite3.h"
 #include "map"
 
 /*!

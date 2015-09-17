@@ -4,7 +4,7 @@
  * \author Anaël Petit
  */
 
-#include <Chess/Chess.hpp>
+#include "Chess.hpp"
 #include <algorithm>
 
 Chess::Chess(Player * player_one, Player * player_two, bool display_board, bool highlight_playable_squares, bool display_playable_coordinates, bool display_pgn){

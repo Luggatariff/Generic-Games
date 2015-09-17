@@ -10,8 +10,8 @@
 #define STICKS_MAX_AT_ONCE	4	/*!<Maximum number of Sticks that can be taken at once*/
 #define STICKS_MAX_SCORE	100	/*!<Sticks Maximal score (victory)*/
 
-#include "Game.hpp"
-#include "Board.hpp"
+#include "../Game.hpp"
+#include "../../Model/Board.hpp"
 
 /*!
  * \brief Attributes than can be found in Sticks Board Squares

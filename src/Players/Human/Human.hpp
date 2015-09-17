@@ -7,7 +7,7 @@
 #ifndef HUMAN_HPP
 #define HUMAN_HPP
 
-#include "Player.hpp"
+#include "../Player.hpp"
 
 /*!
  * \class Human

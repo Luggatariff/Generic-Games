@@ -7,9 +7,9 @@
 #ifndef IATREE_HPP
 #define IATREE_HPP
 
-#include "Game.hpp"
-#include "Player.hpp"
-#include "Coordinates.hpp"
+#include "../../Games/Game.hpp"
+#include "../../Players/Player.hpp"
+#include "../../Model/Coordinates.hpp"
 #include "map"
 #include "vector"
 

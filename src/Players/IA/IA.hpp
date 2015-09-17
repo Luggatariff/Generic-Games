@@ -7,7 +7,7 @@
 #ifndef IA_HPP
 #define IA_HPP
 
-#include "Player.hpp"
+#include "../Player.hpp"
 #include "IATree.hpp"
 
 /*!

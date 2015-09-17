@@ -24,6 +24,10 @@ QWidget * GenericPlugin::getWidget(){
     return (QWidget *)p_check_box;
 }
 
+const char * GenericPlugin::getName(){
+    return "BooleanParameter";
+}
+
 void GenericPlugin::setValue(int value){
     Qt::CheckState state=(Qt::CheckState)value;
     switch (state){

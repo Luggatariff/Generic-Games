@@ -11,8 +11,8 @@
 #define CHESS_HEIGHT	8		/*!<Chess board height*/
 #define CHESS_MAX_SCORE 1000	/*!<Chess Maximal score (victory)*/
 
-#include "Game.hpp"
-#include "Board.hpp"
+#include "../Game.hpp"
+#include "../../Model/Board.hpp"
 #include "map"
 #include "sstream"
 

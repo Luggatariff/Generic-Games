@@ -12,8 +12,8 @@
 #define FOURINALINE_LINE	4		/*!<FourInALine victorious line size*/
 #define FOURINALINE_MAX_SCORE 50	/*!<FourInALine Maximal score (victory)*/
 
-#include "Game.hpp"
-#include "Board.hpp"
+#include "../Game.hpp"
+#include "../../Model/Board.hpp"
 
 /*!
  * \brief Attributes than can be found in FourInALine Board Squares

@@ -11,8 +11,8 @@
 #define TICTACTOE_DIMENSION 2 	/*!<TicTacToe dimension (code not adaptable yet)*/
 #define TICTACTOE_MAX_SCORE 100	/*!<TicTacToe Maximal score (victory)*/
 
-#include "Game.hpp"
-#include "Board.hpp"
+#include "../Game.hpp"
+#include "../../Model/Board.hpp"
 
 /*!
  * \brief Attributes than can be found in TicTacToe Board Squares

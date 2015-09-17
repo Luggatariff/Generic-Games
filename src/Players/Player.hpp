@@ -8,7 +8,7 @@
 #define PLAYER_HPP
 
 #include <string>
-#include "Coordinates.hpp"
+#include "../Model/Coordinates.hpp"
 
 /*!
  * \brief see Game.hpp
@@ -58,6 +58,6 @@ public:
 	virtual ~Player(){};
 };
 
-#include "Game.hpp"
+#include "../Games/Game.hpp"
 
 #endif

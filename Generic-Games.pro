@@ -44,6 +44,7 @@ HEADERS  += mainwindow.h \
     src/Games/TicTacToe/TicTacToe.hpp \
     lib/sqlite-amalgamation-3081001/sqlite3.h \
     lib/sqlite-amalgamation-3081001/sqlite3ext.h \
-    src/Parameters/parameter.hpp
+    src/Parameters/parameter.hpp \
+    src/pluginloader.hpp
 
 FORMS    += mainwindow.ui

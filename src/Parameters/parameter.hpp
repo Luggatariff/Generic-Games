@@ -11,6 +11,7 @@ public:
 
     virtual void * getValue() = 0;
     virtual QWidget * getWidget() = 0;
+    virtual const char * getName() = 0;
 };
 
 Q_DECLARE_INTERFACE(Parameter, "Generic-Games.Parameter")

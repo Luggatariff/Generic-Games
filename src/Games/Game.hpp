@@ -9,7 +9,7 @@
 
 #include <iostream>
 #include <string>
-#include "Player.hpp"
+#include "../Players/Player.hpp"
 
 /*!
  * \class Game

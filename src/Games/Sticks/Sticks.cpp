@@ -6,7 +6,7 @@
 
 #include <iomanip>
 #include <sstream>
-#include <Sticks/Sticks.hpp>
+#include "Sticks.hpp"
 
 Sticks::Sticks(Player * player_one, Player * player_two, unsigned int sticks_number){
 	Coordinates board_size(1);

@@ -11,8 +11,8 @@
 #define DRAUGHTS_HEIGHT	10		/*!<Draughts board height*/
 #define DRAUGHTS_MAX_SCORE 1000	/*!<Draughts Maximal score (victory)*/
 
-#include "Game.hpp"
-#include "Board.hpp"
+#include "../Game.hpp"
+#include "../../Model/Board.hpp"
 
 /*!
  * \brief Attributes than can be found in Draughts Board Squares

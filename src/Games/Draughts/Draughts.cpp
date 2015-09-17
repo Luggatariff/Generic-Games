@@ -4,7 +4,7 @@
  * \author Anaël Petit
  */
 
-#include <Draughts/Draughts.hpp>
+#include "Draughts.hpp"
 #include <algorithm>
 
 Draughts::Draughts(Player * player_one, Player * player_two){

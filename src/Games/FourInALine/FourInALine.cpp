@@ -4,7 +4,7 @@
  * \author Anaël Petit
  */
 
-#include <FourInALine/FourInALine.hpp>
+#include "FourInALine.hpp"
 
 FourInALine::FourInALine(Player * player_one, Player * player_two){
 	Coordinates board_size(2);
