@@ -1,7 +1,7 @@
 #include "genericplugin.hpp"
 
-GenericPlugin::BooleanParameter(const QString & text, bool default_state){
-    p_check_box=new QtCheckBox(text);
+GenericPlugin::GenericPlugin(const QString & text, bool default_state){
+    p_check_box=new QCheckBox(text);
     p_check_box->setTristate(false);
     if (default_state)
         p_check_box->setCheckState(Qt::Checked);
@@ -11,17 +11,17 @@ GenericPlugin::BooleanParameter(const QString & text, bool default_state){
     QObject::connect(p_check_box, SIGNAL(stateChanged(int)), this, SLOT(setValue(int)));
 }
 
-virtual GenericPlugin::~BooleanParameter(){
+GenericPlugin::~GenericPlugin(){
     delete p_check_box;
     delete p_value;
 }
 
-virtual void * GenericPlugin::getValue(){
+void * GenericPlugin::getValue(){
     return (void *)p_value;
 }
 
-virtual QtWidget * GenericPlugin::getWidget(){
-    return p_check_box;
+QWidget * GenericPlugin::getWidget(){
+    return (QWidget *)p_check_box;
 }
 
 void GenericPlugin::setValue(int value){

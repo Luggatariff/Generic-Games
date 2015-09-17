@@ -13,11 +13,11 @@ class GenericPlugin: public QObject, public Parameter
     bool * p_value;
 
 public:
-    BooleanParameter(const QString & text, bool default_state);
+    GenericPlugin(const QString & text, bool default_state);
 
-    virtual ~BooleanParameter();
+    virtual ~GenericPlugin();
     virtual void * getValue() = 0;
-    virtual QtWidget * getWidget() = 0;
+    virtual QWidget * getWidget() = 0;
 
 private slots:
     void setValue(int value);

@@ -10,7 +10,7 @@ public:
     virtual ~Parameter() { }
 
     virtual void * getValue() = 0;
-    virtual QtWidget * getWidget() = 0;
+    virtual QWidget * getWidget() = 0;
 };
 
 Q_DECLARE_INTERFACE(Parameter, "Generic-Games.Parameter")

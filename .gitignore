@@ -6,3 +6,4 @@ doxygen/latex
 *.o
 *.db
 *.user*
+build-*
