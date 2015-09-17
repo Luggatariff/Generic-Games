@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += widgets
 
 TARGET = BooleanParameter
 TEMPLATE = lib
@@ -14,8 +15,8 @@ DESTDIR = $$[QT_INSTALL_PLUGINS]/generic
 
 SOURCES += genericplugin.cpp
 
-HEADERS += genericplugin.hpp
-DISTFILES += BooleanParameter.json
+HEADERS += genericplugin.hpp \
+    ../parameter.hpp
 
 unix {
     target.path = /usr/lib

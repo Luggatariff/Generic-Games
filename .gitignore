@@ -5,3 +5,4 @@ doxygen/latex
 *.exe
 *.o
 *.db
+*.user*

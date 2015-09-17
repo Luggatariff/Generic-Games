@@ -1,11 +1,10 @@
-#ifndef BOOLEANPARAMETER_HPP
-#define BOOLEANPARAMETER_HPP
+#ifndef GENERICPLUGIN_HPP
+#define GENERICPLUGIN_HPP
 
-#include <QObject>
-#include <parameter.hpp>
+#include <../parameter.hpp>
 #include <QCheckBox>
 
-class BooleanParameter : public QObject, public Parameter
+class GenericPlugin: public QObject, public Parameter
 {
     Q_OBJECT
     Q_INTERFACES(Parameter)
@@ -24,4 +23,4 @@ private slots:
     void setValue(int value);
 };
 
-#endif // BOOLEANPARAMETER_HPP
+#endif // GENERICPLUGIN_HPP
