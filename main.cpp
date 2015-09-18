@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
 
     QList<Parameter *>::iterator plugin_list_iterator;
     for (plugin_list_iterator=plugin_list.begin(); plugin_list_iterator < plugin_list.end(); plugin_list_iterator++){
-        qDebug() << 1;
         qDebug() << (*plugin_list_iterator)->getName();
     }
 

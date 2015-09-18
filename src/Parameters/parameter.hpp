@@ -4,7 +4,7 @@
 #include <QtPlugin>
 #include <QtWidgets>
 
-class Parameter
+class Parameter : public QObject
 {
 public:
     virtual ~Parameter() { }

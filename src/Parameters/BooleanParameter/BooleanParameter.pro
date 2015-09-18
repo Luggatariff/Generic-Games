@@ -13,12 +13,16 @@ CONFIG += plugin
 
 DESTDIR = ..
 
-SOURCES += genericplugin.cpp
+SOURCES += \
+    booleanparameter.cpp
 
-HEADERS += genericplugin.hpp \
-    ../parameter.hpp
+HEADERS += \
+    ../parameter.hpp \
+    booloeanparameter.hpp
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+
+DISTFILES +=
