@@ -6,15 +6,15 @@
 
 #include "TicTacToe.hpp"
 
-TicTacToe::TicTacToe(Player * player_one, Player * player_two){
-	Coordinates board_size(TICTACTOE_DIMENSION);
+TicTacToe::TicTacToe(){
+    Coordinates board_size(TICTACTOE_DIMENSION);
 	for (unsigned int dim = 0; dim<TICTACTOE_DIMENSION; dim++)
 		board_size[dim] = TICTACTOE_WIDTH;
 	this->t_board = new Board<TicTacToe_Attributes>(board_size);
 
-	this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(player_one, TICTACTOE_CROSS));
-	this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(player_two, TICTACTOE_ROUND));
-	this->t_next_player = player_one;
+    this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(NULL, TICTACTOE_CROSS));
+    this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(NULL, TICTACTOE_ROUND));
+    this->t_next_player = 0;
 }
 
 TicTacToe::~TicTacToe(){
@@ -22,10 +22,11 @@ TicTacToe::~TicTacToe(){
 }
 
 Game * TicTacToe::copy(){
-	TicTacToe * result = new TicTacToe(this->t_players[0].first, this->t_players[1].first);
+    TicTacToe * result = new TicTacToe();
 	delete result->t_board;
 	result->t_board = this->t_board->copy();
 	result->t_next_player = this->t_next_player;
+    result->t_players=this->t_players;
 	return (Game *)result;
 }
 
@@ -34,6 +35,14 @@ vector<Player *> TicTacToe::players(){
 	for (unsigned int i_p = 0; i_p < t_players.size(); i_p++)
 		result.push_back(t_players[i_p].first);
 	return result;
+}
+
+unsigned int TicTacToe::minPlayersNumber(){
+    return 2;
+}
+
+unsigned int TicTacToe::maxPlayersNumber(){
+    return 2;
 }
 
 bool TicTacToe::isEnded(){
@@ -174,19 +183,19 @@ vector<Coordinates> TicTacToe::playableCoordinates(){
 }
 
 Player * TicTacToe::nextPlayer(){
-	return t_next_player;
+    return t_players[t_next_player].first;
 }
 void TicTacToe::play(Coordinates coordinates){
 	if (isPlayable(coordinates)){
 		t_last_moves.push_back(coordinates);
 		TicTacToe_Attributes p_player;
-		if (t_next_player == t_players[0].first){
+        if (t_next_player == 0){
 			p_player = t_players[0].second;
-			t_next_player = t_players[1].first;
+            t_next_player = 1;
 		}
 		else{
 			p_player = t_players[1].second;
-			t_next_player = t_players[0].first;
+            t_next_player = 0;
 		}
 		t_board->getSquare(coordinates)->delAttribute(TICTACTOE_EMPTY);
 		t_board->getSquare(coordinates)->addAttribute(p_player);
@@ -221,8 +230,16 @@ void TicTacToe::display(std::ostream & out){
 	out<<"|"<<std::endl;
 }
 
-string TicTacToe::getName(){
-	return string("TicTacToe");
+QString TicTacToe::getType(){
+    return "TicTacToe";
+}
+
+QFrame * TicTacToe::getParameterFrame(){
+    return NULL;
+}
+
+void TicTacToe::changePlayer(unsigned int number, Player * player){
+    t_players[number].first=player;
 }
 
 /*****************************************************Patterns****************************************************************/

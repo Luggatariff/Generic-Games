@@ -28,10 +28,14 @@ enum TicTacToe_Attributes{
  * \brief class representing a TicTacToe Game
  */
 class TicTacToe: public Game{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "Generic-Games.Game" FILE "")
+    Q_INTERFACES(Game)
+
 	Board<TicTacToe_Attributes> * t_board;					/*!<TicTacToe Game Board*/
 	vector<pair<Player *, TicTacToe_Attributes> > t_players;/*!<TicTacToe Players */
-	Player * t_next_player;									/*!<next Player*/
-	vector<Coordinates> t_last_moves;							/*!<last moves played*/
+    unsigned int t_next_player;								/*!<next Player*/
+    vector<Coordinates> t_last_moves;						/*!<last moves played*/
 
 	/*!
 	 * \brief count the Incomplete victory Patterns for the given Player. With two of them, victory is almost guaranted.
@@ -43,11 +47,13 @@ public:
 	 * \param player_one : First Player
 	 * \param player_two : Second Player
 	 */
-	TicTacToe(Player * player_one, Player * player_two);
+    TicTacToe();
 	~TicTacToe();
 	Game * copy();
 
-	vector<Player *> players();
+    vector<Player *> players();
+    unsigned int minPlayersNumber();
+    unsigned int maxPlayersNumber();
 
 	bool isEnded();
 	bool isWon();
@@ -68,7 +74,11 @@ public:
 
 	void display(std::ostream & out);
 
-	string getName();
+    QString getType();
+    QFrame * getParameterFrame();
+
+public slots:
+    void changePlayer(unsigned int number, Player * player);
 };
 
 /*!
