@@ -22,7 +22,7 @@ class Human: public Player{
 
     QFrame * hu_parameter_frame;    /*!<Parameter frame*/
     QLineEdit * hu_name_line_edit;  /*!<line edit for name*/
-    QSpinBox * hu_team_spin_box;  /*!<line edit for team*/
+    QSpinBox * hu_team_spin_box;    /*!<spin box for team*/
 public:
 	/*!
 	 * \brief Human constructor

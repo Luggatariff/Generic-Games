@@ -10,15 +10,58 @@
 #include <ctime>
 #include <algorithm>
 
-IA::IA(string name, unsigned int team_id, unsigned int level, unsigned int max_free_choices, bool display_messages, bool display_tree){
-	ia_name = name;
-	ia_team = team_id;
+IA::IA(){
+    ia_parameter_frame=new QFrame();
 
-	ia_level = level;
-	ia_max_free_choices = max_free_choices;
+    ia_name_line_edit=new QLineEdit("ia", ia_parameter_frame);
+
+    ia_team_spin_box=new QSpinBox(ia_parameter_frame);
+    ia_team_spin_box->setMinimum(0);
+    ia_team_spin_box->setMaximum(10);
+
+    ia_level_spin_box=new QSpinBox(ia_parameter_frame);
+    ia_level_spin_box->setMinimum(0);
+    ia_level_spin_box->setMaximum(10);
+
+    ia_max_free_choices_spin_box=new QSpinBox(ia_parameter_frame);
+    ia_max_free_choices_spin_box->setMinimum(0);
+    ia_max_free_choices_spin_box->setMaximum(100);
+
+    ia_display_tree_check_box=new QCheckBox(ia_parameter_frame);
+    ia_display_tree_check_box->setTristate(false);
+    ia_display_tree_check_box->setCheckState(Qt::Unchecked);
+
+    ia_display_messages_check_box=new QCheckBox(ia_parameter_frame);
+    ia_display_messages_check_box->setTristate(false);
+    ia_display_messages_check_box->setCheckState(Qt::Unchecked);
+
 	ia_tree = NULL;
-	ia_display_tree = display_tree;
-	ia_display_messages = display_messages;
+}
+
+IA::~IA(){
+    delete ia_display_messages_check_box;
+    delete ia_display_tree_check_box;
+    delete ia_level_spin_box;
+    delete ia_max_free_choices_spin_box;
+    delete ia_name_line_edit;
+    delete ia_parameter_frame;
+    delete ia_team_spin_box;
+}
+
+unsigned int IA::ia_level(){
+    return (unsigned int)ia_level_spin_box->value();
+}
+
+unsigned int IA::ia_max_free_choices(){
+    return (unsigned int)ia_max_free_choices_spin_box->value();
+}
+
+bool IA::ia_display_tree(){
+    return ((ia_display_tree_check_box->checkState() == Qt::Checked));
+}
+
+bool IA::ia_display_messages(){
+    return ((ia_display_messages_check_box->checkState() == Qt::Checked));
 }
 
 void IA::start(Game * game){
@@ -40,7 +83,7 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 
 	map<Coordinates, IATree *> choices;
 
-	if (ia_tree != NULL && ia_max_free_choices == 0){
+    if (ia_tree != NULL && ia_max_free_choices() == 0){
 		vector<Coordinates> game_last_moves = game->lastMoves();
 		vector<Coordinates> each_player_last_move;
 		for (unsigned int i_p = game_last_moves.size() - (game->players().size() - 1); i_p < game_last_moves.size(); i_p++){
@@ -74,10 +117,10 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 	}
 
 	unsigned int level=choices.begin()->second->level()+1;
-	unsigned int max_level = ia_level;
+    unsigned int max_level = ia_level();
 	int victory_score = game->victoryScore();
 
-	if (ia_display_messages)
+    if (ia_display_messages())
 		cout<<"Thinking.."<<endl;
 	while(choices.size() > 1 && level <= max_level){
 		bool compute_occured=false;
@@ -88,7 +131,7 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 		map<Coordinates, IATree *>::iterator choices_iterator = choices.begin();
 		advance(choices_iterator, *random_indexes_iterator);
 
-		if (!choices_iterator->second->isDefinitve() && choices_iterator->second->populate(level, ia_max_free_choices)){
+        if (!choices_iterator->second->isDefinitve() && choices_iterator->second->populate(level, ia_max_free_choices())){
 			compute_occured=true;
 			choices_iterator->second->compute();
 		}
@@ -99,7 +142,7 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 				choices_iterator = choices.begin();
 				advance(choices_iterator, *random_indexes_iterator);
 
-				if (!choices_iterator->second->isDefinitve() && choices_iterator->second->populate(level, ia_max_free_choices)){
+                if (!choices_iterator->second->isDefinitve() && choices_iterator->second->populate(level, ia_max_free_choices())){
 					compute_occured=true;
 					choices_iterator->second->compute();
 				}
@@ -129,7 +172,7 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 		if (!compute_occured)
 			break;
 
-		if (ia_display_messages)
+        if (ia_display_messages())
 			cout<<level<<" Step(s) forward."<<endl;
 
 		if (best_choice_score->value() == victory_score || best_choice_score->value() == -victory_score)
@@ -137,7 +180,7 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 
 		level++;
 	}
-	if (ia_display_messages)
+    if (ia_display_messages())
 		cout<<"Done!"<<endl;
 
 	map<Coordinates, IATree *>::iterator choice = choices.begin();
@@ -156,24 +199,37 @@ Coordinates IA::play(Game * game , vector<Coordinates> limit_choices){
 		delete choices_iterator->second;
 	}
 
-	if (ia_display_messages){
+    if (ia_display_messages()){
 		cout<<"IA chose:";
 		for (unsigned int dim = 0; dim < game->dimension(); dim++)
 			cout<<result[dim]<<" ";
 		cout<<endl;
 	}
 
-	if (ia_display_tree){
+    if (ia_display_tree()){
 		ia_tree->display();
 	}
 
 	return result;
 }
 
-string IA::getName(){
-	return ia_name;
+QString IA::getName(){
+    return ia_name_line_edit->text();
 }
 
 unsigned int IA::getTeam(){
-	return ia_team;
+    return (unsigned int)ia_team_spin_box->value();
+}
+
+QString IA::getType(){
+    return "IA";
+}
+
+Player * IA::createInstance(){
+    IA * result = new IA();
+    return result;
+}
+
+QFrame * IA::getParameterFrame(){
+    return ia_parameter_frame;
 }

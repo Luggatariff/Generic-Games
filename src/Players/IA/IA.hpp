@@ -9,32 +9,51 @@
 
 #include "../Player.hpp"
 #include "IATree.hpp"
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QCheckBox>
 
 /*!
  * \class IA
  * \brief this class represents a Artificial Intelligence player
  */
 class IA: public Player{
-	string ia_name;							/*!<Player name*/
-	unsigned int ia_team;					/*!<Team id*/
-	unsigned int ia_level;					/*!<IA level of thinking*/
-	unsigned int ia_max_free_choices;		/*!<Define the number of free choices let to the IA*/
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "Generic-Games.Player" FILE "")
+    Q_INTERFACES(Player)
+
+    QFrame * ia_parameter_frame;    /*!<Parameter frame*/
+    QLineEdit * ia_name_line_edit;  /*!<line edit for name*/
+    QSpinBox * ia_team_spin_box;    /*!<spin box for team*/
+    QSpinBox * ia_level_spin_box;   /*!<spin box for level*/
+    QSpinBox * ia_max_free_choices_spin_box;   /*!<spin box for free choices let to the IA*/
+    QCheckBox * ia_display_tree_check_box;     /*!<check box for IATree display*/
+    QCheckBox * ia_display_messages_check_box; /*!<check box for messages display*/
+
 	IATree * ia_tree;						/*!<IA Choice Tree*/
-	bool ia_display_tree;					/*!<indicates if IA must display the choice Tree (debug)*/
-	bool ia_display_messages;				/*!<indicates if IA must display flags*/
+
+    inline unsigned int ia_level();
+    inline unsigned int ia_max_free_choices();
+    inline bool ia_display_tree();
+    inline bool ia_display_messages();
 public:
 	/*!
 	 * \brief IA constructor
 	 * \param level : IA thinking level
 	 * \param display_tree : indicates if IA must display the choice Tree (debug)
 	 */
-	IA(string name, unsigned int team_id, unsigned int level, unsigned int max_free_choices=0, bool display_messages=true, bool display_tree = false);
+    IA();
+
+    ~IA();
 
 	void start(Game * game);
 	void end(Game * game);
 	Coordinates play(Game * game, vector<Coordinates> limit_choices = vector<Coordinates>());
-	string getName();
+    QString getName();
 	unsigned int getTeam();
+    QString getType();
+    Player * createInstance();
+    QFrame * getParameterFrame();
 };
 
 #endif
