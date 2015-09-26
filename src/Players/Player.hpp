@@ -7,7 +7,10 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
-#include <string>
+#include <QtPlugin>
+#include <QFrame>
+#include <QString>
+
 #include "../Model/Coordinates.hpp"
 
 /*!
@@ -19,7 +22,7 @@ class Game;
  * \class Player
  * \brief class describing a Game Player (either Artificial Intelligence or Human Player)
  */
-class Player{
+class Player : public QObject{
 public:
 	/*!
 	 * \brief informs the Player that a new Game is about to start
@@ -44,7 +47,7 @@ public:
 	 * \brief virtual function returning the name set for the Player
 	 * \return Player name
 	 */
-	virtual string getName() = 0;
+    virtual QString getName() = 0;
 
 	/*!
 	 * \brief gets the Team id of the Player
@@ -52,10 +55,28 @@ public:
 	 */
 	virtual unsigned int getTeam() = 0;
 
+    /*!
+     * \brief gets the Type of Player (Human, IA...)
+     * \return the current class name
+     */
+    virtual QString getType() = 0;
+
+    /*!
+    * \brief gets a clean Player instance
+    * \return Player instance
+    */
+    virtual Player * createInstance() = 0;
+
+    /*!
+     * \brief gets the Parameter frame for current Player
+     * \return a pointer to displayable Frame
+     */
+    virtual QFrame * getParameterFrame() = 0;
+
 	/*!
 	 * \brief virtual destructor for Player
 	 */
-	virtual ~Player(){};
+    virtual ~Player(){}
 };
 
 #include "../Games/Game.hpp"
