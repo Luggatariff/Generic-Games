@@ -7,15 +7,16 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include <iostream>
-#include <string>
+#include <QtPlugin>
+#include <QFrame>
+#include <QString>
 #include "../Players/Player.hpp"
 
 /*!
  * \class Game
  * \brief class representing a Game, its number of Player, Coordinates to play, display and ways to know if it ended
  */
-class Game{
+class Game : public QObject{
 public:
 	/*!
 	 * \brief gets the Players list
@@ -103,7 +104,7 @@ public:
 	 * \brief virtual function returning the name of the Game (can be dependant of its contructor parameters)
 	 * \return Game name
 	 */
-	virtual string getName() = 0;
+    virtual QString getName() = 0;
 
 	/*!
 	 * \brief deep copy for a Game
@@ -128,5 +129,7 @@ public:
      */
     virtual ~Game(){}
 };
+
+Q_DECLARE_INTERFACE(Game, "Generic-Games.Game")
 
 #endif
