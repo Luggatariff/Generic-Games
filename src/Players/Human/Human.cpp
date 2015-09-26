@@ -7,18 +7,25 @@
 #include "Human.hpp"
 #include "../../Model/Coordinates.hpp"
 #include <algorithm>
+#include <QFormLayout>
 
 Human::Human(){
     hu_parameter_frame=new QFrame();
+
+    QFormLayout * form_layout = new QFormLayout(hu_parameter_frame);
+    hu_parameter_frame->setLayout(form_layout);
+
     hu_name_line_edit=new QLineEdit("human", hu_parameter_frame);
+    form_layout->addRow("Player Name :", hu_name_line_edit);
+
     hu_team_spin_box=new QSpinBox(hu_parameter_frame);
+    form_layout->addRow("Player Team Id :", hu_team_spin_box);
+
     hu_team_spin_box->setMinimum(0);
     hu_team_spin_box->setMaximum(10);
 }
 
 Human::~Human(){
-    delete hu_name_line_edit;
-    delete hu_team_spin_box;
     delete hu_parameter_frame;
 }
 

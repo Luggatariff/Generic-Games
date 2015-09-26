@@ -9,29 +9,39 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+#include <QFormLayout>
 
 IA::IA(){
     ia_parameter_frame=new QFrame();
 
+    QFormLayout * form_layout = new QFormLayout(ia_parameter_frame);
+    ia_parameter_frame->setLayout(form_layout);
+
     ia_name_line_edit=new QLineEdit("ia", ia_parameter_frame);
+    form_layout->addRow("Player Name :", ia_name_line_edit);
 
     ia_team_spin_box=new QSpinBox(ia_parameter_frame);
+    form_layout->addRow("Player Team Id :", ia_team_spin_box);
     ia_team_spin_box->setMinimum(0);
     ia_team_spin_box->setMaximum(10);
 
     ia_level_spin_box=new QSpinBox(ia_parameter_frame);
+    form_layout->addRow("IA Level :", ia_level_spin_box);
     ia_level_spin_box->setMinimum(0);
     ia_level_spin_box->setMaximum(10);
 
     ia_max_free_choices_spin_box=new QSpinBox(ia_parameter_frame);
+    form_layout->addRow("IA Max Free Choices (0=no limit):", ia_max_free_choices_spin_box);
     ia_max_free_choices_spin_box->setMinimum(0);
     ia_max_free_choices_spin_box->setMaximum(100);
 
     ia_display_tree_check_box=new QCheckBox(ia_parameter_frame);
+    form_layout->addRow("IA Display Choice Tree:", ia_display_tree_check_box);
     ia_display_tree_check_box->setTristate(false);
     ia_display_tree_check_box->setCheckState(Qt::Unchecked);
 
     ia_display_messages_check_box=new QCheckBox(ia_parameter_frame);
+    form_layout->addRow("IA Display Messages:", ia_display_messages_check_box);
     ia_display_messages_check_box->setTristate(false);
     ia_display_messages_check_box->setCheckState(Qt::Unchecked);
 
@@ -39,13 +49,7 @@ IA::IA(){
 }
 
 IA::~IA(){
-    delete ia_display_messages_check_box;
-    delete ia_display_tree_check_box;
-    delete ia_level_spin_box;
-    delete ia_max_free_choices_spin_box;
-    delete ia_name_line_edit;
     delete ia_parameter_frame;
-    delete ia_team_spin_box;
 }
 
 unsigned int IA::ia_level(){

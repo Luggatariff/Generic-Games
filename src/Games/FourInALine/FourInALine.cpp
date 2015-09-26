@@ -151,7 +151,7 @@ unsigned int FourInALine::dimension(){
 bool FourInALine::isPlayable(Coordinates coordinates){
 	if (isEnded()) return false;
 
-	if (coordinates[0] < 0 && coordinates[0] >= FOURINALINE_WIDTH)
+    if (coordinates[0] >= FOURINALINE_WIDTH)
 		return false;
 
 	Coordinates highest_square(2);

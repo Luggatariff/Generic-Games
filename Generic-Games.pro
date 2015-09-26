@@ -14,9 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    src/Players/IA/IA.cpp \
-    src/Players/IA/IATree.cpp \
-    src/Players/Learner/Learner.cpp \
     src/Model/Coordinates.cpp \
     src/Games/Chess/Chess.cpp \
     src/Games/Draughts/Draughts.cpp \
@@ -39,7 +36,6 @@ HEADERS  += mainwindow.h \
     src/Games/TicTacToe/TicTacToe.hpp \
     lib/sqlite-amalgamation-3081001/sqlite3.h \
     lib/sqlite-amalgamation-3081001/sqlite3ext.h \
-    src/Parameters/parameter.hpp \
     src/pluginloader.hpp
 
 FORMS    += mainwindow.ui

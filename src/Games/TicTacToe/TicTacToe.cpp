@@ -152,7 +152,7 @@ bool TicTacToe::isPlayable(Coordinates coordinates){
 
 	bool is_in_board = true;
 	for (unsigned int dim = 0; dim < this->dimension(); dim++){
-		is_in_board = (coordinates[dim] >= 0 && coordinates[dim] < TICTACTOE_WIDTH);
+        is_in_board = (coordinates[dim] < TICTACTOE_WIDTH);
 		if (!is_in_board)
 			return false;
 	}

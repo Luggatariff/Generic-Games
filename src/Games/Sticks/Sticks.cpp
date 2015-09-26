@@ -84,7 +84,7 @@ unsigned int Sticks::dimension(){
 bool Sticks::isPlayable(Coordinates coordinates){
 	if (isEnded()) return false;
 
-	if (coordinates[0] < 0 || (coordinates[0] + (coordinates[1] -1)) >= t_max_sticks_number  || coordinates[1] <= 0 || coordinates[2] > STICKS_MAX_AT_ONCE)
+    if ((coordinates[0] + (coordinates[1] -1)) >= t_max_sticks_number  || coordinates[1] <= 0 || coordinates[2] > STICKS_MAX_AT_ONCE)
 		return false;
 
 	Coordinates stick(1);
