@@ -79,6 +79,8 @@ public:
     virtual ~Player(){}
 };
 
+Q_DECLARE_INTERFACE(Player, "Generic-Games.Player")
+
 #include "../Games/Game.hpp"
 
 #endif

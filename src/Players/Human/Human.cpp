@@ -5,15 +5,25 @@
  */
 
 #include "Human.hpp"
+#include "../../Model/Coordinates.hpp"
 #include <algorithm>
 
-Human::Human(string name, unsigned int team_id){
-	hu_name=name;
-	hu_team=team_id;
+Human::Human(){
+    hu_parameter_frame=new QFrame();
+    hu_name_line_edit=new QLineEdit("human", hu_parameter_frame);
+    hu_team_spin_box=new QSpinBox(hu_parameter_frame);
+    hu_team_spin_box->setMinimum(0);
+    hu_team_spin_box->setMaximum(10);
+}
+
+Human::~Human(){
+    delete hu_name_line_edit;
+    delete hu_team_spin_box;
+    delete hu_parameter_frame;
 }
 
 void Human::start(Game * game){
-	cout<<"Starting new Game..."<<endl;
+    cout<<"Starting new Game:"<<game->getName()<<endl;
 }
 
 void Human::end(Game * game){
@@ -45,10 +55,23 @@ Coordinates Human::play(Game * game, vector<Coordinates> limit_choices){
 	return result;
 }
 
-string Human::getName(){
-	return hu_name;
+QString Human::getName(){
+    return this->hu_name_line_edit->text();
 }
 
 unsigned int Human::getTeam(){
-	return hu_team;
+    return (unsigned int)this->hu_team_spin_box->value();
+}
+
+QString Human::getType(){
+    return "Human";
+}
+
+Player * Human::createInstance(){
+    Human * result = new Human();
+    return (Player *)result;
+}
+
+QFrame * Human::getParameterFrame(){
+    return hu_parameter_frame;
 }

@@ -14,7 +14,6 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    src/Players/Human/Human.cpp \
     src/Players/IA/IA.cpp \
     src/Players/IA/IATree.cpp \
     src/Players/Learner/Learner.cpp \
@@ -28,10 +27,6 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     src/Players/Player.hpp \
-    src/Players/Human/Human.hpp \
-    src/Players/IA/IA.hpp \
-    src/Players/IA/IATree.hpp \
-    src/Players/Learner/Learner.hpp \
     src/Model/Board.hpp \
     src/Model/Coordinates.hpp \
     src/Model/Pattern.hpp \

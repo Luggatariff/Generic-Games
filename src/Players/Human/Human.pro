@@ -1,28 +1,28 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2015-09-16T17:21:25
+# Project created by QtCreator 2015-09-26T14:40:49
 #
 #-------------------------------------------------
 
 QT       += core gui
 QT       += widgets
 
-TARGET = BooleanParameter
+TARGET = Human
 TEMPLATE = lib
 CONFIG += plugin
 
 DESTDIR = .
 
-SOURCES += \
-    booleanparameter.cpp
+SOURCES += Human.cpp \
+    ../../Model/Coordinates.cpp
 
-HEADERS += \
-    ../parameter.hpp \
-    booloeanparameter.hpp
+HEADERS += Human.hpp \
+    ../Player.hpp \
+    ../../Games/Game.hpp \
+    ../../Model/Coordinates.hpp
+DISTFILES +=
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
-
-DISTFILES +=
