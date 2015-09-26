@@ -13,29 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    src/Model/Coordinates.cpp \
-    src/Games/Chess/Chess.cpp \
-    src/Games/Draughts/Draughts.cpp \
-    src/Games/FourInALine/FourInALine.cpp \
-    src/Games/Sticks/Sticks.cpp \
-    src/Games/TicTacToe/TicTacToe.cpp \
-    lib/sqlite-amalgamation-3081001/sqlite3.c
+        mainwindow.cpp
 
 HEADERS  += mainwindow.h \
     src/Players/Player.hpp \
-    src/Model/Board.hpp \
-    src/Model/Coordinates.hpp \
-    src/Model/Pattern.hpp \
-    src/Model/Square.hpp \
     src/Games/Game.hpp \
-    src/Games/Chess/Chess.hpp \
-    src/Games/Draughts/Draughts.hpp \
-    src/Games/FourInALine/FourInALine.hpp \
-    src/Games/Sticks/Sticks.hpp \
-    src/Games/TicTacToe/TicTacToe.hpp \
-    lib/sqlite-amalgamation-3081001/sqlite3.h \
-    lib/sqlite-amalgamation-3081001/sqlite3ext.h \
     src/pluginloader.hpp
 
 FORMS    += mainwindow.ui
