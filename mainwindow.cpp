@@ -8,14 +8,13 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    ui->setupUi(this);
     QList<Game *> game_list = PluginLoader::pluginByDir<Game>(qApp->applicationDirPath() + "/plugins/");
     QList<Game *>::iterator game_list_it;
 
     for (game_list_it=game_list.begin(); game_list_it!=game_list.end(); game_list_it++){
-        this->ui->menuGeneric_Games->addMenu((*game_list_it)->getName());
+        this->ui->menuGeneric_Games->addAction((*game_list_it)->getType());
     }
-
-    ui->setupUi(this);
 }
 
 MainWindow::~MainWindow()
