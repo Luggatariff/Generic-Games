@@ -22,7 +22,19 @@ public:
 	 * \brief gets the Players list
 	 * \return a list of Players and their number
 	 */
-	virtual vector<Player *> players() = 0;
+    virtual vector<Player *> players() = 0;
+
+    /*!
+     * \brief gets the minimal number of Players for a Game
+     * \return a number of Players
+     */
+    virtual unsigned int minPlayersNumber()=0;
+
+    /*!
+     * \brief gets the maximal number of Players for a Game
+     * \return a number of Players
+     */
+    virtual unsigned int maxPlayersNumber()=0;
 
 	/*!
 	 * \brief allows to know if the Game has ended
@@ -101,12 +113,6 @@ public:
 	virtual void display(std::ostream & out = std::cout) = 0;
 
 	/*!
-	 * \brief virtual function returning the name of the Game (can be dependant of its contructor parameters)
-	 * \return Game name
-	 */
-    virtual QString getName() = 0;
-
-	/*!
 	 * \brief deep copy for a Game
 	 * \return new pointer with source Game copy
 	 */
@@ -128,6 +134,14 @@ public:
      * \brief virtual Game destructor
      */
     virtual ~Game(){}
+
+public slots:
+    /*!
+     * \brief slot for changing Player
+     * \param number : index of the modified player
+     * \param player : pointer to new Player
+     */
+    virtual void changePlayer(unsigned int number, Player * player) = 0;
 };
 
 Q_DECLARE_INTERFACE(Game, "Generic-Games.Game")
