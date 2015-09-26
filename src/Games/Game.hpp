@@ -110,10 +110,23 @@ public:
 	 * \return new pointer with source Game copy
 	 */
 	virtual Game * copy() = 0;
-	/*!
-	 * \brief virtual Game destructor
-	 */
-	virtual ~Game(){};
+
+    /*!
+     * \brief gets the Type of Game (Chess, TicTacToe...)
+     * \return the current class name
+     */
+    virtual QString getType() = 0;
+
+    /*!
+     * \brief gets the Parameter frame for current Game
+     * \return a pointer to displayable Frame
+     */
+    virtual QFrame * getParameterFrame() = 0;
+
+    /*!
+     * \brief virtual Game destructor
+     */
+    virtual ~Game(){}
 };
 
 #endif
