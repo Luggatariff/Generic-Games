@@ -12,10 +12,11 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-    vector<QMenu *> mw_menu_list; /*!<Dynamically added Menu list*/
-    QMenu * mw_game_menu;         /*!<Generic Games menu*/
-    vector<QFrame *> mw_dynamic_parameter_frame_list;   /*<Dynamically added Parameter Frames list*/
+    vector<QMenu *> mw_menu_list;                       /*!<Dynamically added Menu list*/
+    vector<QFrame *> mw_dynamic_parameter_frame_list;   /*!<Dynamically added Parameter Frames list*/
 
+    inline void update_menu_bar();
+    inline void update_dynamic_parameter_pane();
 public:
     explicit MainWindow(QWidget *parent = 0);
 
@@ -59,9 +60,8 @@ public:
      * \brief displays a blocking Parameter window
      * \param title : window title
      * \param parameter_frame : pointer to Parameter Frame
-     * \return true if user has clicked OK, false otherwise
      */
-    bool displayBlockingParameterWindow(QString title, QFrame * parameter_frame);
+     void displayBlockingParameterWindow(QString title, QFrame * parameter_frame);
 
     /*!
      * \brief adds a Dynamic Parameter Frame to the window
