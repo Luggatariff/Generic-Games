@@ -6,14 +6,72 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>1075</width>
+    <height>542</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QScrollArea" name="dynamicParameterFramesArea">
+    <property name="geometry">
+     <rect>
+      <x>-1</x>
+      <y>-1</y>
+      <width>241</width>
+      <height>511</height>
+     </rect>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>239</width>
+       <height>509</height>
+      </rect>
+     </property>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>241</width>
+        <height>511</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="dynamicParameterFramesAreaLayout"/>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QScrollArea" name="mainArea">
+    <property name="geometry">
+     <rect>
+      <x>239</x>
+      <y>-1</y>
+      <width>841</width>
+      <height>511</height>
+     </rect>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="scrollAreaWidgetContents_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>839</width>
+       <height>509</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+  </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
@@ -22,13 +80,12 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>400</width>
+     <width>1075</width>
      <height>21</height>
     </rect>
    </property>
