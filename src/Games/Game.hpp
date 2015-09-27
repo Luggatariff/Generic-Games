@@ -25,16 +25,10 @@ public:
     virtual vector<Player *> players() = 0;
 
     /*!
-     * \brief gets the minimal number of Players for a Game
+     * \brief gets the number of Players for a Game
      * \return a number of Players
      */
-    virtual unsigned int minPlayersNumber()=0;
-
-    /*!
-     * \brief gets the maximal number of Players for a Game
-     * \return a number of Players
-     */
-    virtual unsigned int maxPlayersNumber()=0;
+    virtual unsigned int playersNumber()=0;
 
 	/*!
 	 * \brief allows to know if the Game has ended
@@ -107,10 +101,9 @@ public:
 	virtual vector<Coordinates> lastMoves() = 0;
 
 	/*!
-	 * \brief displays the Game on the given stream
-	 * \param out : stream where the Game has to be displayed
+     * \brief gets a pointer to the Game display
 	 */
-	virtual void display(std::ostream & out = std::cout) = 0;
+    QFrame * display() = 0;
 
 	/*!
 	 * \brief deep copy for a Game
