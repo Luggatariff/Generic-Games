@@ -34,7 +34,7 @@ public:
      * \brief removes thhe menu at the given index
      * \param index : Menu index
      */
-    void removeMenu(unsigned int menu_index);
+    void removeMenu(unsigned int index);
 
     /*!
      * \brief gets the total number of menus

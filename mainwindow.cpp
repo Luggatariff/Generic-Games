@@ -90,6 +90,7 @@ void MainWindow::addDynamicParameterFrame(unsigned int index, QString title, QFr
     if (mw_dynamic_parameter_frame_list[index] != NULL){
         removeDynamicParameterFrame(index);
     }
+    parameter_frame->setWindowIconText(title);
     mw_dynamic_parameter_frame_list[index]=parameter_frame;
     update_dynamic_parameter_pane();
 }
