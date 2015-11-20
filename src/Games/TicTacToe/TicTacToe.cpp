@@ -37,11 +37,7 @@ vector<Player *> TicTacToe::players(){
 	return result;
 }
 
-unsigned int TicTacToe::minPlayersNumber(){
-    return 2;
-}
-
-unsigned int TicTacToe::maxPlayersNumber(){
+unsigned int TicTacToe::playersNumber(){
     return 2;
 }
 
@@ -205,7 +201,7 @@ vector<Coordinates> TicTacToe::lastMoves(){
 	return this->t_last_moves;
 }
 
-void TicTacToe::display(std::ostream & out){
+void TicTacToe::shellDisplay(std::ostream & out){
 	out<<" ";
 	for(int column=0; column<TICTACTOE_WIDTH; column++)
 		out<<"|"<<column;
@@ -228,6 +224,10 @@ void TicTacToe::display(std::ostream & out){
 	for(int column=0; column<TICTACTOE_WIDTH; column++)
 		out<<"|-";
 	out<<"|"<<std::endl;
+}
+
+QFrame * TicTacToe::display(){
+    return NULL;
 }
 
 QString TicTacToe::getType(){

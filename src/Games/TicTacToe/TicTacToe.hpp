@@ -52,8 +52,7 @@ public:
 	Game * copy();
 
     vector<Player *> players();
-    unsigned int minPlayersNumber();
-    unsigned int maxPlayersNumber();
+    unsigned int playersNumber();
 
 	bool isEnded();
 	bool isWon();
@@ -72,7 +71,8 @@ public:
 	void play(Coordinates coordinates);
 	vector<Coordinates> lastMoves();
 
-	void display(std::ostream & out);
+    void shellDisplay(std::ostream & out);
+    QFrame * display();
 
     QString getType();
     QFrame * getParameterFrame();
