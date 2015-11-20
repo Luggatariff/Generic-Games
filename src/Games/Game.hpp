@@ -103,7 +103,7 @@ public:
 	/*!
      * \brief gets a pointer to the Game display
 	 */
-    QFrame * display() = 0;
+    virtual QFrame * display() = 0;
 
 	/*!
 	 * \brief deep copy for a Game

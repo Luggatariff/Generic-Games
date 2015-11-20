@@ -69,6 +69,17 @@
        <height>509</height>
       </rect>
      </property>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>-1</x>
+        <y>-1</y>
+        <width>841</width>
+        <height>511</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="mainAreaLayout"/>
+     </widget>
     </widget>
    </widget>
   </widget>

@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include <src/Players/Player.hpp>
+#include <QApplication>
 
 #define UNDEFINED_TYPE "UNDEFINED"
 
