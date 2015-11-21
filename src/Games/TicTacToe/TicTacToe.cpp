@@ -15,9 +15,27 @@ TicTacToe::TicTacToe(){
     this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(NULL, TICTACTOE_CROSS));
     this->t_players.push_back(pair<Player *, TicTacToe_Attributes>(NULL, TICTACTOE_ROUND));
     this->t_next_player = 0;
+
+    t_display_frame = new QFrame();
+    t_display_layout = new QGridLayout(t_display_frame);
+    t_display_frame->setLayout(t_display_layout);
+    t_signal_mapper = new QSignalMapper();
+    if (TICTACTOE_DIMENSION == 2){
+        Coordinates square(2);
+        for (square[0] = 0; square[0] <= TICTACTOE_WIDTH; square[0]++){
+            for (square[1] = 0; square[1] <= TICTACTOE_WIDTH; square[1]++){
+                QLabel * squareLabel = new QLabel();
+                t_display_layout->addItem(squareLabel, square[0], square[1]);
+                //*TODO
+            }
+        }
+    }
 }
 
 TicTacToe::~TicTacToe(){
+    delete t_display_layout;
+    delete t_display_frame;
+    delete t_signal_mapper;
 	delete t_board;
 }
 
@@ -234,12 +252,16 @@ QString TicTacToe::getType(){
     return "TicTacToe";
 }
 
-QFrame * TicTacToe::getParameterFrame(){
-    return NULL;
+QList<QPair<QLabel *, QWidget *> > TicTacToe::getParameterWidgets(){
+    return QList<QPair<QLabel *, QWidget *> >();
 }
 
 void TicTacToe::changePlayer(unsigned int number, Player * player){
     t_players[number].first=player;
+}
+
+void TicTacToe::clickedSquare(vector<Coordinates> square){
+    emit clickedMove(square);
 }
 
 /*****************************************************Patterns****************************************************************/

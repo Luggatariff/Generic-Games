@@ -13,6 +13,8 @@
 
 #include "../Game.hpp"
 #include "../../Model/Board.hpp"
+#include <QGridLayout>
+#include <QSignalMapper>
 
 /*!
  * \brief Attributes than can be found in TicTacToe Board Squares
@@ -36,6 +38,10 @@ class TicTacToe: public Game{
 	vector<pair<Player *, TicTacToe_Attributes> > t_players;/*!<TicTacToe Players */
     unsigned int t_next_player;								/*!<next Player*/
     vector<Coordinates> t_last_moves;						/*!<last moves played*/
+
+    QFrame * t_display_frame;           /*!<Display frame*/
+    QGridLayout * t_display_layout;     /*!<Display layout*/
+    QSignalMapper * t_signal_mapper;    /*!<Signal Mapper*/
 
 	/*!
 	 * \brief count the Incomplete victory Patterns for the given Player. With two of them, victory is almost guaranted.
@@ -75,10 +81,16 @@ public:
     QFrame * display();
 
     QString getType();
-    QFrame * getParameterFrame();
+    QList<QPair<QLabel *, QWidget *> > getParameterWidgets();
+
+private slots:
+    void clickedSquare(vector<Coordinates> square);
 
 public slots:
     void changePlayer(unsigned int number, Player * player);
+
+signals:
+    void clickedMove(vector<Coordinates> move);
 };
 
 /*!
