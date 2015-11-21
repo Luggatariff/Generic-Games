@@ -17,6 +17,7 @@
  * \brief class representing a Game, its number of Player, Coordinates to play, display and ways to know if it ended
  */
 class Game : public QObject{
+    Q_OBJECT
 public:
 	/*!
 	 * \brief gets the Players list
@@ -142,7 +143,7 @@ signals:
      * \brief signals a move have been clicked on the board
      * \param move : clicked coordinates
      */
-    virtual void clickedMove(vector<Coordinates> move);
+    virtual void clickedMove(vector<Coordinates> move) = 0;
 };
 
 Q_DECLARE_INTERFACE(Game, "Generic-Games.Game")
