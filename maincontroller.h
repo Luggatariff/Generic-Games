@@ -3,21 +3,28 @@
 
 #include "mainwindow.h"
 #include "mainmodel.h"
+#include <QObject>
+#include <QSignalMapper>
 
-class MainController
+class MainController : public QObject
 {
+    Q_OBJECT
+
     MainModel c_model;
     MainWindow c_window;
+    QSignalMapper * c_signalMapper;
+    QString c_lastChoseGameType;
 public:
-    MainController();
+    MainController(QObject * parent = 0);
 
     /*!
      * \brief controller initialization
      */
     void init();
-signals:
 
 public slots:
+    void gameActionClicked(QString gameType);
+    void parameterWindowValided();
 };
 
 #endif // MAINCONTROLLER_H

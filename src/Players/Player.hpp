@@ -10,6 +10,7 @@
 #include <QtPlugin>
 #include <QFrame>
 #include <QString>
+#include <QLabel>
 
 #include "../Model/Coordinates.hpp"
 
@@ -68,10 +69,10 @@ public:
     virtual Player * createInstance() = 0;
 
     /*!
-     * \brief gets the Parameter frame for current Player
-     * \return a pointer to displayable Frame
+     * \brief gets the Parameter widgets associated a Label for current Player
+     * \return a list of pointers to displayable widgets
      */
-    virtual QFrame * getParameterFrame() = 0;
+    virtual QList<QPair<QLabel *, QWidget *> > getParameterWidgets() = 0;
 
 	/*!
 	 * \brief virtual destructor for Player

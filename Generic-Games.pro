@@ -24,4 +24,5 @@ HEADERS  += mainwindow.h \
     mainmodel.h \
     maincontroller.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    parameterdialog.ui

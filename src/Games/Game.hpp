@@ -118,10 +118,10 @@ public:
     virtual QString getType() = 0;
 
     /*!
-     * \brief gets the Parameter frame for current Game
-     * \return a pointer to displayable Frame
+     * \brief gets the Parameter widget associated to a Label for current Game
+     * \return a list of displayable widgets
      */
-    virtual QFrame * getParameterFrame() = 0;
+    virtual QList<QPair<QLabel *, QWidget *> > getParameterWidgets() = 0;
 
     /*!
      * \brief virtual Game destructor
@@ -135,6 +135,14 @@ public slots:
      * \param player : pointer to new Player
      */
     virtual void changePlayer(unsigned int number, Player * player) = 0;
+
+signals:
+
+    /*!
+     * \brief signals a move have been clicked on the board
+     * \param move : clicked coordinates
+     */
+    virtual void clickedMove(vector<Coordinates> move);
 };
 
 Q_DECLARE_INTERFACE(Game, "Generic-Games.Game")

@@ -17,11 +17,11 @@ public:
     MainModel();
 
     /*!
-     * \brief gets a Game type Parameter frame
+     * \brief gets a Game type Parameter widget list
      * \param type : Game type
-     * \return Parameter Frame
+     * \return Parameter widget list
      */
-    QFrame * getGameParameterFrame(QString type);
+    QList<QPair<QLabel *, QWidget *> > getGameParameterWidgetList(QString type);
 
     /*!
      * \brief gets current Game display Frame
@@ -36,11 +36,11 @@ public:
     QList<QString> getAvailableGameTypes();
 
     /*!
-     * \brief gets a Player Parameter Frame
+     * \brief gets a Player widget list
      * \param index : Player Number
-     * \return Parameter Frame
+     * \return Parameter widget list
      */
-    QFrame * getPlayerParameterFrame(unsigned int index);
+    QList<QPair<QLabel *, QWidget *> > getPlayerParameterWidgetList(unsigned int index);
 
     /*!
      * \brief gets a Player type

@@ -2,11 +2,27 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDialog>
 #include "mainmodel.h"
 
 namespace Ui {
 class MainWindow;
+class Dialog;
 }
+
+class MainController;
+
+class ParameterDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit ParameterDialog(QWidget *parent = 0);
+    ~ParameterDialog();
+    Ui::Dialog * getUi();
+private:
+    Ui::Dialog *ui;
+};
 
 class MainWindow : public QMainWindow
 {
@@ -17,8 +33,9 @@ class MainWindow : public QMainWindow
 
     inline void update_menu_bar();
     inline void update_dynamic_parameter_pane();
+    inline void clear_layout(QLayout * layout);
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = 0, MainController *controller = NULL);
 
     ~MainWindow();
 
@@ -59,17 +76,17 @@ public:
     /*!
      * \brief displays a blocking Parameter window
      * \param title : window title
-     * \param parameter_frame : pointer to Parameter Frame
+     * \param parameter_widgets : pointers to parameter widgets
      */
-     void displayBlockingParameterWindow(QString title, QFrame * parameter_frame);
+     void displayBlockingParameterWindow(QString title, QList<QPair<QLabel *, QWidget *> > parameter_widgets);
 
     /*!
      * \brief adds a Dynamic Parameter Frame to the window
      * \param index : index where to add the frame
      * \param title : frame title
-     * \param parameter_frame : pointer to Frame
+     * \param parameter_widgets : pointers to parameter widgets
      */
-    void addDynamicParameterFrame(unsigned int index, QString title, QFrame * parameter_frame);
+    void addDynamicParameterFrame(unsigned int index, QString title, QList<QPair<QLabel *, QWidget *> > parameter_widgets);
 
     /*!
      * \brief removes the Frame to the given index
@@ -91,6 +108,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    ParameterDialog mw_parameter_dialog;
 };
 
 #endif // MAINWINDOW_H

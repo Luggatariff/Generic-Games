@@ -1,16 +1,49 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ui_parameterdialog.h"
+#include "maincontroller.h"
+#include <QPushButton>
+#include <QDialogButtonBox>
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+ParameterDialog::ParameterDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::Dialog)
 {
     ui->setupUi(this);
+}
+
+ParameterDialog::~ParameterDialog()
+{
+    delete ui;
+}
+
+Ui::Dialog *ParameterDialog::getUi(){
+    return ui;
+}
+
+MainWindow::MainWindow(QWidget *parent, MainController *controller) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow),
+    mw_parameter_dialog(this)
+{
+    mw_parameter_dialog.hide();
+    ui->setupUi(this);
+    if (controller != NULL){
+        QObject::connect(mw_parameter_dialog.getUi()->buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), controller, SLOT(parameterWindowValided()));
+    }
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::clear_layout(QLayout * layout){
+    QLayoutItem * item = layout->takeAt(0);
+    while (item != NULL){
+        layout->removeItem(item);
+        item = layout->takeAt(0);
+    }
 }
 
 inline void MainWindow::update_menu_bar(){
@@ -62,20 +95,22 @@ QAction * MainWindow::addAction(QString title, QMenu * menu){
     return NULL;
 }
 
-void MainWindow::displayBlockingParameterWindow(QString title, QFrame * parameter_frame){
-    if (parameter_frame != NULL){
-        parameter_frame->setWindowIconText(title);
-        parameter_frame->show();
-        parameter_frame->grabMouse();
+void MainWindow::displayBlockingParameterWindow(QString title, QList<QPair<QLabel *, QWidget *> > parameter_widgets){
+    if (! parameter_widgets.empty()){
+        mw_parameter_dialog.setWindowTitle(title);
+        clear_layout(mw_parameter_dialog.getUi()->formLayout);
+        for (QList<QPair<QLabel *, QWidget *> >::Iterator pw_it = parameter_widgets.begin(); pw_it != parameter_widgets.end(); pw_it++){
+            mw_parameter_dialog.getUi()->formLayout->addWidget(pw_it->first);
+            mw_parameter_dialog.getUi()->formLayout->addWidget(pw_it->second);
+        }
+        mw_parameter_dialog.show();
+        mw_parameter_dialog.grabMouse();
+        mw_parameter_dialog.setFocus();
     }
 }
 
 inline void MainWindow::update_dynamic_parameter_pane(){
-    QLayoutItem * item = ui->dynamicParameterFramesAreaLayout->takeAt(0);
-    while (item != NULL){
-        ui->dynamicParameterFramesAreaLayout->removeItem(item);
-        item = ui->dynamicParameterFramesAreaLayout->takeAt(0);
-    }
+    clear_layout(ui->dynamicParameterFramesAreaLayout);
     for (unsigned int dpfa_index=0; dpfa_index<mw_dynamic_parameter_frame_list.size(); ++dpfa_index){
         if (mw_dynamic_parameter_frame_list[dpfa_index] != NULL){
             ui->dynamicParameterFramesAreaLayout->addWidget(mw_dynamic_parameter_frame_list[dpfa_index]);
@@ -83,14 +118,21 @@ inline void MainWindow::update_dynamic_parameter_pane(){
     }
 }
 
-void MainWindow::addDynamicParameterFrame(unsigned int index, QString title, QFrame * parameter_frame){
+void MainWindow::addDynamicParameterFrame(unsigned int index, QString title, QList<QPair<QLabel *, QWidget *> > parameter_widgets){
     for (unsigned int dpfa_index=mw_dynamic_parameter_frame_list.size(); dpfa_index<=index; ++dpfa_index){
         mw_dynamic_parameter_frame_list.push_back(NULL);
     }
-    if (mw_dynamic_parameter_frame_list[index] != NULL){
-        removeDynamicParameterFrame(index);
+    QFrame * parameter_frame = mw_dynamic_parameter_frame_list[index];
+    if (parameter_frame == NULL){
+        parameter_frame = new QFrame(ui->dynamicParameterFramesArea);
+        parameter_frame->setLayout(new QFormLayout(parameter_frame));
     }
+    clear_layout(parameter_frame->layout());
     parameter_frame->setWindowIconText(title);
+    for (QList<QPair<QLabel *, QWidget *> >::Iterator pw_it = parameter_widgets.begin(); pw_it != parameter_widgets.end(); pw_it++){
+        parameter_frame->layout()->addWidget(pw_it->first);
+        parameter_frame->layout()->addWidget(pw_it->second);
+    }
     mw_dynamic_parameter_frame_list[index]=parameter_frame;
     update_dynamic_parameter_pane();
 }
@@ -108,11 +150,7 @@ unsigned int MainWindow::getDynamicParameterFrameNumber(){
 }
 
 void MainWindow::changeMainDisplay(QFrame * frame){
-    QLayoutItem * item = ui->mainAreaLayout->takeAt(0);
-    while (item != NULL){
-        ui->mainAreaLayout->removeItem(item);
-        item = ui->mainAreaLayout->takeAt(0);
-    }
+    clear_layout(ui->mainAreaLayout);
     ui->mainAreaLayout->addWidget(frame);
 }
 

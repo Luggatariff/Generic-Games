@@ -17,13 +17,13 @@ MainModel::MainModel()
     }
 }
 
-QFrame * MainModel::getGameParameterFrame(QString type){
-    return m_game_instances[type]->getParameterFrame();
+QList<QPair<QLabel *, QWidget *> > MainModel::getGameParameterWidgetList(QString type){
+    return m_game_instances[type]->getParameterWidgets();
 }
 
 QFrame * MainModel::getCurrentGameDisplay(){
     if (m_current_game != NULL)
-        return m_current_game->getParameterFrame();
+        return m_current_game->display();
     return NULL;
 }
 
@@ -31,10 +31,10 @@ QList<QString> MainModel::getAvailableGameTypes(){
     return m_game_instances.keys();
 }
 
-QFrame * MainModel::getPlayerParameterFrame(unsigned int index){
+QList<QPair<QLabel *, QWidget *> > MainModel::getPlayerParameterWidgetList(unsigned int index){
     if (index < m_current_players.size())
-        return m_current_players[index]->getParameterFrame();
-    return NULL;
+        return m_current_players[index]->getParameterWidgets();
+    return QList<QPair<QLabel *, QWidget *> >();
 }
 
 QString MainModel::getPlayerType(unsigned int index){
