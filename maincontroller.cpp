@@ -11,7 +11,7 @@ MainController::MainController(QObject * parent):
     c_signalMapper = new QSignalMapper (this);
 }
 
-MainController::MainController(){
+MainController::~MainController(){
     delete c_signalMapper;
 }
 
