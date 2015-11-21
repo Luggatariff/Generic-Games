@@ -11,6 +11,10 @@ MainController::MainController(QObject * parent):
     c_signalMapper = new QSignalMapper (this);
 }
 
+MainController::MainController(){
+    delete c_signalMapper;
+}
+
 void MainController::init(){
     c_window.show();
     QList<QString> gameTypesList = c_model.getAvailableGameTypes();

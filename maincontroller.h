@@ -16,7 +16,7 @@ class MainController : public QObject
     QString c_lastChoseGameType;
 public:
     MainController(QObject * parent = 0);
-
+    ~MainController();
     /*!
      * \brief controller initialization
      */
