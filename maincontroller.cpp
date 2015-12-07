@@ -41,7 +41,33 @@ void MainController::gameActionClicked(QString gameType){
 void MainController::parameterWindowValided(){
     if (!c_lastChoseGameType.isEmpty()){
         c_model.changeGame(c_lastChoseGameType);
+        unsigned int player_index;
+        for (player_index = 0; player_index < c_model.getPlayerNumber(); player_index++){
+            QMenu * player_menu = c_window.addMenu(player_index, QString("Player %1").arg(player_index + 1));
+            QList<QString> player_types = c_model.getAvailablePlayerTypes();
+            for (unsigned int player_types_index = 0; (int)player_types_index < player_types.size(); player_types_index++){
+                QAction * player_action = c_window.addAction(player_types.at(player_types_index), player_menu);
+                QPair<unsigned int, QString> * playerInformation = new QPair<unsigned int, QString>();
+                playerInformation->first = player_index;
+                playerInformation->second = player_types.at(player_types_index);
+                connect (player_action, SIGNAL(triggered()), c_signalMapper, SLOT(map())) ;
+                c_signalMapper->setMapping (player_action, (QObject *)playerInformation) ;
+                connect (c_signalMapper, SIGNAL(mapped(QObject *)), this, SLOT(playerActionClicked(QObject *))) ;
+            }
+        }
+        while (player_index < c_window.getMenuNumber()){
+           c_window.removeMenu(player_index);
+           player_index++;
+        }
+
         c_window.changeMainDisplay(c_model.getCurrentGameDisplay());
     }
+}
+
+void MainController::playerActionClicked(QObject * playerInformationObject){
+    QPair<unsigned int, QString> * playerInformation = (QPair<unsigned int, QString> *)playerInformationObject;
+    c_model.changePlayer(playerInformation->first, playerInformation->second);
+    QList<QPair<QLabel *, QWidget *> > widgets_list = c_model.getPlayerParameterWidgetList(playerInformation->first);
+    c_window.addDynamicParameterFrame(playerInformation->first, QString("Player %1 - ").arg(playerInformation->first + 1) + playerInformation->second, widgets_list);
 }
 

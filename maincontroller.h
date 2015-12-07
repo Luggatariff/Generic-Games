@@ -23,6 +23,7 @@ public:
     void init();
 
 public slots:
+    void playerActionClicked(QObject * playerInformationObject);
     void gameActionClicked(QString gameType);
     void parameterWindowValided();
 };
