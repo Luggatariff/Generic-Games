@@ -9,6 +9,9 @@ MainController::MainController(QObject * parent):
 {
     c_lastChoseGameType = QString("");
     c_signalMapper = new QSignalMapper (this);
+
+    connect (c_signalMapper, SIGNAL(mapped(QObject *)), this, SLOT(playerActionClicked(QObject *))) ;
+    connect (c_signalMapper, SIGNAL(mapped(QString)), this, SLOT(gameActionClicked(QString))) ;
 }
 
 MainController::~MainController(){
@@ -24,7 +27,6 @@ void MainController::init(){
         connect (game_action, SIGNAL(triggered()), c_signalMapper, SLOT(map())) ;
         c_signalMapper->setMapping (game_action, *gameTypesIterator) ;
     }
-    connect (c_signalMapper, SIGNAL(mapped(QString)), this, SLOT(gameActionClicked(QString))) ;
 }
 
 void MainController::gameActionClicked(QString gameType){
@@ -55,7 +57,6 @@ void MainController::parameterWindowValided(){
                 c_signalMapper->setMapping (player_action, (QObject *)playerInformation) ;
             }
         }
-        connect (c_signalMapper, SIGNAL(mapped(QObject *)), this, SLOT(playerActionClicked(QObject *))) ;
         while (player_index < c_window.getMenuNumber()){
            c_window.removeMenu(player_index);
            player_index++;

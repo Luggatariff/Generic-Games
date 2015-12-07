@@ -55,6 +55,9 @@ void MainModel::changePlayer(unsigned int index, QString type){
     if (index < m_current_players.size()){
         delete m_current_players[index];
         m_current_players[index]=m_player_instances[type]->createInstance();
+        if (m_current_game != NULL){
+            QObject::connect(m_current_game, SIGNAL(clickedMove(Coordinates)), m_current_players[index], SLOT(clickedMove(Coordinates)));
+        }
     }
 }
 
@@ -71,5 +74,12 @@ void MainModel::changeGame(QString type){
             m_current_players[player_index]=NULL;
         }
         m_current_players.resize(player_number, NULL);
+    }
+    if (m_current_game != NULL){
+        for (unsigned int player_index=0; player_index < m_current_players.size(); ++player_index){
+           if (m_current_players[player_index]!=NULL){
+               QObject::connect(m_current_game, SIGNAL(clickedMove(Coordinates)), m_current_players[player_index], SLOT(clickedMove(Coordinates)));
+           }
+        }
     }
 }

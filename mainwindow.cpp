@@ -129,12 +129,15 @@ void MainWindow::addDynamicParameterFrame(unsigned int index, QString title, QLi
         parameter_frame->setLayout(new QFormLayout(parameter_frame));
     }
     clear_layout(parameter_frame->layout());
+
     QLabel * title_label = new QLabel(title);
     parameter_frame->layout()->addWidget(title_label);
+
     for (QList<QPair<QLabel *, QWidget *> >::Iterator pw_it = parameter_widgets.begin(); pw_it != parameter_widgets.end(); pw_it++){
         parameter_frame->layout()->addWidget(pw_it->first);
         parameter_frame->layout()->addWidget(pw_it->second);
     }
+
     mw_dynamic_parameter_frame_list[index]=parameter_frame;
     update_dynamic_parameter_pane();
 }
