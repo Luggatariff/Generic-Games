@@ -33,9 +33,9 @@ TicTacToe::TicTacToe(){
 
                 connect (squareButton, SIGNAL(clicked()), t_signal_mapper, SLOT(map()));
                 t_signal_mapper->setMapping(squareButton, (QObject *)squareCoodinates);
-                connect (t_signal_mapper, SIGNAL(mapped(QObject *)), this, SLOT(clickedSquare(QObject *)));
             }
         }
+        connect (t_signal_mapper, SIGNAL(mapped(QObject *)), this, SLOT(clickedSquare(QObject *)));
     }
 }
 
