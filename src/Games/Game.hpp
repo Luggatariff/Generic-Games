@@ -143,7 +143,7 @@ signals:
      * \brief signals a move have been clicked on the board
      * \param move : clicked coordinates
      */
-    virtual void clickedMove(vector<Coordinates> move) = 0;
+    void clickedMove(Coordinates move);
 };
 
 Q_DECLARE_INTERFACE(Game, "Generic-Games.Game")

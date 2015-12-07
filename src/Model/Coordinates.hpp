@@ -9,6 +9,7 @@
 
 #include "vector"
 #include <iostream>
+#include <QObject>
 
 using namespace std;
 
@@ -16,7 +17,8 @@ using namespace std;
  * \class Coordinates
  * \brief class used to represent integer Coordinates
  */
-class Coordinates{
+class Coordinates: public QObject{
+    Q_OBJECT
 	vector<unsigned int> m_coordinates;	/*!<vector of coordinates*/
 public:
 	/*!
@@ -24,6 +26,12 @@ public:
 	 * \param dimension : number of coordinates
 	 */
 	Coordinates(unsigned int dimension = 0);
+
+    /*!
+     * \brief Coordinates copy constructor
+     * \param coordinates : source
+     */
+    Coordinates(const Coordinates& coordinates);
 
 	/*!
 	 * \brief copies the Coordinates
@@ -56,6 +64,13 @@ public:
 	 * \brief compares two Coordinates
 	 */
 	bool operator==(const Coordinates& coordinates) const;
+
+    /*!
+     * \brief Coordinates::operator =
+     * \param coordinates : source
+     * \return destination
+     */
+    Coordinates& operator=(const Coordinates& coordinates);
 
 	/*!
 	 * \brief gets the coordinate for the first dimension

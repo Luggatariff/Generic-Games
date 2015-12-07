@@ -6,9 +6,18 @@
 
 #include "Coordinates.hpp"
 
-Coordinates::Coordinates(unsigned int dimension){
+Coordinates::Coordinates(unsigned int dimension):
+QObject(0)
+{
 	this->m_coordinates = vector<unsigned int>(dimension, 0);
 }
+
+Coordinates::Coordinates(const Coordinates& coordinates):
+QObject(0)
+{
+    m_coordinates = coordinates.m_coordinates;
+}
+
 Coordinates Coordinates::copy(){
 	Coordinates result(this->dimension());
 	for (unsigned int i_c = 0; i_c < this->dimension(); i_c++)
@@ -17,7 +26,7 @@ Coordinates Coordinates::copy(){
 }
 
 unsigned int Coordinates::dimension(){
-	return this->m_coordinates.size();
+    return m_coordinates.size();
 }
 
 unsigned int& Coordinates::operator[](unsigned int const &dimension){
@@ -34,6 +43,10 @@ bool Coordinates::operator>(const Coordinates& coordinates) const{
 }
 bool Coordinates::operator==(const Coordinates& coordinates) const{
 	return ((*this).m_coordinates == coordinates.m_coordinates);
+}
+Coordinates& Coordinates::operator=(const Coordinates& coordinates){
+    m_coordinates = coordinates.m_coordinates;
+    return *this;
 }
 
 unsigned int Coordinates::x(){
