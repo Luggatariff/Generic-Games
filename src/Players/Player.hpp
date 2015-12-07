@@ -78,6 +78,14 @@ public:
 	 * \brief virtual destructor for Player
 	 */
     virtual ~Player(){}
+
+public slots:
+
+    /*!
+     * \brief clickedMove slot, called when a move is clicked in the game
+     * \param move
+     */
+    virtual void clickedMove(Coordinates move) = 0;
 };
 
 Q_DECLARE_INTERFACE(Player, "Generic-Games.Player")

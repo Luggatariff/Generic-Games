@@ -81,3 +81,7 @@ QList<QPair<QLabel *, QWidget *> > Human::getParameterWidgets(){
     parameter_widgets_list.push_back(QPair<QLabel *, QWidget *>(hu_team_label, hu_team_spin_box));
     return parameter_widgets_list;
 }
+
+void Human::clickedMove(Coordinates move){
+
+}

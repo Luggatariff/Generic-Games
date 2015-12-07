@@ -42,6 +42,8 @@ public:
     Player * createInstance();
     QFrame * getParameterFrame();
     QList<QPair<QLabel *, QWidget *> > getParameterWidgets();
+public slots:
+    void clickedMove(Coordinates move);
 };
 
 #endif
