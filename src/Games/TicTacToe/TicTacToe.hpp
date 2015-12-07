@@ -15,6 +15,8 @@
 #include "../../Model/Board.hpp"
 #include <QGridLayout>
 #include <QSignalMapper>
+#include <QPushButton>
+#include <QMap>
 
 /*!
  * \brief Attributes than can be found in TicTacToe Board Squares
@@ -42,6 +44,8 @@ class TicTacToe: public Game{
     QFrame * t_display_frame;           /*!<Display frame*/
     QGridLayout * t_display_layout;     /*!<Display layout*/
     QSignalMapper * t_signal_mapper;    /*!<Signal Mapper*/
+
+    QMap<QVector<unsigned int> *, QPushButton *> t_button_map; /*!<Map associating coordinates to button*/
 
 	/*!
 	 * \brief count the Incomplete victory Patterns for the given Player. With two of them, victory is almost guaranted.

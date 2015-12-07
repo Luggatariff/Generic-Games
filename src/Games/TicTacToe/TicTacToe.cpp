@@ -5,7 +5,6 @@
  */
 
 #include "TicTacToe.hpp"
-#include <QPushButton>
 
 TicTacToe::TicTacToe(){
     Coordinates board_size(TICTACTOE_DIMENSION);
@@ -24,10 +23,12 @@ TicTacToe::TicTacToe(){
 
     if (TICTACTOE_DIMENSION == 2){
         QVector<unsigned int> square(2);
-        for (square[0] = 0; square[0] <= TICTACTOE_WIDTH; square[0]++){
-            for (square[1] = 0; square[1] <= TICTACTOE_WIDTH; square[1]++){
+        for (square[0] = 0; square[0] < TICTACTOE_WIDTH; square[0]++){
+            for (square[1] = 0; square[1] < TICTACTOE_WIDTH; square[1]++){
                 QVector<unsigned int> * squareCoodinates = new QVector<unsigned int>(square);
-                QPushButton *squareButton = new QPushButton();
+                QPushButton * squareButton = new QPushButton();
+                t_button_map.insert(squareCoodinates, squareButton);
+
                 t_display_layout->addWidget(squareButton, (int)square[0], (int)square[1]);
 
                 connect (squareButton, SIGNAL(clicked()), t_signal_mapper, SLOT(map()));
@@ -39,6 +40,11 @@ TicTacToe::TicTacToe(){
 }
 
 TicTacToe::~TicTacToe(){
+    QMap<QVector<unsigned int> *, QPushButton *>::iterator it;
+    for(it = t_button_map.begin(); it != t_button_map.end(); it++){
+        delete it.key();
+        delete it.value();
+    }
     delete t_display_layout;
     delete t_display_frame;
     delete t_signal_mapper;
@@ -251,7 +257,7 @@ void TicTacToe::shellDisplay(std::ostream & out){
 }
 
 QFrame * TicTacToe::display(){
-    return NULL;
+    return t_display_frame;
 }
 
 QString TicTacToe::getType(){
@@ -272,7 +278,8 @@ void TicTacToe::clickedSquare(QObject *squareCoordinatesObject){
     for (unsigned int square_index = 0; (int)square_index < squareCoordinates->size(); square_index++){
         square[square_index] = squareCoordinates->at(square_index);
     }
-    emit clickedMove(square);
+    if (isPlayable(square))
+        emit clickedMove(square);
 }
 
 /*****************************************************Patterns****************************************************************/
