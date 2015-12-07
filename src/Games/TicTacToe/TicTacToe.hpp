@@ -84,13 +84,13 @@ public:
     QList<QPair<QLabel *, QWidget *> > getParameterWidgets();
 
 private slots:
-    void clickedSquare(vector<Coordinates> square);
+    void clickedSquare(QObject * squareCoordinatesObject);
 
 public slots:
     void changePlayer(unsigned int number, Player * player);
 
 signals:
-    void clickedMove(vector<Coordinates> move);
+    void clickedMove(Coordinates move);
 };
 
 /*!

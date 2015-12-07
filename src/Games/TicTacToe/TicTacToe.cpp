@@ -5,6 +5,7 @@
  */
 
 #include "TicTacToe.hpp"
+#include <QPushButton>
 
 TicTacToe::TicTacToe(){
     Coordinates board_size(TICTACTOE_DIMENSION);
@@ -20,13 +21,18 @@ TicTacToe::TicTacToe(){
     t_display_layout = new QGridLayout(t_display_frame);
     t_display_frame->setLayout(t_display_layout);
     t_signal_mapper = new QSignalMapper();
+
     if (TICTACTOE_DIMENSION == 2){
-        Coordinates square(2);
+        QVector<unsigned int> square(2);
         for (square[0] = 0; square[0] <= TICTACTOE_WIDTH; square[0]++){
             for (square[1] = 0; square[1] <= TICTACTOE_WIDTH; square[1]++){
-                QLabel * squareLabel = new QLabel();
-                t_display_layout->addItem(squareLabel, square[0], square[1]);
-                //*TODO
+                QVector<unsigned int> * squareCoodinates = new QVector<unsigned int>(square);
+                QPushButton *squareButton = new QPushButton();
+                t_display_layout->addWidget(squareButton, (int)square[0], (int)square[1]);
+
+                connect (squareButton, SIGNAL(clicked()), t_signal_mapper, SLOT(map()));
+                t_signal_mapper->setMapping(squareButton, (QObject *)squareCoodinates);
+                connect (t_signal_mapper, SIGNAL(mapped(QObject *)), this, SLOT(clickedSquare(QObject *)));
             }
         }
     }
@@ -260,7 +266,12 @@ void TicTacToe::changePlayer(unsigned int number, Player * player){
     t_players[number].first=player;
 }
 
-void TicTacToe::clickedSquare(vector<Coordinates> square){
+void TicTacToe::clickedSquare(QObject *squareCoordinatesObject){
+    QVector<unsigned int> * squareCoordinates = (QVector<unsigned int> *)squareCoordinatesObject;
+    Coordinates square;
+    for (unsigned int square_index = 0; (int)square_index < squareCoordinates->size(); square_index++){
+        square[square_index] = squareCoordinates->at(square_index);
+    }
     emit clickedMove(square);
 }
 
