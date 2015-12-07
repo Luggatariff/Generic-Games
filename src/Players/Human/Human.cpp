@@ -10,27 +10,23 @@
 #include <QFormLayout>
 
 Human::Human(){
-    hu_parameter_frame=new QFrame();
-
-    QFormLayout * form_layout = new QFormLayout(hu_parameter_frame);
-    hu_parameter_frame->setLayout(form_layout);
-
-    hu_name_line_edit=new QLineEdit("human", hu_parameter_frame);
-    form_layout->addRow("Player Name :", hu_name_line_edit);
-
-    hu_team_spin_box=new QSpinBox(hu_parameter_frame);
-    form_layout->addRow("Player Team Id :", hu_team_spin_box);
-
+    hu_name_label = new QLabel("Name:");
+    hu_name_line_edit=new QLineEdit("human");
+    hu_team_label = new QLabel("Team:");
+    hu_team_spin_box=new QSpinBox();
     hu_team_spin_box->setMinimum(0);
     hu_team_spin_box->setMaximum(10);
 }
 
 Human::~Human(){
-    delete hu_parameter_frame;
+    delete hu_name_label;
+    delete hu_name_line_edit;
+    delete hu_team_label;
+    delete hu_team_spin_box;
 }
 
 void Human::start(Game * game){
-    cout<<"Starting new Game:"<<game->getName()<<endl;
+    cout<<"Starting new Game:"<<game->getType().toStdString().c_str()<<endl;
 }
 
 void Human::end(Game * game){
@@ -79,6 +75,9 @@ Player * Human::createInstance(){
     return (Player *)result;
 }
 
-QFrame * Human::getParameterFrame(){
-    return hu_parameter_frame;
+QList<QPair<QLabel *, QWidget *> > Human::getParameterWidgets(){
+    QList<QPair<QLabel *, QWidget *> > parameter_widgets_list;
+    parameter_widgets_list.push_back(QPair<QLabel *, QWidget *>(hu_name_label, hu_name_line_edit));
+    parameter_widgets_list.push_back(QPair<QLabel *, QWidget *>(hu_team_label, hu_team_spin_box));
+    return parameter_widgets_list;
 }

@@ -20,8 +20,9 @@ class Human: public Player{
     Q_PLUGIN_METADATA(IID "Generic-Games.Player" FILE "")
     Q_INTERFACES(Player)
 
-    QFrame * hu_parameter_frame;    /*!<Parameter frame*/
+    QLabel * hu_name_label;         /*!<label for name line edit*/
     QLineEdit * hu_name_line_edit;  /*!<line edit for name*/
+    QLabel * hu_team_label;         /*!<label for team spin box*/
     QSpinBox * hu_team_spin_box;    /*!<spin box for team*/
 public:
 	/*!
@@ -40,6 +41,7 @@ public:
     QString getType();
     Player * createInstance();
     QFrame * getParameterFrame();
+    QList<QPair<QLabel *, QWidget *> > getParameterWidgets();
 };
 
 #endif
