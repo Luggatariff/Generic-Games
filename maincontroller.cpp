@@ -18,13 +18,13 @@ MainController::~MainController(){
 void MainController::init(){
     c_window.show();
     QList<QString> gameTypesList = c_model.getAvailableGameTypes();
+
     for (QList<QString>::Iterator gameTypesIterator = gameTypesList.begin(); gameTypesIterator != gameTypesList.end(); gameTypesIterator++){
         QAction * game_action = c_window.addAction(*gameTypesIterator, c_window.getGameMenu());
-
         connect (game_action, SIGNAL(triggered()), c_signalMapper, SLOT(map())) ;
         c_signalMapper->setMapping (game_action, *gameTypesIterator) ;
-        connect (c_signalMapper, SIGNAL(mapped(QString)), this, SLOT(gameActionClicked(QString))) ;
     }
+    connect (c_signalMapper, SIGNAL(mapped(QString)), this, SLOT(gameActionClicked(QString))) ;
 }
 
 void MainController::gameActionClicked(QString gameType){
@@ -45,6 +45,7 @@ void MainController::parameterWindowValided(){
         for (player_index = 0; player_index < c_model.getPlayerNumber(); player_index++){
             QMenu * player_menu = c_window.addMenu(player_index, QString("Player %1").arg(player_index + 1));
             QList<QString> player_types = c_model.getAvailablePlayerTypes();
+
             for (unsigned int player_types_index = 0; (int)player_types_index < player_types.size(); player_types_index++){
                 QAction * player_action = c_window.addAction(player_types.at(player_types_index), player_menu);
                 QPair<unsigned int, QString> * playerInformation = new QPair<unsigned int, QString>();
@@ -52,9 +53,9 @@ void MainController::parameterWindowValided(){
                 playerInformation->second = player_types.at(player_types_index);
                 connect (player_action, SIGNAL(triggered()), c_signalMapper, SLOT(map())) ;
                 c_signalMapper->setMapping (player_action, (QObject *)playerInformation) ;
-                connect (c_signalMapper, SIGNAL(mapped(QObject *)), this, SLOT(playerActionClicked(QObject *))) ;
             }
         }
+        connect (c_signalMapper, SIGNAL(mapped(QObject *)), this, SLOT(playerActionClicked(QObject *))) ;
         while (player_index < c_window.getMenuNumber()){
            c_window.removeMenu(player_index);
            player_index++;

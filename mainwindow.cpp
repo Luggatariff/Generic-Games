@@ -4,6 +4,7 @@
 #include "maincontroller.h"
 #include <QPushButton>
 #include <QDialogButtonBox>
+#include <QTextCharFormat>
 
 ParameterDialog::ParameterDialog(QWidget *parent) :
     QDialog(parent),
@@ -128,7 +129,8 @@ void MainWindow::addDynamicParameterFrame(unsigned int index, QString title, QLi
         parameter_frame->setLayout(new QFormLayout(parameter_frame));
     }
     clear_layout(parameter_frame->layout());
-    parameter_frame->setWindowIconText(title);
+    QLabel * title_label = new QLabel(title);
+    parameter_frame->layout()->addWidget(title_label);
     for (QList<QPair<QLabel *, QWidget *> >::Iterator pw_it = parameter_widgets.begin(); pw_it != parameter_widgets.end(); pw_it++){
         parameter_frame->layout()->addWidget(pw_it->first);
         parameter_frame->layout()->addWidget(pw_it->second);
