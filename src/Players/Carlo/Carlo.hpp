@@ -17,16 +17,16 @@
 class Carlo: public Player{
 	string c_name;							/*!<Player name*/
 	unsigned int c_team;					/*!<Team id*/
-	unsigned int c_max_free_choices;		/*!<Define the number of free choices let to the Carlo*/
+
+	unsigned int c_maxSimulationNumber;		/*!<Maximum simulation number for each play*/
+
 	CarloTree * c_tree;						/*!<Carlo Choice Tree*/
-	bool ia_display_tree;					/*!<indicates if Carlo must display the choice Tree (debug)*/
-	bool ia_display_messages;				/*!<indicates if Carlo must display flags*/
+	bool c_displayTree;						/*!<indicates if Carlo must display the choice Tree (debug)*/
 public:
 	/*!
 	 * \brief Carlo constructor
-	 * \param display_tree : indicates Carlo must display the choice Tree (debug)
 	 */
-	Carlo(string name, unsigned int team_id, unsigned int max_free_choices=0, bool display_messages=true, bool display_tree = false);
+	Carlo(string name, unsigned int teamId, unsigned int maxSimulationNumber, bool displayTree = false);
 
 	void start(Game * game);
 	void end(Game * game);

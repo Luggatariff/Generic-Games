@@ -6,6 +6,7 @@
 #include "Chess.hpp"
 #include "Human.hpp"
 #include "IA.hpp"
+#include "Carlo.hpp"
 #include "Learner.hpp"
 
 #define PLAYERS_NUMBER 2
@@ -14,10 +15,10 @@
 
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
-	Player * first_teacher = new IA(string("Solene"), 0, 0);
-	Player * second_teacher = new IA(string("Lustu"), 1, 2);
-	players[0] = new IA(string("Solene"), 0, 4, 0, true); //new Learner(string("Triptonik"), 0, first_teacher, "learner1.db");
-	players[1] = new IA(string("Lustu"), 1, 6, 0, true); //new Learner(string("AdA"), 1, second_teacher, "learner2.db");
+	Player * first_teacher = new Carlo(string("Solene"), 0, 0);
+	Player * second_teacher = new Carlo(string("Lustu"), 1, 2);
+	players[0] = new Carlo(string("Solene"), 0, 100); //new Learner(string("Triptonik"), 0, first_teacher, "learner1.db");
+	players[1] = new Human(string("Lustu"), 1); //new Learner(string("AdA"), 1, second_teacher, "learner2.db");
 
 	Game * game;
 	game = new TicTacToe(players[0], players[1]);
