@@ -303,7 +303,7 @@ double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)(s_winNumber - s_defeatNumber)/(double)(s_simulationNumber));
+	return ((double)(s_winNumber + s_drawNumber)/(double)(s_simulationNumber));
 }
 
 int CarloScore::getSimulationNumber(){
