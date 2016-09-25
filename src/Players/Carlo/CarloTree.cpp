@@ -25,7 +25,7 @@ CarloTree::CarloTree(Game * game, unsigned int team, CarloTree * root, CarloTree
 	if (ct_root == this){
 		this->ct_father = NULL;
 		this->ct_game = game;
-		this->ct_playableMoves = ct_game->playableCoordinates();
+		this->ct_playableMoves = game->playableCoordinates();
 	}
 	else{
 		this->ct_father = father;
@@ -114,11 +114,12 @@ Coordinates CarloTree::getBestMove(unsigned int maxSimulationNumber){
 
 Coordinates CarloTree::pickAMove(bool finalComputation, bool addUnplayedMoves){
 	vector<Coordinates> bestMoves;
+	double bestScore;
 	if (ct_sons.empty()){
 		bestMoves = ct_playableMoves;
 	}
 	else{
-		double bestScore = (double)0.0;
+		bestScore = (double)0.0;
 		for(map<Coordinates, CarloTree *>::iterator son_iterator = ct_sons.begin(); son_iterator != ct_sons.end(); ++son_iterator){
 			if (son_iterator->second->ct_isExpandable || finalComputation){
 				double score;
@@ -129,8 +130,9 @@ Coordinates CarloTree::pickAMove(bool finalComputation, bool addUnplayedMoves){
 				}
 				if (score > bestScore){
 					bestMoves.clear();
+					bestScore = score;
 				}
-				if (score >= bestScore){
+				if (score == bestScore){
 					bestMoves.push_back(son_iterator->first);
 				}
 			}
@@ -177,11 +179,17 @@ CarloTree * CarloTree::selectionAndExpansion(){
 void CarloTree::simulation(){
 	Game * game = getGameCopy();
 	ct_playableMoves = game->playableCoordinates();
-	ct_score->incSimulationNumber();
+	ct_score->newSimulation();
 	if (game->isEnded() == true){
 		ct_isExpandable = false;
 		if (game->isWinner(ct_team)){
-			ct_score->incWinNumber();
+			ct_score->newWin();
+		}
+		else if (!game->isWon()){
+			ct_score->newDraw();
+		}
+		else{
+			ct_score->newDefeat();
 		}
 	}
 	delete game;
@@ -189,12 +197,21 @@ void CarloTree::simulation(){
 
 void CarloTree::backPropagation(){
 	int win = ct_score->getWinNumber();
+	int draw = ct_score->getDrawNumber();
+	int defeat = ct_score->getDefeatNumber();
 	bool sonIsExpandable = ct_isExpandable;
 	CarloTree * father = ct_father;
+
 	while (father != NULL){
-		father->ct_score->incSimulationNumber();
+		father->ct_score->newSimulation();
 		if (win > 0){
-			father->ct_score->incWinNumber();
+			father->ct_score->newWin();
+		}
+		if (draw > 0){
+			father->ct_score->newDraw();
+		}
+		if (defeat > 0){
+			father->ct_score->newDefeat();
 		}
 		if (!sonIsExpandable){
 			vector<Coordinates> unplayedMoves = father->getUnplayedMoves();
@@ -216,6 +233,7 @@ void CarloTree::backPropagation(){
 void CarloTree::setAsRoot(){
 	this->ct_game = this->getGameCopy();
 	this->ct_father = NULL;
+	this->ct_root = this;
 	vector<CarloTree *> allDescendants = getAllDescendants();
 	for (vector<CarloTree *>::iterator descendantsIterator = allDescendants.begin(); descendantsIterator != allDescendants.end(); descendantsIterator++){
 		(*descendantsIterator)->ct_root = this;
@@ -223,22 +241,21 @@ void CarloTree::setAsRoot(){
 }
 
 CarloTree * CarloTree::changeRoot(vector<Coordinates> coordinates){
-	CarloTree * newRoot = NULL;
+	CarloTree * newRoot = this;
 	for (vector<Coordinates>::iterator coordinates_iterator = coordinates.begin(); coordinates_iterator != coordinates.end(); coordinates_iterator++){
-		if (newRoot->ct_sons.empty()) break;
-		try{
-			newRoot = newRoot->ct_sons.at(*coordinates_iterator);
-		}
-		catch(...){
+		if (newRoot->ct_sons.count(*coordinates_iterator) == 0){
 			newRoot = NULL;
 			break;
 		}
-	}
-	if (newRoot != NULL){
-		newRoot->setAsRoot();
+		newRoot = newRoot->ct_sons.at(*coordinates_iterator);
 	}
 
-	delete this;
+	if (newRoot != this){
+		if (newRoot != NULL){
+			newRoot->setAsRoot();
+		}
+		delete this;
+	}
 
 	return newRoot;
 }
@@ -249,23 +266,33 @@ void CarloTree::display(){
 
 CarloScore::CarloScore(int explorationParameter){
 	s_winNumber = 0;
+	s_drawNumber = 0;
+	s_defeatNumber = 0;
 	s_simulationNumber = 0;
 	s_explorationParameter = explorationParameter;
 }
 
-void CarloScore::incSimulationNumber(){
+void CarloScore::newSimulation(){
 	s_simulationNumber++;
 }
 
-void CarloScore::incWinNumber(){
+void CarloScore::newWin(){
 	s_winNumber++;
+}
+
+void CarloScore::newDraw(){
+	s_drawNumber++;
+}
+
+void CarloScore::newDefeat(){
+	s_defeatNumber++;
 }
 
 double CarloScore::computeScore(int totalSimulations){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)s_winNumber/(double)s_simulationNumber) + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
+	return ((double)(s_winNumber * 2 + s_drawNumber)/(double)(s_simulationNumber * 2)) + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
 }
 
 double CarloScore::computeFinalScore(){
@@ -282,4 +309,13 @@ int CarloScore::getSimulationNumber(){
 int CarloScore::getWinNumber(){
 	return s_winNumber;
 }
+
+int CarloScore::getDrawNumber(){
+	return s_drawNumber;
+}
+
+int CarloScore::getDefeatNumber(){
+	return s_defeatNumber;
+}
+
 

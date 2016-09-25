@@ -22,6 +22,8 @@ using namespace std;
 class CarloScore{
 	unsigned int 	s_simulationNumber;				/*!<Number of simulations made for this node and its children*/
 	unsigned int	s_winNumber;					/*!<Number of wins for this nodes and its children*/
+	unsigned int	s_drawNumber;					/*!<Number of draws for this nodes and its children*/
+	unsigned int	s_defeatNumber;					/*!<Number of defeats for this nodes and its children*/
 	int				s_explorationParameter;			/*!<Coefficient giving the importance of expanding the tree*/
 public:
 	/*!
@@ -43,12 +45,22 @@ public:
 	/*!
 	 * \brief increases SimulationNumber
 	 */
-	void incSimulationNumber();
+	void newSimulation();
 
 	/*!
-	 * \brief increases WinNumber
+	 * \brief signals a win
 	 */
-	void incWinNumber();
+	void newWin();
+
+	/*!
+	 * \brief signals a draw
+	 */
+	void newDraw();
+
+	/*!
+	 * \brief signals a defeat
+	 */
+	void newDefeat();
 
 	/*!
 	 * \brief gets the simulation Number
@@ -61,6 +73,18 @@ public:
 	 * \return win number
 	 */
 	int getWinNumber();
+
+	/*!
+	 * \brief gets the win Number
+	 * \return win number
+	 */
+	int getDrawNumber();
+
+	/*!
+	 * \brief gets the win Number
+	 * \return win number
+	 */
+	int getDefeatNumber();
 };
 
 /*!

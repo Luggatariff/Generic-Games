@@ -11,14 +11,14 @@
 
 #define PLAYERS_NUMBER 2
 
-#define INFINITE_LOOP false
+#define INFINITE_LOOP true
 
 int main( int argamec, const char* argamev[] ){
 	vector<Player *> players(PLAYERS_NUMBER);
 	Player * first_teacher = new Carlo(string("Solene"), 0, 0);
 	Player * second_teacher = new Carlo(string("Lustu"), 1, 2);
 	players[0] = new Carlo(string("Solene"), 0, 100); //new Learner(string("Triptonik"), 0, first_teacher, "learner1.db");
-	players[1] = new Human(string("Lustu"), 1); //new Learner(string("AdA"), 1, second_teacher, "learner2.db");
+	players[1] = new Carlo(string("Lustu"), 1, 100); //new Learner(string("AdA"), 1, second_teacher, "learner2.db");
 
 	Game * game;
 	game = new TicTacToe(players[0], players[1]);

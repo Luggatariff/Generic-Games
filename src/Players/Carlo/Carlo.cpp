@@ -38,14 +38,14 @@ Coordinates Carlo::play(Game * game , vector<Coordinates> limit_choices){
 	if (c_tree != NULL){
 		vector<Coordinates> game_last_moves = game->lastMoves();
 		vector<Coordinates> each_player_last_move;
-		for (unsigned int i_p = game_last_moves.size() - (game->players().size() - 1); i_p < game_last_moves.size(); i_p++){
+		for (unsigned int i_p = game_last_moves.size() - game->players().size(); i_p < game_last_moves.size(); i_p++){
 			each_player_last_move.push_back(game_last_moves[i_p]);
 		}
 		c_tree = c_tree->changeRoot(each_player_last_move);
 	}
 
 	if (c_tree == NULL){
-		c_tree = new CarloTree(game, c_team);
+		c_tree = new CarloTree(game->copy(), c_team);
 	}
 
 	return c_tree->getBestMove(c_maxSimulationNumber);
