@@ -121,7 +121,8 @@ Coordinates CarloTree::pickAMove(bool finalComputation, bool addUnplayedMoves){
 		bestMoves = ct_playableMoves;
 	}
 	else{
-		double bestScore = (double)0.0;
+		double bestScore;
+		bool bestScoreNotComputed = true;
 		for(map<Coordinates, CarloTree *>::iterator son_iterator = ct_sons.begin(); son_iterator != ct_sons.end(); ++son_iterator){
 			if (son_iterator->second->ct_isExpandable || finalComputation){
 				double score;
@@ -130,9 +131,10 @@ Coordinates CarloTree::pickAMove(bool finalComputation, bool addUnplayedMoves){
 				else{
 					score = son_iterator->second->ct_score->computeScore(ct_score->getSimulationNumber());
 				}
-				if (score > bestScore){
+				if (bestScoreNotComputed || score > bestScore){
 					bestMoves.clear();
 					bestScore = score;
+					bestScoreNotComputed = false;
 				}
 				if (score == bestScore){
 					bestMoves.push_back(son_iterator->first);
@@ -301,7 +303,7 @@ double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)(s_winNumber * 10 + s_drawNumber*10)/(double)(s_simulationNumber * 10));
+	return ((double)(s_winNumber - s_defeatNumber)/(double)(s_simulationNumber));
 }
 
 int CarloScore::getSimulationNumber(){
