@@ -101,25 +101,27 @@ Game * CarloTree::getGameCopy(){
 }
 
 Coordinates CarloTree::getBestMove(unsigned int maxSimulationNumber){
-	for (unsigned int simulationIndex = 0; simulationIndex < maxSimulationNumber; ++simulationIndex){
-		CarloTree * newNode = selectionAndExpansion();
-		newNode->simulation();
-		newNode->backPropagation();
+	if (ct_isExpandable){
+		for (unsigned int simulationIndex = 0; simulationIndex < maxSimulationNumber; ++simulationIndex){
+			CarloTree * newNode = selectionAndExpansion();
+			newNode->simulation();
+			newNode->backPropagation();
 
-		if (!ct_isExpandable)
-			break;
+			if (!ct_isExpandable)
+				break;
+		}
 	}
 	return pickAMove(true, false);
 }
 
 Coordinates CarloTree::pickAMove(bool finalComputation, bool addUnplayedMoves){
 	vector<Coordinates> bestMoves;
-	double bestScore;
+
 	if (ct_sons.empty()){
 		bestMoves = ct_playableMoves;
 	}
 	else{
-		bestScore = (double)0.0;
+		double bestScore = (double)0.0;
 		for(map<Coordinates, CarloTree *>::iterator son_iterator = ct_sons.begin(); son_iterator != ct_sons.end(); ++son_iterator){
 			if (son_iterator->second->ct_isExpandable || finalComputation){
 				double score;
@@ -292,7 +294,7 @@ double CarloScore::computeScore(int totalSimulations){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)(s_winNumber * 2 + s_drawNumber)/(double)(s_simulationNumber * 2)) + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
+	return ((double)(s_winNumber * 10 + s_drawNumber*9)/(double)(s_simulationNumber * 10)) + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
 }
 
 double CarloScore::computeFinalScore(){
