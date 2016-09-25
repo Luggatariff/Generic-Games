@@ -294,14 +294,14 @@ double CarloScore::computeScore(int totalSimulations){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)(s_winNumber * 10 + s_drawNumber*9)/(double)(s_simulationNumber * 10)) + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
+	return computeFinalScore() + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
 }
 
 double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return (double)s_winNumber/(double)s_simulationNumber;
+	return ((double)(s_winNumber * 10 + s_drawNumber*10)/(double)(s_simulationNumber * 10));
 }
 
 int CarloScore::getSimulationNumber(){
