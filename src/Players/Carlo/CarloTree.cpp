@@ -206,31 +206,62 @@ void CarloTree::backPropagation(){
 	bool sonIsExpandable = ct_isExpandable;
 	CarloTree * father = ct_father;
 
+	unsigned int drawsToCancel = 0;
+	unsigned int winsToCancel = 0;
+	unsigned int defeatsToCancel = 0;
+	bool cancelWins = false;
+	bool cancelDefeats = false;
+	bool firstFather = true;
 	while (father != NULL){
 		father->ct_score->newSimulation();
 		if (win > 0){
 			father->ct_score->newWin();
+			if (firstFather){
+				drawsToCancel = father->ct_score->getDrawNumber();
+				defeatsToCancel = father->ct_score->getDefeatNumber();
+
+				father->ct_isExpandable = false;
+				cancelDefeats = true;
+			}
 		}
 		if (draw > 0){
 			father->ct_score->newDraw();
 		}
 		if (defeat > 0){
 			father->ct_score->newDefeat();
+			if (firstFather){
+				drawsToCancel = father->ct_score->getDrawNumber();
+				winsToCancel = father->ct_score->getWinNumber();
+
+				father->ct_isExpandable = false;
+				cancelWins = true;
+			}
+		}
+		if (cancelWins){
+			father->ct_score->cancelWins(winsToCancel);
+			father->ct_score->cancelDraws(drawsToCancel, false);
+		}
+		else if (cancelDefeats){
+			father->ct_score->cancelDefeats(defeatsToCancel);
+			father->ct_score->cancelDraws(drawsToCancel, true);
 		}
 		if (!sonIsExpandable){
-			vector<Coordinates> unplayedMoves = father->getUnplayedMoves();
-			if (unplayedMoves.empty()){
-				bool aSonIsExpandable = false;
-				for(map<Coordinates, CarloTree *>::iterator son_iterator = father->ct_sons.begin(); son_iterator != father->ct_sons.end(); ++son_iterator){
-					aSonIsExpandable = aSonIsExpandable || son_iterator->second->ct_isExpandable;
-					if (aSonIsExpandable)
-						break;
+			if (father->ct_isExpandable){
+				vector<Coordinates> unplayedMoves = father->getUnplayedMoves();
+				if (unplayedMoves.empty()){
+					bool aSonIsExpandable = false;
+					for(map<Coordinates, CarloTree *>::iterator son_iterator = father->ct_sons.begin(); son_iterator != father->ct_sons.end(); ++son_iterator){
+						aSonIsExpandable = aSonIsExpandable || son_iterator->second->ct_isExpandable;
+						if (aSonIsExpandable)
+							break;
+					}
+					father->ct_isExpandable = aSonIsExpandable;
 				}
-				father->ct_isExpandable = aSonIsExpandable;
 			}
 			sonIsExpandable = father->ct_isExpandable;
 		}
 		father = father->ct_father;
+		firstFather = false;
 	}
 }
 
@@ -303,23 +334,43 @@ double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)(s_winNumber + s_drawNumber)/(double)(s_simulationNumber));
+	return ((double)(s_winNumber)/(double)(s_simulationNumber));
 }
 
-int CarloScore::getSimulationNumber(){
+unsigned int CarloScore::getSimulationNumber(){
 	return s_simulationNumber;
 }
 
-int CarloScore::getWinNumber(){
+unsigned int CarloScore::getWinNumber(){
 	return s_winNumber;
 }
 
-int CarloScore::getDrawNumber(){
+unsigned int CarloScore::getDrawNumber(){
 	return s_drawNumber;
 }
 
-int CarloScore::getDefeatNumber(){
+unsigned int CarloScore::getDefeatNumber(){
 	return s_defeatNumber;
+}
+
+void CarloScore::cancelWins(unsigned int winsToCancel){
+	s_winNumber -= winsToCancel;
+	s_defeatNumber += winsToCancel;
+}
+
+void CarloScore::cancelDraws(unsigned int drawsToCancel, bool replaceWithWins){
+	s_drawNumber -= drawsToCancel;
+	if (replaceWithWins){
+		s_winNumber += drawsToCancel;
+	}
+	else{
+		s_defeatNumber += drawsToCancel;
+	}
+}
+
+void CarloScore::cancelDefeats(unsigned int defeatsToCancel){
+	s_defeatNumber -= defeatsToCancel;
+	s_winNumber += defeatsToCancel;
 }
 
 

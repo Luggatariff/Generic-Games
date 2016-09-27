@@ -66,25 +66,40 @@ public:
 	 * \brief gets the simulation Number
 	 * \return simulation number
 	 */
-	int getSimulationNumber();
+	unsigned int getSimulationNumber();
 
 	/*!
 	 * \brief gets the win Number
 	 * \return win number
 	 */
-	int getWinNumber();
+	unsigned int getWinNumber();
 
 	/*!
 	 * \brief gets the win Number
 	 * \return win number
 	 */
-	int getDrawNumber();
+	unsigned int getDrawNumber();
 
 	/*!
 	 * \brief gets the win Number
 	 * \return win number
 	 */
-	int getDefeatNumber();
+	unsigned int getDefeatNumber();
+
+	/*!
+	 * \brief cancels the given number of wins and replaces it by defeats
+	 */
+	void cancelWins(unsigned int winsToCancel);
+
+	/*!
+	 * \brief cancels the given number of draws and replaces it by wins or defeats, depending on the given boolean
+	 */
+	void cancelDraws(unsigned int drawsToCancel, bool replaceWithWins);
+
+	/*!
+	 * \brief cancels the given number of defeats and replaces it by wins
+	 */
+	void cancelDefeats(unsigned int defeatsToCancel);
 };
 
 /*!
