@@ -111,41 +111,39 @@ Coordinates CarloTree::getBestMove(unsigned int maxSimulationNumber){
 				break;
 		}
 	}
-	return pickAMove(true, false);
+	return pickAMove(true);
 }
 
-Coordinates CarloTree::pickAMove(bool finalComputation, bool addUnplayedMoves){
+Coordinates CarloTree::pickAMove(bool finalComputation){
 	vector<Coordinates> bestMoves;
 
 	if (ct_sons.empty()){
 		bestMoves = ct_playableMoves;
 	}
 	else{
-		double bestScore;
-		bool bestScoreNotComputed = true;
-		for(map<Coordinates, CarloTree *>::iterator son_iterator = ct_sons.begin(); son_iterator != ct_sons.end(); ++son_iterator){
-			if (son_iterator->second->ct_isExpandable || finalComputation){
-				double score;
-				if (finalComputation)
-					score = son_iterator->second->ct_score->computeFinalScore();
-				else{
-					score = son_iterator->second->ct_score->computeScore(ct_score->getSimulationNumber());
-				}
-				if (bestScoreNotComputed || score > bestScore){
-					bestMoves.clear();
-					bestScore = score;
-					bestScoreNotComputed = false;
-				}
-				if (score == bestScore){
-					bestMoves.push_back(son_iterator->first);
-				}
-			}
+		vector<Coordinates> unplayedMoves = getUnplayedMoves();
+		if (!finalComputation && !unplayedMoves.empty()){
+			bestMoves = unplayedMoves;
 		}
-		if (addUnplayedMoves){
-			vector<Coordinates> unplayedMoves = getUnplayedMoves();
-			for (vector<Coordinates>::iterator unplayedMovesIterator = unplayedMoves.begin(); unplayedMovesIterator != unplayedMoves.end(); ++unplayedMovesIterator){
-				if (ct_sons.count(*unplayedMovesIterator) == 0){
-					bestMoves.push_back(*unplayedMovesIterator);
+		else{
+			double bestScore;
+			bool bestScoreNotComputed = true;
+			for(map<Coordinates, CarloTree *>::iterator son_iterator = ct_sons.begin(); son_iterator != ct_sons.end(); ++son_iterator){
+				if (son_iterator->second->ct_isExpandable || finalComputation){
+					double score;
+					if (finalComputation)
+						score = son_iterator->second->ct_score->computeFinalScore();
+					else{
+						score = son_iterator->second->ct_score->computeScore(ct_score->getSimulationNumber());
+					}
+					if (bestScoreNotComputed || score > bestScore){
+						bestMoves.clear();
+						bestScore = score;
+						bestScoreNotComputed = false;
+					}
+					if (score == bestScore){
+						bestMoves.push_back(son_iterator->first);
+					}
 				}
 			}
 		}
@@ -167,11 +165,11 @@ vector<Coordinates> CarloTree::getUnplayedMoves(){
 
 CarloTree * CarloTree::selectionAndExpansion(){
 	CarloTree * selected = this;
-	Coordinates selectedMove = selected->pickAMove(false, true);
+	Coordinates selectedMove = selected->pickAMove(false);
 
 	while (selected->ct_sons.count(selectedMove) > 0){
 		selected = selected->ct_sons[selectedMove];
-		selectedMove = selected->pickAMove(false, true);
+		selectedMove = selected->pickAMove(false);
 	}
 
 	CarloTree * newSon = new CarloTree(NULL, ct_team, this, selected, selectedMove);

@@ -174,10 +174,9 @@ private:
 	/**
 	 * \brief picks a move beneath the sons
 	 * \param finalComputation : indicates if the score final computation is used
-	 * \param addUnplayedMoves : indicates if unplayed moves must be added to choice
 	 * \return chosen move
 	 */
-	Coordinates pickAMove(bool finalComputation, bool addUnplayedMoves);
+	Coordinates pickAMove(bool finalComputation);
 
 	/**
 	 * \brief gets unplayed moves for a node
