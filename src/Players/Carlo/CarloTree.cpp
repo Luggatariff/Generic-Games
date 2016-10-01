@@ -313,6 +313,7 @@ CarloScore::CarloScore(int explorationParameter){
 	s_drawNumber = 0;
 	s_defeatNumber = 0;
 	s_simulationNumber = 0;
+	s_unfinishedNumber = 0;
 	s_explorationParameter = explorationParameter;
 }
 
@@ -347,7 +348,7 @@ double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)(3 * s_winNumber + 2 * s_drawNumber + s_unfinishedNumber)/(double)(3*s_simulationNumber));
+	return ((double)(10 * s_winNumber + 2 * s_drawNumber + s_unfinishedNumber)/(double)(10*s_simulationNumber));
 }
 
 unsigned int CarloScore::getSimulationNumber(){
