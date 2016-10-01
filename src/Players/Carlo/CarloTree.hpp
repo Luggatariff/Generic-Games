@@ -24,6 +24,7 @@ class CarloScore{
 	unsigned int	s_winNumber;					/*!<Number of wins for this nodes and its children*/
 	unsigned int	s_drawNumber;					/*!<Number of draws for this nodes and its children*/
 	unsigned int	s_defeatNumber;					/*!<Number of defeats for this nodes and its children*/
+	unsigned int	s_unfinishedNumber;				/*!<Number of unfinished games for this node and its children*/
 	int				s_explorationParameter;			/*!<Coefficient giving the importance of expanding the tree*/
 public:
 	/*!
@@ -63,6 +64,11 @@ public:
 	void newDefeat();
 
 	/*!
+	 * \brief signals an unfinished
+	 */
+	void newUnfinished();
+
+	/*!
 	 * \brief gets the simulation Number
 	 * \return simulation number
 	 */
@@ -81,10 +87,17 @@ public:
 	unsigned int getDrawNumber();
 
 	/*!
-	 * \brief gets the win Number
-	 * \return win number
+	 * \brief gets the defeat Number
+	 * \return defeat number
 	 */
 	unsigned int getDefeatNumber();
+
+	/*!
+	 * \brief gets the unfinished Number
+	 * \return unfinished number
+	 */
+	unsigned int getUnfinishedNumber();
+
 
 	/*!
 	 * \brief cancels the given number of wins and replaces it by defeats
@@ -95,6 +108,11 @@ public:
 	 * \brief cancels the given number of draws and replaces it by wins or defeats, depending on the given boolean
 	 */
 	void cancelDraws(unsigned int drawsToCancel, bool replaceWithWins);
+
+	/*!
+	 * \brief cancels the given number of unfinished and replaces it by wins or defeats, depending on the given boolean
+	 */
+	void cancelUnfinished(unsigned int unfinishedToCancel, bool replaceWithWins);
 
 	/*!
 	 * \brief cancels the given number of defeats and replaces it by wins

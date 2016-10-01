@@ -194,6 +194,9 @@ void CarloTree::simulation(){
 			ct_score->newDefeat();
 		}
 	}
+	else{
+		ct_score->newUnfinished();
+	}
 	delete game;
 }
 
@@ -201,12 +204,16 @@ void CarloTree::backPropagation(){
 	int win = ct_score->getWinNumber();
 	int draw = ct_score->getDrawNumber();
 	int defeat = ct_score->getDefeatNumber();
+	int unfinished = ct_score->getUnfinishedNumber();
+
 	bool sonIsExpandable = ct_isExpandable;
 	CarloTree * father = ct_father;
 
 	unsigned int drawsToCancel = 0;
 	unsigned int winsToCancel = 0;
 	unsigned int defeatsToCancel = 0;
+	unsigned int unfinishedToCancel = 0;
+
 	bool cancelWins = false;
 	bool cancelDefeats = false;
 	bool firstFather = true;
@@ -216,6 +223,7 @@ void CarloTree::backPropagation(){
 			father->ct_score->newWin();
 			if (firstFather){
 				drawsToCancel = father->ct_score->getDrawNumber();
+				unfinishedToCancel = father->ct_score->getUnfinishedNumber();
 				defeatsToCancel = father->ct_score->getDefeatNumber();
 
 				father->ct_isExpandable = false;
@@ -229,6 +237,7 @@ void CarloTree::backPropagation(){
 			father->ct_score->newDefeat();
 			if (firstFather){
 				drawsToCancel = father->ct_score->getDrawNumber();
+				unfinishedToCancel = father->ct_score->getUnfinishedNumber();
 				winsToCancel = father->ct_score->getWinNumber();
 
 				father->ct_isExpandable = false;
@@ -238,10 +247,12 @@ void CarloTree::backPropagation(){
 		if (cancelWins){
 			father->ct_score->cancelWins(winsToCancel);
 			father->ct_score->cancelDraws(drawsToCancel, false);
+			father->ct_score->cancelUnfinished(unfinishedToCancel, false);
 		}
 		else if (cancelDefeats){
 			father->ct_score->cancelDefeats(defeatsToCancel);
 			father->ct_score->cancelDraws(drawsToCancel, true);
+			father->ct_score->cancelUnfinished(unfinishedToCancel, true);
 		}
 		if (!sonIsExpandable){
 			if (father->ct_isExpandable){
@@ -321,6 +332,10 @@ void CarloScore::newDefeat(){
 	s_defeatNumber++;
 }
 
+void CarloScore::newUnfinished(){
+	s_unfinishedNumber++;
+}
+
 double CarloScore::computeScore(int totalSimulations){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
@@ -332,7 +347,7 @@ double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
 		return (double)-1.0;
 	}
-	return ((double)(2 * s_winNumber + s_drawNumber)/(double)(2*s_simulationNumber));
+	return ((double)(3 * s_winNumber + 2 * s_drawNumber + s_unfinishedNumber)/(double)(3*s_simulationNumber));
 }
 
 unsigned int CarloScore::getSimulationNumber(){
@@ -351,6 +366,10 @@ unsigned int CarloScore::getDefeatNumber(){
 	return s_defeatNumber;
 }
 
+unsigned int CarloScore::getUnfinishedNumber(){
+	return s_unfinishedNumber;
+}
+
 void CarloScore::cancelWins(unsigned int winsToCancel){
 	s_winNumber -= winsToCancel;
 	s_defeatNumber += winsToCancel;
@@ -363,6 +382,16 @@ void CarloScore::cancelDraws(unsigned int drawsToCancel, bool replaceWithWins){
 	}
 	else{
 		s_defeatNumber += drawsToCancel;
+	}
+}
+
+void CarloScore::cancelUnfinished(unsigned int unfinishedToCancel, bool replaceWithWins){
+	s_unfinishedNumber -= unfinishedToCancel;
+	if (replaceWithWins){
+		s_winNumber += unfinishedToCancel;
+	}
+	else{
+		s_defeatNumber += unfinishedToCancel;
 	}
 }
 
