@@ -244,6 +244,9 @@ void CarloTree::backPropagation(){
 				cancelWins = true;
 			}
 		}
+		if (unfinished > 0){
+			father->ct_score->newUnfinished();
+		}
 		if (cancelWins){
 			father->ct_score->cancelWins(winsToCancel);
 			father->ct_score->cancelDraws(drawsToCancel, false);
@@ -400,5 +403,3 @@ void CarloScore::cancelDefeats(unsigned int defeatsToCancel){
 	s_defeatNumber -= defeatsToCancel;
 	s_winNumber += defeatsToCancel;
 }
-
-
