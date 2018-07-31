@@ -63,20 +63,19 @@ public:
 	virtual void start() = 0;
 	/*!
 	 * \brief gets the number of Coordinates used to play
-	 * \return dimension of the used Coordinates
+     * \return dimension of the used Coordinates for moves
 	 */
-	virtual unsigned int dimension() = 0;
+    virtual unsigned int moveDimension() = 0;
 	/*!
 	 * \brief indicates if a Square at the given Coordinates is playable
 	 * \return True if the Square at the given Coordinates is playable, False otherwise
 	 */
-	virtual bool isPlayable(Coordinates coordinates) = 0;
+    virtual bool isPlayableMove(Coordinates coordinates) = 0;
 	/*!
-	 * \brief gets the list of playable Coordinates
-	 * \return list of playable Coordinates
+     * \brief gets the list of playable Moves
+     * \return list of playable Moves
 	 */
-	virtual vector<Coordinates> playableCoordinates() = 0;
-
+    virtual vector<Coordinates> playableMoves() = 0;
 	/*!
 	 * \brief gets the next Player who has to play
 	 * \return pointer to the next Player
@@ -85,13 +84,36 @@ public:
 	/*!
 	 * \brief makes the Player actually play the Square at the given Coordinates
 	 * \param coordinates : coordinates of the Square to play
+     * \param launchRandomEvents : launches the random events (false if they are to be forced)
 	 */
-	virtual void play(Coordinates coordinates) = 0;
-	/*!
-	 * \brief returns last moves, from the oldest to the newest
-	 * \return list of last played Coordinates
-	 */
-	virtual vector<Coordinates> lastMoves() = 0;
+    virtual void playMove(Coordinates coordinates, bool launchRandomEvents) = 0;
+
+    /*!
+     * \brief indicates if the Game is waiting for random events to be forced
+     * \return true if the Game is waiting for random events to be forced
+     */
+    virtual bool waitingForRandomEvents() = 0;
+    /*!
+     * \brief gets the number of Coordinates used in random game events
+     * \return dimension of the used Coordinates for random events
+     */
+    virtual unsigned int randomDimension() = 0;
+    /*!
+     * \brief gets the list of random events Coordinates
+     * \return list of random events Coordinates
+     */
+    virtual vector<Coordinates> randomCoordinates() = 0;
+    /*!
+     * \brief force a random event to the given coordinates
+     * \param coordinates : coordinates of the random event
+     */
+    virtual void forceRandom(Coordinates coordinates) = 0;
+
+    /*!
+     * \brief returns last moves and random events, from the oldest to the newest
+     * \return list of last played Coordinates
+     */
+    virtual vector<Coordinates> lastMovesAndRandomEvents() = 0;
 
 	/*!
 	 * \brief displays the Game on the given stream

@@ -15,13 +15,14 @@
  * \brief this class represents a Monte Caro IA Player
  */
 class Carlo: public Player{
-	string c_name;							/*!<Player name*/
-	unsigned int c_team;					/*!<Team id*/
+    string c_name;                                  /*!<Player name*/
+    unsigned int c_team;                            /*!<Team id*/
 
-	unsigned int c_maxSimulationNumber;		/*!<Maximum simulation number for each play*/
+    unsigned int c_maxSimulationNumber;             /*!<Maximum simulation number for each play*/
 
-	CarloTree * c_tree;						/*!<Carlo Choice Tree*/
-	bool c_displayTree;						/*!<indicates if Carlo must display the choice Tree (debug)*/
+    CarloTree * c_tree;                             /*!<Carlo Choice Tree*/
+    vector<Coordinates> c_lastMovesAndRandomEvents; /*!<Last moves and random events in the Game*/
+    bool c_displayTree;                             /*!<indicates if Carlo must display the choice Tree (debug)*/
 public:
 	/*!
 	 * \brief Carlo constructor

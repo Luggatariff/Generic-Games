@@ -5,6 +5,7 @@
  */
 
 #include "Human.hpp"
+#include "Coordinates.hpp"
 #include <algorithm>
 
 Human::Human(string name, unsigned int team_id){
@@ -23,7 +24,7 @@ void Human::end(Game * game){
 }
 
 Coordinates Human::play(Game * game, vector<Coordinates> limit_choices){
-	unsigned int dimension = game->dimension();
+    unsigned int dimension = game->moveDimension();
 	Coordinates result(((size_t)dimension));
 	do{
 		if (limit_choices.size() > 1){
@@ -40,7 +41,7 @@ Coordinates Human::play(Game * game, vector<Coordinates> limit_choices){
 		for (unsigned int dim=0; dim<dimension; dim++)
 			cin>>result[dim];
 	}
-	while(!game->isPlayable(result) || (limit_choices.size() > 1 && find(limit_choices.begin(), limit_choices.end(), result) == limit_choices.end()));
+    while(!game->isPlayableMove(result) || (limit_choices.size() > 1 && find(limit_choices.begin(), limit_choices.end(), result) == limit_choices.end()));
 
 	return result;
 }

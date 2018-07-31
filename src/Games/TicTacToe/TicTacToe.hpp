@@ -58,13 +58,18 @@ public:
 	int victoryScore();
 
 	void start();
-	unsigned int dimension();
-	bool isPlayable(Coordinates coordinates);
-	vector<Coordinates> playableCoordinates();
+    unsigned int moveDimension();
+    bool isPlayableMove(Coordinates coordinates);
+    vector<Coordinates> playableMoves();
+    void playMove(Coordinates coordinates, bool launchRandomEvents);
+
+    bool waitingForRandomEvents();
+    unsigned int randomDimension();
+    vector<Coordinates> randomCoordinates();
+    void forceRandom(Coordinates coordinates);
 
 	Player * nextPlayer();
-	void play(Coordinates coordinates);
-	vector<Coordinates> lastMoves();
+    vector<Coordinates> lastMovesAndRandomEvents();
 
 	void display(std::ostream & out);
 

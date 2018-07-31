@@ -25,7 +25,12 @@ CarloTree::CarloTree(Game * game, unsigned int team, CarloTree * root, CarloTree
 	if (ct_root == this){
 		this->ct_father = NULL;
 		this->ct_game = game;
-		this->ct_playableMoves = game->playableCoordinates();
+        if (!game->waitingForRandomEvents()){
+            this->ct_playableMovesOrRandomEvents = game->playableMoves();
+        }
+        else{
+            this->ct_playableMovesOrRandomEvents = game->randomCoordinates();
+        }
 	}
 	else{
 		this->ct_father = father;
@@ -82,10 +87,10 @@ vector<unsigned int> CarloTree::pickRandomIndexes(unsigned int number, unsigned 
 	return result;
 }
 
-vector<Coordinates> CarloTree::getLastMoves(){
+vector<Coordinates> CarloTree::getLastMovesAndRandomEvents(){
 	vector<Coordinates> result;
 	if (ct_root != this){
-		result = ct_father->getLastMoves();
+        result = ct_father->getLastMovesAndRandomEvents();
 		result.push_back(ct_sonId);
 	}
 	return result;
@@ -93,9 +98,14 @@ vector<Coordinates> CarloTree::getLastMoves(){
 
 Game * CarloTree::getGameCopy(){
 	Game * rootGameCopy = this->ct_root->ct_game->copy();
-	vector<Coordinates> lastMoves = this->getLastMoves();
-	for (vector<Coordinates>::iterator lastMovesIterator = lastMoves.begin(); lastMovesIterator != lastMoves.end(); ++lastMovesIterator){
-		rootGameCopy->play(*lastMovesIterator);
+    vector<Coordinates> lastMovesAndRandomEvents = this->getLastMovesAndRandomEvents();
+    for (vector<Coordinates>::iterator lastMovesAndRandomEventsIterator = lastMovesAndRandomEvents.begin(); lastMovesAndRandomEventsIterator != lastMovesAndRandomEvents.end(); ++lastMovesAndRandomEventsIterator){
+        if (!rootGameCopy->waitingForRandomEvents()){
+            rootGameCopy->playMove(*lastMovesAndRandomEventsIterator, false);
+        }
+        else{
+            rootGameCopy->forceRandom(*lastMovesAndRandomEventsIterator);
+        }
 	}
 	return rootGameCopy;
 }
@@ -111,19 +121,19 @@ Coordinates CarloTree::getBestMove(unsigned int maxSimulationNumber){
 				break;
 		}
 	}
-	return pickAMove(true);
+    return pickAMoveOrARandomEvent(true);
 }
 
-Coordinates CarloTree::pickAMove(bool finalComputation){
+Coordinates CarloTree::pickAMoveOrARandomEvent(bool finalComputation){
 	vector<Coordinates> bestMoves;
 
 	if (ct_sons.empty()){
-		bestMoves = ct_playableMoves;
+        bestMoves = ct_playableMovesOrRandomEvents;
 	}
 	else{
-		vector<Coordinates> unplayedMoves = getUnplayedMoves();
-		if (!finalComputation && !unplayedMoves.empty()){
-			bestMoves = unplayedMoves;
+        vector<Coordinates> unplayedMovesOrRandomEvents = getUnplayedMovesOrRandomEvents();
+        if (!finalComputation && !unplayedMovesOrRandomEvents.empty()){
+            bestMoves = unplayedMovesOrRandomEvents;
 		}
 		else{
 			double bestScore;
@@ -153,11 +163,11 @@ Coordinates CarloTree::pickAMove(bool finalComputation){
 	return bestMoves[random_index];
 }
 
-vector<Coordinates> CarloTree::getUnplayedMoves(){
+vector<Coordinates> CarloTree::getUnplayedMovesOrRandomEvents(){
 	vector<Coordinates> result;
-	for (vector<Coordinates>::iterator playableMovesIterator = ct_playableMoves.begin(); playableMovesIterator != ct_playableMoves.end(); ++playableMovesIterator){
-		if (ct_sons.count(*playableMovesIterator) == 0){
-			result.push_back(*playableMovesIterator);
+    for (vector<Coordinates>::iterator playableMovesOrRandomEventsIterator = ct_playableMovesOrRandomEvents.begin(); playableMovesOrRandomEventsIterator != ct_playableMovesOrRandomEvents.end(); ++playableMovesOrRandomEventsIterator){
+        if (ct_sons.count(*playableMovesOrRandomEventsIterator) == 0){
+            result.push_back(*playableMovesOrRandomEventsIterator);
 		}
 	}
 	return result;
@@ -165,22 +175,27 @@ vector<Coordinates> CarloTree::getUnplayedMoves(){
 
 CarloTree * CarloTree::selectionAndExpansion(){
 	CarloTree * selected = this;
-	Coordinates selectedMove = selected->pickAMove(false);
+    Coordinates selectedMoveOrRandomEvent = selected->pickAMoveOrARandomEvent(false);
 
-	while (selected->ct_sons.count(selectedMove) > 0){
-		selected = selected->ct_sons[selectedMove];
-		selectedMove = selected->pickAMove(false);
+    while (selected->ct_sons.count(selectedMoveOrRandomEvent) > 0){
+        selected = selected->ct_sons[selectedMoveOrRandomEvent];
+        selectedMoveOrRandomEvent = selected->pickAMoveOrARandomEvent(false);
 	}
 
-	CarloTree * newSon = new CarloTree(NULL, ct_team, this, selected, selectedMove);
-	selected->ct_sons.insert(pair<Coordinates, CarloTree *>(selectedMove, newSon));
+    CarloTree * newSon = new CarloTree(NULL, ct_team, this, selected, selectedMoveOrRandomEvent);
+    selected->ct_sons.insert(pair<Coordinates, CarloTree *>(selectedMoveOrRandomEvent, newSon));
 
 	return newSon;
 }
 
 void CarloTree::simulation(){
 	Game * game = getGameCopy();
-	ct_playableMoves = game->playableCoordinates();
+    if (!game->waitingForRandomEvents()){
+        ct_playableMovesOrRandomEvents = game->playableMoves();
+    }
+    else{
+        ct_playableMovesOrRandomEvents = game->randomCoordinates();
+    }
 	ct_score->newSimulation();
 	if (game->isEnded() == true){
 		ct_isExpandable = false;
@@ -259,8 +274,8 @@ void CarloTree::backPropagation(){
 		}
 		if (!sonIsExpandable){
 			if (father->ct_isExpandable){
-				vector<Coordinates> unplayedMoves = father->getUnplayedMoves();
-				if (unplayedMoves.empty()){
+                vector<Coordinates> unplayedMovesOrRandomEvents = father->getUnplayedMovesOrRandomEvents();
+                if (unplayedMovesOrRandomEvents.empty()){
 					bool aSonIsExpandable = false;
 					for(map<Coordinates, CarloTree *>::iterator son_iterator = father->ct_sons.begin(); son_iterator != father->ct_sons.end(); ++son_iterator){
 						aSonIsExpandable = aSonIsExpandable || son_iterator->second->ct_isExpandable;
@@ -342,16 +357,16 @@ void CarloScore::newUnfinished(){
 
 double CarloScore::computeScore(int totalSimulations){
 	if (s_simulationNumber == 0){
-		return (double)-1.0;
+        return std::numeric_limits<double>::max();
 	}
 	return computeFinalScore() + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
 }
 
 double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
-		return (double)-1.0;
+        return std::numeric_limits<double>::max();
 	}
-	return ((double)(10 * s_winNumber + 2 * s_drawNumber + s_unfinishedNumber)/(double)(10*s_simulationNumber));
+    return ((double)(10 * s_winNumber + 2 * s_drawNumber + s_unfinishedNumber)/(double)(s_simulationNumber));
 }
 
 unsigned int CarloScore::getSimulationNumber(){

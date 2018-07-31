@@ -144,21 +144,21 @@ void TicTacToe::start(){
 		}
 	}
 }
-unsigned int TicTacToe::dimension(){
+unsigned int TicTacToe::moveDimension(){
 	return TICTACTOE_DIMENSION;
 }
-bool TicTacToe::isPlayable(Coordinates coordinates){
+bool TicTacToe::isPlayableMove(Coordinates coordinates){
 	if (isEnded()) return false;
 
 	bool is_in_board = true;
-	for (unsigned int dim = 0; dim < this->dimension(); dim++){
+    for (unsigned int dim = 0; dim < this->moveDimension(); dim++){
 		is_in_board = (coordinates[dim] >= 0 && coordinates[dim] < TICTACTOE_WIDTH);
 		if (!is_in_board)
 			return false;
 	}
 	return (t_board->getSquare(coordinates)->isAttribute(TICTACTOE_EMPTY));
 }
-vector<Coordinates> TicTacToe::playableCoordinates(){
+vector<Coordinates> TicTacToe::playableMoves(){
 	vector<Coordinates> result;
 	if (isEnded()) return result;
 
@@ -176,8 +176,8 @@ vector<Coordinates> TicTacToe::playableCoordinates(){
 Player * TicTacToe::nextPlayer(){
 	return t_next_player;
 }
-void TicTacToe::play(Coordinates coordinates){
-	if (isPlayable(coordinates)){
+void TicTacToe::playMove(Coordinates coordinates, bool launchRandomEvents){
+    if (isPlayableMove(coordinates)){
 		t_last_moves.push_back(coordinates);
 		TicTacToe_Attributes p_player;
 		if (t_next_player == t_players[0].first){
@@ -192,7 +192,7 @@ void TicTacToe::play(Coordinates coordinates){
 		t_board->getSquare(coordinates)->addAttribute(p_player);
 	}
 }
-vector<Coordinates> TicTacToe::lastMoves(){
+vector<Coordinates> TicTacToe::lastMovesAndRandomEvents(){
 	return this->t_last_moves;
 }
 
@@ -224,6 +224,23 @@ void TicTacToe::display(std::ostream & out){
 string TicTacToe::getName(){
 	return string("TicTacToe");
 }
+
+bool TicTacToe::waitingForRandomEvents(){
+    return false;
+}
+
+unsigned int TicTacToe::randomDimension(){
+    return 0;
+}
+
+vector<Coordinates> TicTacToe::randomCoordinates(){
+    return vector<Coordinates>();
+}
+
+void TicTacToe::forceRandom(Coordinates coordinates){
+
+}
+
 
 /*****************************************************Patterns****************************************************************/
 

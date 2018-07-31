@@ -127,7 +127,7 @@ public:
 class CarloTree{
 private:
 	Game * 							ct_game;				/*!<Game associated to the node*/
-	vector<Coordinates>				ct_playableMoves;		/*!<Playable moves*/
+        vector<Coordinates>				ct_playableMovesOrRandomEvents;		/*!<Playable moves*/
 
 	unsigned int 					ct_team;				/*!<Team for which the CarloTree is playing*/
 
@@ -164,10 +164,10 @@ private:
 	void setAsRoot();
 
 	/*!
-	 * \brief get the last played moves by getting up the tree
+         * \brief get the last played moves and random events by getting up the tree
 	 * \return list of Coordinates
 	 */
-	vector<Coordinates> getLastMoves();
+        vector<Coordinates> getLastMovesAndRandomEvents();
 
 	/*!
 	 * \brief this function returns a copy of the Game corresponding to its node
@@ -194,13 +194,13 @@ private:
 	 * \param finalComputation : indicates if the score final computation is used
 	 * \return chosen move
 	 */
-	Coordinates pickAMove(bool finalComputation);
+        Coordinates pickAMoveOrARandomEvent(bool finalComputation);
 
 	/**
 	 * \brief gets unplayed moves for a node
 	 * \return unplayed moves
 	 */
-	vector<Coordinates> getUnplayedMoves();
+        vector<Coordinates> getUnplayedMovesOrRandomEvents();
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Team
