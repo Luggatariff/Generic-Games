@@ -23,11 +23,16 @@ class Carlo: public Player{
     CarloTree * c_tree;                             /*!<Carlo Choice Tree*/
     vector<Coordinates> c_lastMovesAndRandomEvents; /*!<Last moves and random events in the Game*/
     bool c_displayTree;                             /*!<indicates if Carlo must display the choice Tree (debug)*/
+
+    int c_winValue;
+    int c_defeatValue;
+    int c_drawValue;
+    int c_unfinishedValue;
 public:
 	/*!
 	 * \brief Carlo constructor
 	 */
-	Carlo(string name, unsigned int teamId, unsigned int maxSimulationNumber, bool displayTree = false);
+    Carlo(string name, unsigned int teamId, unsigned int maxSimulationNumber, int winValue = 10, int defeatValue = 0, int drawValue = 2, int unfinishedValue = 1, bool displayTree = false);
 
 	void start(Game * game);
 	void end(Game * game);

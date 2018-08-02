@@ -26,12 +26,17 @@ class CarloScore{
 	unsigned int	s_defeatNumber;					/*!<Number of defeats for this nodes and its children*/
 	unsigned int	s_unfinishedNumber;				/*!<Number of unfinished games for this node and its children*/
 	int				s_explorationParameter;			/*!<Coefficient giving the importance of expanding the tree*/
+
+    int             s_winValue;
+    int             s_defeatValue;
+    int             s_drawValue;
+    int             s_unfinishedValue;
 public:
 	/*!
 	 * \brief Score constructor, from an exploration parameter
 	 * \param explorationParameter : Score exploration parameter
 	 */
-	CarloScore(int explorationParameter);
+    CarloScore(int explorationParameter, int winValue, int defeatValue, int drawValue, int unfinishedValue);
 
 	/*!
 	 * \brief gets score computed value
@@ -142,6 +147,11 @@ private:
 
 	bool							ct_isExpandable;		/*!<Indicates if a node and all its sons can be expandable*/
 
+    int                             ct_winValue;
+    int                             ct_defeatValue;
+    int                             ct_drawValue;
+    int                             ct_unfinishedValue;
+
 	/*!
 	 * \brief selects the best leaf to expand
 	 * \return the best leaf node
@@ -208,7 +218,7 @@ public:
 	 * \param team : given team
 	 * \param root : indicates CarloTree root
 	 */
-	CarloTree(Game * game, unsigned int team, CarloTree * root = NULL, CarloTree * father = NULL, Coordinates sonId = Coordinates(0));
+    CarloTree(Game * game, unsigned int team, CarloTree * root = NULL, CarloTree * father = NULL, Coordinates sonId = Coordinates(0), int winValue = 10, int defeatValue = 0, int drawValue = 2, int unfinishedValue = 1);
 	/*!
 	 * \brief CarloTree destructor
 	 */

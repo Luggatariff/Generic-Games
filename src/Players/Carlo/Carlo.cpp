@@ -9,13 +9,18 @@
 #include <ctime>
 #include <algorithm>
 
-Carlo::Carlo(string name, unsigned int teamId, unsigned int maxSimulationNumber, bool displayTree){
+Carlo::Carlo(string name, unsigned int teamId, unsigned int maxSimulationNumber, int winValue, int defeatValue, int drawValue, int unfinishedValue, bool displayTree){
     c_name = name;
     c_team = teamId;
 
     c_maxSimulationNumber = maxSimulationNumber;
     c_tree = NULL;
     c_displayTree = displayTree;
+
+    c_winValue = winValue;
+    c_defeatValue = defeatValue;
+    c_drawValue = drawValue;
+    c_unfinishedValue = unfinishedValue;
 }
 
 void Carlo::start(Game * game){
@@ -44,7 +49,7 @@ Coordinates Carlo::play(Game * game , vector<Coordinates> limit_choices){
     }
 
     if (c_tree == NULL){
-        c_tree = new CarloTree(game->copy(), c_team);
+        c_tree = new CarloTree(game->copy(), c_team, NULL, NULL, Coordinates(0), c_winValue, c_defeatValue, c_drawValue, c_unfinishedValue);
     }
 
     c_lastMovesAndRandomEvents = last_moves_and_random_events;

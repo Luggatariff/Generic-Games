@@ -11,11 +11,11 @@
 #include <algorithm>
 #include <math.h>
 
-CarloTree::CarloTree(Game * game, unsigned int team, CarloTree * root, CarloTree * father, Coordinates sonId){
+CarloTree::CarloTree(Game * game, unsigned int team, CarloTree * root, CarloTree * father, Coordinates sonId, int winValue, int defeatValue, int drawValue, int unfinishedValue){
 	this->ct_team = team;
 	this->ct_isExpandable = true;
 	this->ct_explorationParameter = sqrt(2);
-	this->ct_score = new CarloScore(ct_explorationParameter);
+    this->ct_score = new CarloScore(ct_explorationParameter, winValue, defeatValue, drawValue, unfinishedValue);
 
 	if (root == NULL)
 		this->ct_root = this;
@@ -37,6 +37,11 @@ CarloTree::CarloTree(Game * game, unsigned int team, CarloTree * root, CarloTree
 		this->ct_sonId = sonId;
 		this->ct_game = NULL;
 	}
+
+    this->ct_winValue = winValue;
+    this->ct_defeatValue = defeatValue;
+    this->ct_drawValue = drawValue;
+    this->ct_unfinishedValue = unfinishedValue;
 }
 
 CarloTree::~CarloTree(){
@@ -182,7 +187,7 @@ CarloTree * CarloTree::selectionAndExpansion(){
         selectedMoveOrRandomEvent = selected->pickAMoveOrARandomEvent(false);
 	}
 
-    CarloTree * newSon = new CarloTree(NULL, ct_team, this, selected, selectedMoveOrRandomEvent);
+    CarloTree * newSon = new CarloTree(NULL, ct_team, this, selected, selectedMoveOrRandomEvent, ct_winValue, ct_defeatValue, ct_drawValue, ct_unfinishedValue);
     selected->ct_sons.insert(pair<Coordinates, CarloTree *>(selectedMoveOrRandomEvent, newSon));
 
 	return newSon;
@@ -326,13 +331,17 @@ void CarloTree::display(){
 	cerr<<endl;
 }
 
-CarloScore::CarloScore(int explorationParameter){
+CarloScore::CarloScore(int explorationParameter, int winValue, int defeatValue, int drawValue, int unfinishedValue){
 	s_winNumber = 0;
 	s_drawNumber = 0;
 	s_defeatNumber = 0;
 	s_simulationNumber = 0;
 	s_unfinishedNumber = 0;
 	s_explorationParameter = explorationParameter;
+    s_winValue = winValue;
+    s_defeatValue = defeatValue;
+    s_drawValue = drawValue;
+    s_unfinishedValue = unfinishedValue;
 }
 
 void CarloScore::newSimulation(){
@@ -366,7 +375,7 @@ double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
         return std::numeric_limits<double>::max();
 	}
-    return ((double)(10 * s_winNumber + 2 * s_drawNumber + s_unfinishedNumber)/(double)(s_simulationNumber));
+    return ((double)(s_winValue * s_winNumber + s_drawValue * s_drawNumber + s_unfinishedValue * s_unfinishedNumber + s_defeatValue * s_defeatNumber)/(double)(s_simulationNumber));
 }
 
 unsigned int CarloScore::getSimulationNumber(){
