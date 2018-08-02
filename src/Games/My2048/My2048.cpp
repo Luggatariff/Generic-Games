@@ -214,7 +214,7 @@ void My2048::playMove(Coordinates coordinates, bool launchRandomEvents){
                 if (value == 0){
                     lastZeroIndex = i;
                 }
-                else if (lastValue == value && !alreadyFused[lastValueIndex]){
+                else if (lastValue == value && !alreadyFused[lastValueIndex] && !alreadyFused[i]){
                     line[lastValueIndex] = lastValue*2;
                     m_score += line[lastValueIndex];
                     alreadyFused[lastValueIndex] = true;
