@@ -5,18 +5,21 @@
 
 class My2048 : public Game
 {
-    static const unsigned int MY_2048_RANDOM_EVENT_LINE     = 0;
-    static const unsigned int MY_2048_RANDOM_EVENT_COLUMN   = 1;
-    static const unsigned int MY_2048_RANDOM_EVENT_VALUE    = 2;
-    static const unsigned int MY_2048_RANDOM_EVENT_DIMENSION= 3;
+public:
+    static const unsigned int MY_2048_SIDE                  = 4;
 
     static const unsigned int MY_2048_MOVE_LEFT             = 0;
     static const unsigned int MY_2048_MOVE_UP               = 1;
     static const unsigned int MY_2048_MOVE_RIGHT            = 2;
     static const unsigned int MY_2048_MOVE_DOWN             = 3;
-    static const unsigned int MY_2048_MOVE_DIMENSION        = 1;
 
-    static const unsigned int MY_2048_SIDE                  = 4;
+private:
+    static const unsigned int MY_2048_RANDOM_EVENT_LINE     = 0;
+    static const unsigned int MY_2048_RANDOM_EVENT_COLUMN   = 1;
+    static const unsigned int MY_2048_RANDOM_EVENT_VALUE    = 2;
+    static const unsigned int MY_2048_RANDOM_EVENT_DIMENSION= 3;
+
+    static const unsigned int MY_2048_MOVE_DIMENSION        = 1;
 
     Player *            m_player;
     bool                m_waitingForRandomEvents;
@@ -27,6 +30,7 @@ class My2048 : public Game
     unsigned int        m_score;
 
 public:
+
     My2048(Player * player, int winValue = 2048);
     ~My2048();
     Game * copy();
@@ -57,6 +61,7 @@ public:
     vector<Coordinates> lastMovesAndRandomEvents();
 
     void display(std::ostream & out);
+    vector<vector<unsigned int>> getValues();
 
     string getName();
 };

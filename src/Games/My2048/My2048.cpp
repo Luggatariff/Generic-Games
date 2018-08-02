@@ -216,6 +216,7 @@ void My2048::playMove(Coordinates coordinates, bool launchRandomEvents){
                 }
                 else if (lastValue == value && !alreadyFused[lastValueIndex]){
                     line[lastValueIndex] = lastValue*2;
+                    m_score += line[lastValueIndex];
                     alreadyFused[lastValueIndex] = true;
                     line[i] = 0;
                     break;
@@ -305,7 +306,35 @@ vector<Coordinates> My2048::lastMovesAndRandomEvents(){
     return m_last_moves;
 }
 
-void My2048::display(std::ostream & out){}
+void My2048::display(std::ostream & out){
+    for (unsigned int l = 0; l < MY_2048_SIDE; l++){
+        for (unsigned int c = 0; c < MY_2048_SIDE; c++){
+            unsigned int tempValue = m_values[l][c];
+            if (tempValue == 0){
+                tempValue = 1;
+            }
+            while (tempValue < 10000){
+                out<<" ";
+                tempValue *= 10;
+            }
+            out << m_values[l][c] << "|";
+        }
+        out << endl;
+    }
+    out << "Score: " << m_score << endl;
+}
+
+vector<vector<unsigned int>> My2048::getValues(){
+    vector<vector<unsigned int>> values;
+    for (unsigned int l = 0; l < MY_2048_SIDE; l++){
+        vector<unsigned int> line;
+        for (unsigned int c = 0; c < MY_2048_SIDE; c++){
+            line.push_back(m_values[l][c]);
+        }
+        values.push_back(line);
+    }
+    return values;
+}
 
 string My2048::getName(){
     return string("2048");
