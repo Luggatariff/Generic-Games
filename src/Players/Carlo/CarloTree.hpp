@@ -148,7 +148,6 @@ public:
 class CarloTree{
 private:
 	Game * 							ct_game;				/*!<Game associated to the node*/
-    vector<Coordinates>				ct_playableMovesOrRandomEvents;		/*!<Playable moves*/
 
 	unsigned int 					ct_team;				/*!<Team for which the CarloTree is playing*/
 
@@ -157,7 +156,6 @@ private:
 
 	map<Coordinates, CarloTree *>	ct_sons;				/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
 
-	CarloTree * 					ct_root;				/*!<Indicates CarloTree root*/
 	CarloTree * 					ct_father;				/*!<Indicates CarloTree father node*/
 	Coordinates 					ct_sonId;				/*!<Indactes one CarloTree son id for its father*/
 
@@ -226,7 +224,26 @@ private:
 	 * \brief gets unplayed moves for a node
 	 * \return unplayed moves
 	 */
-        vector<Coordinates> getUnplayedMovesOrRandomEvents();
+    vector<Coordinates> getUnplayedMovesOrRandomEvents();
+
+protected:
+    CarloTree * 		ct_root;                            /*!<Indicates CarloTree root*/
+    vector<Coordinates> ct_playableMovesOrRandomEvents;		/*!<Playable moves or random events*/
+
+    /*!
+     * \brief fills the list of random events or playable moves
+     * \param game : given Game
+     */
+    virtual void fillPlayableMovesOrRandomEvents(Game * game);
+
+    /*!
+     * \brief creates a choice Tree from a given Game and Team (used to create sons)
+     * \param game : given Game
+     * \param team : given team
+     * \param root : indicates CarloTree root
+     */
+    virtual CarloTree * createSon(Game * game, unsigned int team, CarloTree * root, CarloTree * father, Coordinates sonId, int winValue, int defeatValue, int drawValue, int unfinishedValue);
+
 public:
 	/*!
 	 * \brief creates a choice Tree from a given Game and Team

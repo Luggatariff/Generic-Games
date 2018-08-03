@@ -25,12 +25,7 @@ CarloTree::CarloTree(Game * game, unsigned int team, CarloTree * root, CarloTree
 	if (ct_root == this){
 		this->ct_father = NULL;
 		this->ct_game = game;
-        if (!game->waitingForRandomEvents()){
-            this->ct_playableMovesOrRandomEvents = game->playableMoves();
-        }
-        else{
-            this->ct_playableMovesOrRandomEvents = game->randomCoordinates();
-        }
+        fillPlayableMovesOrRandomEvents(game);
 	}
 	else{
 		this->ct_father = father;
@@ -200,20 +195,19 @@ CarloTree * CarloTree::selectionAndExpansion(){
         selectedMoveOrRandomEvent = selected->pickAMoveOrARandomEvent(false);
 	}
 
-    CarloTree * newSon = new CarloTree(NULL, ct_team, this, selected, selectedMoveOrRandomEvent, ct_winValue, ct_defeatValue, ct_drawValue, ct_unfinishedValue);
+    CarloTree * newSon = createSon(NULL, ct_team, this, selected, selectedMoveOrRandomEvent, ct_winValue, ct_defeatValue, ct_drawValue, ct_unfinishedValue);
     selected->ct_sons.insert(pair<Coordinates, CarloTree *>(selectedMoveOrRandomEvent, newSon));
 
 	return newSon;
 }
 
+CarloTree * CarloTree::createSon(Game * game, unsigned int team, CarloTree * root, CarloTree * father, Coordinates sonId, int winValue, int defeatValue, int drawValue, int unfinishedValue){
+    return new CarloTree(game, team, root, father, sonId, winValue, defeatValue, drawValue, unfinishedValue);
+}
+
 void CarloTree::simulation(){
 	Game * game = getGameCopy();
-    if (!game->waitingForRandomEvents()){
-        ct_playableMovesOrRandomEvents = game->playableMoves();
-    }
-    else{
-        ct_playableMovesOrRandomEvents = game->randomCoordinates();
-    }
+    fillPlayableMovesOrRandomEvents(game);
 	ct_score->newSimulation();
     ct_score->setGameScore(game->score(ct_team));
 	if (game->isEnded() == true){
@@ -232,6 +226,15 @@ void CarloTree::simulation(){
 		ct_score->newUnfinished();
 	}
 	delete game;
+}
+
+void CarloTree::fillPlayableMovesOrRandomEvents(Game * game){
+    if (!game->waitingForRandomEvents()){
+        ct_playableMovesOrRandomEvents = game->playableMoves();
+    }
+    else{
+        ct_playableMovesOrRandomEvents = game->randomCoordinates();
+    }
 }
 
 void CarloTree::backPropagation(){

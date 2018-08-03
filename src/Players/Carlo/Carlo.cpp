@@ -53,12 +53,16 @@ Coordinates Carlo::play(Game * game , vector<Coordinates> limit_choices){
     }
 
     if (c_tree == NULL){
-        c_tree = new CarloTree(game->copy(), c_team, NULL, NULL, Coordinates(0), c_winValue, c_defeatValue, c_drawValue, c_unfinishedValue);
+        newCarloTree(game);
     }
 
     c_lastMovesAndRandomEvents = last_moves_and_random_events;
 
     return c_tree->getBestMove(c_maxSimulationNumber);
+}
+
+void Carlo::newCarloTree(Game * game){
+    c_tree = new CarloTree(game->copy(), c_team, NULL, NULL, Coordinates(0), c_winValue, c_defeatValue, c_drawValue, c_unfinishedValue);
 }
 
 string Carlo::getName(){
