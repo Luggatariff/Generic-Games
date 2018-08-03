@@ -34,6 +34,7 @@ public:
 	 */
     Carlo(string name, unsigned int teamId, unsigned int maxSimulationNumber, int winValue = 10, int defeatValue = 0, int drawValue = 2, int unfinishedValue = 1, bool displayTree = false);
 
+    void setMaxSimulationNumber(unsigned int maxSimulationNumber);
 	void start(Game * game);
 	void end(Game * game);
 	Coordinates play(Game * game, vector<Coordinates> limit_choices = vector<Coordinates>());

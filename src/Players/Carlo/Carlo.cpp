@@ -23,6 +23,10 @@ Carlo::Carlo(string name, unsigned int teamId, unsigned int maxSimulationNumber,
     c_unfinishedValue = unfinishedValue;
 }
 
+void Carlo::setMaxSimulationNumber(unsigned int maxSimulationNumber){
+    c_maxSimulationNumber = maxSimulationNumber;
+}
+
 void Carlo::start(Game * game){
     if (c_tree != NULL){
         delete c_tree;
