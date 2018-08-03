@@ -27,14 +27,20 @@ class CarloScore{
 	unsigned int	s_unfinishedNumber;				/*!<Number of unfinished games for this node and its children*/
 	int				s_explorationParameter;			/*!<Coefficient giving the importance of expanding the tree*/
 
-    int             s_winValue;
-    int             s_defeatValue;
-    int             s_drawValue;
-    int             s_unfinishedValue;
+    int             s_gameScore;                    /*!<Score given by the Game instance*/
+
+    int             s_winValue;                     /*!<Value of a victory in the score computation*/
+    int             s_defeatValue;                  /*!<Value of a defeat in the score computation*/
+    int             s_drawValue;                    /*!<Value of a draw game in the score computation*/
+    int             s_unfinishedValue;              /*!<Value of a unfinished game in the score computation*/
 public:
 	/*!
 	 * \brief Score constructor, from an exploration parameter
 	 * \param explorationParameter : Score exploration parameter
+     * \param winValue : Value of a victory in the score computation
+     * \param defeatValue : Value of a defeat in the score computation
+     * \param drawValue : Value of a draw game in the score computation
+     * \param unfinishedValue : Value of a unfinished game in the score computation
 	 */
     CarloScore(int explorationParameter, int winValue, int defeatValue, int drawValue, int unfinishedValue);
 
@@ -123,6 +129,16 @@ public:
 	 * \brief cancels the given number of defeats and replaces it by wins
 	 */
 	void cancelDefeats(unsigned int defeatsToCancel);
+
+    /*!
+     * \brief sets the Game Score (score given par the Game instance)
+     */
+    void setGameScore(int gameScore);
+
+    /*!
+     * \brief gets the Game Score (score given par the Game instance)
+     */
+    int getGameScore();
 };
 
 /*!
@@ -132,7 +148,7 @@ public:
 class CarloTree{
 private:
 	Game * 							ct_game;				/*!<Game associated to the node*/
-        vector<Coordinates>				ct_playableMovesOrRandomEvents;		/*!<Playable moves*/
+    vector<Coordinates>				ct_playableMovesOrRandomEvents;		/*!<Playable moves*/
 
 	unsigned int 					ct_team;				/*!<Team for which the CarloTree is playing*/
 
@@ -147,10 +163,10 @@ private:
 
 	bool							ct_isExpandable;		/*!<Indicates if a node and all its sons can be expandable*/
 
-    int                             ct_winValue;
-    int                             ct_defeatValue;
-    int                             ct_drawValue;
-    int                             ct_unfinishedValue;
+    int                             ct_winValue;            /*!<Value of a victory in the score computation*/
+    int                             ct_defeatValue;         /*!<Value of a defeat in the score computation*/
+    int                             ct_drawValue;           /*!<Value of a draw game in the score computation*/
+    int                             ct_unfinishedValue;     /*!<Value of a unfinished game in the score computation*/
 
 	/*!
 	 * \brief selects the best leaf to expand

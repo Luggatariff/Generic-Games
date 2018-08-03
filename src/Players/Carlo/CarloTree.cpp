@@ -143,21 +143,34 @@ Coordinates CarloTree::pickAMoveOrARandomEvent(bool finalComputation){
 		else{
 			double bestScore;
 			bool bestScoreNotComputed = true;
+            int bestGameScore;
+            bool bestGameScoreNotDefined = true;
 			for(map<Coordinates, CarloTree *>::iterator son_iterator = ct_sons.begin(); son_iterator != ct_sons.end(); ++son_iterator){
 				if (son_iterator->second->ct_isExpandable || finalComputation){
 					double score;
-					if (finalComputation)
-						score = son_iterator->second->ct_score->computeFinalScore();
+                    if (finalComputation){
+                        score = son_iterator->second->ct_score->computeFinalScore();
+                    }
 					else{
 						score = son_iterator->second->ct_score->computeScore(ct_score->getSimulationNumber());
 					}
+                    int gameScore = son_iterator->second->ct_score->getGameScore();
+
 					if (bestScoreNotComputed || score > bestScore){
-						bestMoves.clear();
+                        bestMoves.clear();
 						bestScore = score;
 						bestScoreNotComputed = false;
+                        bestGameScoreNotDefined = true;
 					}
 					if (score == bestScore){
-						bestMoves.push_back(son_iterator->first);
+                        if (bestGameScoreNotDefined || gameScore > bestGameScore){
+                            bestMoves.clear();
+                            bestGameScore = gameScore;
+                            bestGameScoreNotDefined = false;
+                        }
+                        if (gameScore == bestGameScore){
+                            bestMoves.push_back(son_iterator->first);
+                        }
 					}
 				}
 			}
@@ -202,6 +215,7 @@ void CarloTree::simulation(){
         ct_playableMovesOrRandomEvents = game->randomCoordinates();
     }
 	ct_score->newSimulation();
+    ct_score->setGameScore(game->score(ct_team));
 	if (game->isEnded() == true){
 		ct_isExpandable = false;
 		if (game->isWinner(ct_team)){
@@ -225,6 +239,7 @@ void CarloTree::backPropagation(){
 	int draw = ct_score->getDrawNumber();
 	int defeat = ct_score->getDefeatNumber();
 	int unfinished = ct_score->getUnfinishedNumber();
+    int gameScore = ct_score->getGameScore();
 
 	bool sonIsExpandable = ct_isExpandable;
 	CarloTree * father = ct_father;
@@ -239,6 +254,9 @@ void CarloTree::backPropagation(){
 	bool firstFather = true;
 	while (father != NULL){
 		father->ct_score->newSimulation();
+        if (father->ct_score->getGameScore() > gameScore){
+            father->ct_score->setGameScore(gameScore);
+        }
 		if (win > 0){
 			father->ct_score->newWin();
 			if (firstFather){
@@ -426,4 +444,12 @@ void CarloScore::cancelUnfinished(unsigned int unfinishedToCancel, bool replaceW
 void CarloScore::cancelDefeats(unsigned int defeatsToCancel){
 	s_defeatNumber -= defeatsToCancel;
 	s_winNumber += defeatsToCancel;
+}
+
+void CarloScore::setGameScore(int gameScore){
+    s_gameScore = gameScore;
+}
+
+int CarloScore::getGameScore(){
+    return s_gameScore;
 }
