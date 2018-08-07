@@ -27,6 +27,22 @@ void Carlo::setMaxSimulationNumber(unsigned int maxSimulationNumber){
     c_maxSimulationNumber = maxSimulationNumber;
 }
 
+void Carlo::setWinValue(int winValue){
+    c_winValue = winValue;
+}
+
+void Carlo::setDefeatValue(int defeatValue){
+    c_defeatValue = defeatValue;
+}
+
+void Carlo::setDrawValue(int drawValue){
+    c_drawValue = drawValue;
+}
+
+void Carlo::setUnfinishedValue(int unfinishedValue){
+    c_unfinishedValue = unfinishedValue;
+}
+
 void Carlo::start(Game * game){
     if (c_tree != NULL){
         delete c_tree;
