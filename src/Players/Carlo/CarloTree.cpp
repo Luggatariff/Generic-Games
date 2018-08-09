@@ -257,7 +257,7 @@ void CarloTree::backPropagation(){
 	bool firstFather = true;
 	while (father != NULL){
 		father->ct_score->newSimulation();
-        if (father->ct_score->getGameScore() > gameScore){
+        if (father->ct_score->getGameScore() < gameScore){
             father->ct_score->setGameScore(gameScore);
         }
 		if (win > 0){

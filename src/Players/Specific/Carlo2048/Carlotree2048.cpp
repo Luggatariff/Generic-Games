@@ -25,67 +25,65 @@ void CarloTree2048::fillPlayableMovesOrRandomEvents(Game * game){
         ct_playableMovesOrRandomEvents = playableMoves;
 
         vector<Coordinates> passedHighPositions;
-        vector<Coordinates> nextHighPositions;
-        Coordinates nextHighPosition(2);
-        nextHighPosition[0] = My2048::MY_2048_SIDE - 1;
-        nextHighPosition[1] = My2048::MY_2048_SIDE - 1;
-        nextHighPositions.push_back(nextHighPosition);
-
-        unsigned int oldMaxHighPositionValue = 0;
-        bool firstIteration = true;
-        int increment = -1;
+        Coordinates highPosition(2);
+        highPosition[0] = My2048::MY_2048_SIDE - 1;
+        highPosition[1] = My2048::MY_2048_SIDE - 1;
         do{
-            Coordinates highPosition = nextHighPositions.back();
-            nextHighPositions.pop_back();
+            playableMoves = ct_playableMovesOrRandomEvents;
+            ct_playableMovesOrRandomEvents.clear();
 
-            unsigned int maxHighPositionValue = 0;
-            bool maxHighPositionValueDefined = false;
             for (vector<Coordinates>::iterator it = playableMoves.begin(); it != playableMoves.end(); ++it){
                 Game * moveGame = playableMovesGames.at(*it);
                 vector<vector<unsigned int>> values = ((My2048 *)moveGame)->getValues();
 
                 unsigned int highPositionValue = values[highPosition[0]][highPosition[1]];
-                if (highPositionValue > maxHighPositionValue){
-                    ct_playableMovesOrRandomEvents.clear();
-                    maxHighPositionValue = highPositionValue;
-                    maxHighPositionValueDefined = true;
+                bool isHighestValue = true;
+                if (highPositionValue > 0){
+                    for (unsigned int line = 0; line < values.size(); ++line){
+                        vector<unsigned int> lineValues = values[line];
+                        for (unsigned int column = 0; column < lineValues.size(); ++column){
+                            Coordinates position(2);
+                            position[0] = line;
+                            position[1] = column;
+                            if (find(passedHighPositions.begin(), passedHighPositions.end(), position) == passedHighPositions.end()){
+                                unsigned int value = values[line][column];
+                                if (value > highPositionValue){
+                                    isHighestValue = false;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!isHighestValue){
+                            break;
+                        }
+                    }
                 }
-                if (maxHighPositionValue == highPositionValue && maxHighPositionValueDefined){
+                else{
+                    isHighestValue = false;
+                }
+
+                if (isHighestValue){
                      ct_playableMovesOrRandomEvents.push_back(*it);
                 }
             }
-            playableMoves = ct_playableMovesOrRandomEvents;
 
-            if (firstIteration || maxHighPositionValue <= oldMaxHighPositionValue){
-                passedHighPositions.push_back(highPosition);
-                Coordinates neighbor = highPosition;
-                if ((increment < 0 && neighbor[1] > 0) || (increment > 0 && neighbor[1] < (My2048::MY_2048_SIDE - 1))){
-                    neighbor[1] += increment;
-                }
-                else{
-                    neighbor[0]--;
-                    increment *= -1;
-                }
-                if (find(passedHighPositions.begin(), passedHighPositions.end(), neighbor) == passedHighPositions.end()){
-                    nextHighPositions.insert(nextHighPositions.begin(), neighbor);
-                }
+            passedHighPositions.push_back(highPosition);
+            if (highPosition[1] > 0){
+                highPosition[1]--;
             }
             else{
                 break;
             }
-            oldMaxHighPositionValue = maxHighPositionValue;
-            firstIteration = false;
         }
-        while (ct_playableMovesOrRandomEvents.size() > 1 && !nextHighPositions.empty());
-
-        for (map<Coordinates, Game *>::iterator it = playableMovesGames.begin(); it != playableMovesGames.end(); ++it){
-           delete it->second;
-        }
+        while (ct_playableMovesOrRandomEvents.size() > 1);
 
         if (ct_playableMovesOrRandomEvents.empty()){
             ct_playableMovesOrRandomEvents = playableMoves;
         }
 
+        for (map<Coordinates, Game *>::iterator it = playableMovesGames.begin(); it != playableMovesGames.end(); ++it){
+           delete it->second;
+        }
     }
     else{
         ct_playableMovesOrRandomEvents = game->randomCoordinates();
