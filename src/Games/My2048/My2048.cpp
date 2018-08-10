@@ -269,6 +269,7 @@ vector<Coordinates> My2048::randomCoordinates(){
     int columnIndex = MY_2048_RANDOM_EVENT_COLUMN;
     int valueIndex = MY_2048_RANDOM_EVENT_VALUE;
 
+    bool breakIt = false;
     for (unsigned int l = 0; l < MY_2048_SIDE; l++){
         for (unsigned int c = 0; c < MY_2048_SIDE; c++){
             if (m_values[l][c] == 0){
@@ -277,11 +278,16 @@ vector<Coordinates> My2048::randomCoordinates(){
                 coordinates[lineIndex] = l;
                 coordinates[columnIndex] = c;
 
-                coordinates[valueIndex] = 2;
-                randomCoordinates.push_back(coordinates);
                 coordinates[valueIndex] = 4;
                 randomCoordinates.push_back(coordinates);
+                breakIt = true;
+                break;
+                coordinates[valueIndex] = 2;
+                randomCoordinates.push_back(coordinates);
             }
+        }
+        if (breakIt){
+            break;
         }
     }
     return randomCoordinates;
