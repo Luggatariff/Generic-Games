@@ -20,7 +20,7 @@ using namespace std;
  * \brief representing a Score in the CarloTree
  */
 class CarloScore{
-	unsigned int 	s_simulationNumber;				/*!<Number of simulations made for this node and its children*/
+    unsigned int 	s_simulationNumber;				/*!<Number of simulations made for this node and its children*/
 	unsigned int	s_winNumber;					/*!<Number of wins for this nodes and its children*/
 	unsigned int	s_drawNumber;					/*!<Number of draws for this nodes and its children*/
 	unsigned int	s_defeatNumber;					/*!<Number of defeats for this nodes and its children*/
@@ -47,12 +47,12 @@ public:
 	/*!
 	 * \brief gets score computed value
 	 */
-	double computeScore(int totalSimulations);
+    double computeScore(int totalSimulations);
 
 	/*!
 	 * \brief compute the final score without exploration parameter
 	 */
-	double computeFinalScore();
+    virtual double computeFinalScore();
 
 	/*!
 	 * \brief increases SimulationNumber
@@ -151,9 +151,6 @@ private:
 
 	unsigned int 					ct_team;				/*!<Team for which the CarloTree is playing*/
 
-	CarloScore * 					ct_score;				/*!<CarloTree node Score*/
-	int								ct_explorationParameter;/*!<Exploration parameter for score computation*/
-
 	map<Coordinates, CarloTree *>	ct_sons;				/*!<Map of sons, identified by the Coordinates of the move between this Game and the father's Game*/
 
 	CarloTree * 					ct_father;				/*!<Indicates CarloTree father node*/
@@ -227,6 +224,9 @@ private:
     vector<Coordinates> getUnplayedMovesOrRandomEvents();
 
 protected:
+    CarloScore * 		ct_score;                           /*!<CarloTree node Score*/
+    int					ct_explorationParameter;            /*!<Exploration parameter for score computation*/
+
     CarloTree * 		ct_root;                            /*!<Indicates CarloTree root*/
     vector<Coordinates> ct_playableMovesOrRandomEvents;		/*!<Playable moves or random events*/
 
@@ -243,6 +243,10 @@ protected:
      * \param root : indicates CarloTree root
      */
     virtual CarloTree * createSon(Game * game, unsigned int team, CarloTree * root, CarloTree * father, Coordinates sonId, int winValue, int defeatValue, int drawValue, int unfinishedValue);
+
+    virtual void customSimulation(Game * game);
+
+    virtual void customBackPropagation(CarloTree * ancestor);
 
 public:
 	/*!
@@ -274,6 +278,8 @@ public:
 	 * \brief displays the Tree
 	 */
 	void display();
+
+    CarloScore * getScore();
 };
 
 #endif

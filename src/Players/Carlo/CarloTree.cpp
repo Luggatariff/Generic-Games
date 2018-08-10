@@ -225,8 +225,11 @@ void CarloTree::simulation(){
 	else{
 		ct_score->newUnfinished();
 	}
+    customSimulation(game);
 	delete game;
 }
+
+void CarloTree::customSimulation(Game * game){}
 
 void CarloTree::fillPlayableMovesOrRandomEvents(Game * game){
     if (!game->waitingForRandomEvents()){
@@ -313,9 +316,16 @@ void CarloTree::backPropagation(){
 			}
 			sonIsExpandable = father->ct_isExpandable;
 		}
+        customBackPropagation(father);
 		father = father->ct_father;
 		firstFather = false;
 	}
+}
+
+void CarloTree::customBackPropagation(CarloTree * ancestor){}
+
+CarloScore * CarloTree::getScore(){
+    return ct_score;
 }
 
 void CarloTree::setAsRoot(){
