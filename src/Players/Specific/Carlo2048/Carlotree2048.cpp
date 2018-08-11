@@ -43,7 +43,7 @@ void CarloTree2048::fillPlayableMovesOrRandomEvents(Game * game){
 }
 
 void CarloTree2048::customSimulation(Game * game){
-    vector<vector<unsigned int>> values = ((My2048 *)game)->getValues();
+    vector<vector<unsigned int> > values = ((My2048 *)game)->getValues();
 
     bool isAnIsolatedValue = false;
     for (unsigned int line = 0; line < values.size(); ++line){

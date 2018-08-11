@@ -61,7 +61,7 @@ int My2048::score(unsigned int team_id){
     return score;
 }
 int My2048::victoryScore(){
-    return std::numeric_limits<int>::max();
+    return INT_MAX;
 }
 
 void My2048::start(){
@@ -324,8 +324,8 @@ void My2048::display(std::ostream & out){
     out << "Score: " << m_score << endl;
 }
 
-vector<vector<unsigned int>> My2048::getValues(){
-    vector<vector<unsigned int>> values;
+vector<vector<unsigned int> > My2048::getValues(){
+    vector<vector<unsigned int> > values;
     for (unsigned int l = 0; l < MY_2048_SIDE; l++){
         vector<unsigned int> line;
         for (unsigned int c = 0; c < MY_2048_SIDE; c++){

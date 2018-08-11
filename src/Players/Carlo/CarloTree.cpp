@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <math.h>
+#include <float.h>
 
 CarloTree::CarloTree(Game * game, unsigned int team, CarloTree * root, CarloTree * father, Coordinates sonId, int winValue, int defeatValue, int drawValue, int unfinishedValue){
 	this->ct_team = team;
@@ -397,14 +398,14 @@ void CarloScore::newUnfinished(){
 
 double CarloScore::computeScore(int totalSimulations){
 	if (s_simulationNumber == 0){
-        return std::numeric_limits<double>::max();
+        return DBL_MAX;
 	}
 	return computeFinalScore() + (double)s_explorationParameter*sqrt(log((double)totalSimulations)/(double)s_simulationNumber);
 }
 
 double CarloScore::computeFinalScore(){
 	if (s_simulationNumber == 0){
-        return std::numeric_limits<double>::max();
+        return DBL_MAX;
 	}
     return ((double)(s_winValue * s_winNumber + s_drawValue * s_drawNumber + s_unfinishedValue * s_unfinishedNumber + s_defeatValue * s_defeatNumber)/(double)(s_simulationNumber));
 }

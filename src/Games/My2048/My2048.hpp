@@ -61,7 +61,7 @@ public:
     vector<Coordinates> lastMovesAndRandomEvents();
 
     void display(std::ostream & out);
-    vector<vector<unsigned int>> getValues();
+    vector<vector<unsigned int> > getValues();
 
     string getName();
 };
