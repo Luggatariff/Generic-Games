@@ -52,34 +52,31 @@ void CarloTree2048::customSimulation(Game * game){
             unsigned int value = values[line][column];
 
             if (value > 0){
-                if (!isAnIsolatedValue){
-                    bool isIsolatedValue = true;
-                    for (unsigned int neighborLine = (line == 0 ? line : line - 1); neighborLine <= (line == My2048::MY_2048_SIDE - 1 ? line : line + 1); ++neighborLine){
-                        for (unsigned int neighborColumn = (column == 0 ? column : column - 1); neighborColumn <= (column == My2048::MY_2048_SIDE - 1 ? column : column + 1); ++neighborColumn){
-                            if ((neighborLine == line) != (neighborColumn == column)){
-                               unsigned int neighborValue = values[neighborLine][neighborColumn];
-                               if (neighborValue <= value){
-                                   isIsolatedValue = false;
-                                   break;
+                bool isIsolatedValue = true;
+                for (unsigned int neighborLine = (line == 0 ? line : line - 1); neighborLine <= (line == My2048::MY_2048_SIDE - 1 ? line : line + 1); ++neighborLine){
+                    for (unsigned int neighborColumn = (column == 0 ? column : column - 1); neighborColumn <= (column == My2048::MY_2048_SIDE - 1 ? column : column + 1); ++neighborColumn){
+                        if ((neighborLine == line) != (neighborColumn == column)){
+                           unsigned int neighborValue = values[neighborLine][neighborColumn];
+                           if (neighborValue <= value){
+                               isIsolatedValue = false;
+                               if (neighborValue == value){
+                                  ((CarloScore2048 *)ct_score)->newHeuristic(1);
                                }
-                            }
-                        }
-                        if (!isIsolatedValue){
-                            break;
+                           }
                         }
                     }
-                    if (isIsolatedValue){
-                        isAnIsolatedValue = true;
-                    }
-               }
+                }
+                if (isIsolatedValue){
+                    isAnIsolatedValue = true;
+                }
             }
             else{
-                ((CarloScore2048 *)ct_score)->newHeuristic(1);
+                ((CarloScore2048 *)ct_score)->newHeuristic(3);
             }
         }
     }
     if (!isAnIsolatedValue){
-        ((CarloScore2048 *)ct_score)->newHeuristic(1);
+        ((CarloScore2048 *)ct_score)->newHeuristic(5);
     }
 
 
